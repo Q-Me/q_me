@@ -4,7 +4,8 @@ import '../api/base_helper.dart';
 import '../model/queue.dart';
 
 class QueuesBloc {
-  QueuesRepository _queuesRepository;
+  String subscriberId, queueStatus;
+  QueuesListRepository _queuesRepository;
 
   StreamController _queuesListController;
 
@@ -13,19 +14,17 @@ class QueuesBloc {
 
   Stream<ApiResponse<List<Queue>>> get queuesListStream =>
       _queuesListController.stream;
-  String subscriberId;
-  QueuesBloc(String subscriberId, String status) {
-    subscriberId = subscriberId;
+  QueuesBloc(this.subscriberId, this.queueStatus) {
     _queuesListController = StreamController<ApiResponse<List<Queue>>>();
-    _queuesRepository = QueuesRepository();
-    fetchQueuesList(status);
+    _queuesRepository = QueuesListRepository();
+    fetchQueuesList();
   }
 
-  fetchQueuesList(String status) async {
-    queuesListSink.add(ApiResponse.loading('Fetching $status Queues'));
+  fetchQueuesList() async {
+    queuesListSink.add(ApiResponse.loading('Fetching $queueStatus Queues'));
     try {
       List<Queue> queues =
-          await _queuesRepository.fetchQueueList(subscriberId, status);
+          await _queuesRepository.fetchQueueList(subscriberId, queueStatus);
       queuesListSink.add(ApiResponse.completed(queues));
     } catch (e) {
       queuesListSink.add(ApiResponse.error(e.toString()));

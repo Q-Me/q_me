@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         BookingScreen.id: (BuildContext context) => BookingScreen(),
         TokenPage.id: (BuildContext context) => TokenPage(),
       },
-      initialRoute: BookingScreen.id,
+      initialRoute: NearbyScreen.id,
     );
   }
 }

@@ -10,6 +10,8 @@ import '../widgets/CustomIcons.dart';
 import '../widgets/text.dart';
 import '../api/base_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../widgets/loader.dart';
+import '../widgets/error.dart';
 
 class MyAppBar extends StatelessWidget {
   @override
@@ -350,9 +352,9 @@ class SubscriberTile extends StatelessWidget {
 }
 
 class SubscriberGridTile extends StatelessWidget {
-  final Subscriber data;
+  final Subscriber subscriberData;
   final int index;
-  SubscriberGridTile({this.data, this.index});
+  SubscriberGridTile({this.subscriberData, this.index});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -363,8 +365,12 @@ class SubscriberGridTile extends StatelessWidget {
           bottom: 5),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, BookingScreen.id,
-              arguments: {'id': data.id});
+          log('Going to id:${subscriberData.id}');
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookingScreen(subscriber: subscriberData),
+              ));
         },
         child: Container(
           decoration: BoxDecoration(
@@ -395,14 +401,14 @@ class SubscriberGridTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Container(
-                          child: Text(data.name,
+                          child: Text(subscriberData.name,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 20)),
                         ),
                         SizedBox(height: 8),
-                        Text(data.owner,
+                        Text(subscriberData.owner,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w400,
@@ -578,25 +584,17 @@ class _NearbyScreenState extends State<NearbyScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       SizedBox(width: 20),
-                      Icon(
-                        CustomIcons.menu,
-                        size: 32,
-                        color: Colors.white,
-                      ),
+                      Icon(CustomIcons.menu, size: 32, color: Colors.white),
                       Spacer(),
-                      Text(
-                        "Q Me",
-                        style: TextStyle(fontSize: 30, color: Colors.white),
-                      ),
+                      Text("Q Me",
+                          style: TextStyle(fontSize: 30, color: Colors.white)),
                       Spacer(),
                       Icon(
                         Icons.refresh,
                         size: 32,
                         color: Colors.white,
                       ),
-                      SizedBox(
-                        width: 10,
-                      ),
+                      SizedBox(width: 10),
                       Icon(
                         Icons.more_vert,
                         size: 32,
@@ -666,74 +664,12 @@ class SubscriberList extends StatelessWidget {
       shrinkWrap: true,
       gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-      itemBuilder: (context, index) =>
-          SubscriberGridTile(data: subscriberList[index], index: index),
+      itemBuilder: (context, index) => SubscriberGridTile(
+          subscriberData: subscriberList[index], index: index),
     );
   }
 }
 
-class Error extends StatelessWidget {
-  final String errorMessage;
-
-  final Function onRetryPressed;
-
-  const Error({Key key, this.errorMessage, this.onRetryPressed})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            errorMessage,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.lightGreen,
-              fontSize: 18,
-            ),
-          ),
-          SizedBox(height: 8),
-          RaisedButton(
-            color: Colors.lightGreen,
-            child: Text('Retry', style: TextStyle(color: Colors.white)),
-            onPressed: onRetryPressed,
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class Loading extends StatelessWidget {
-  final String loadingMessage;
-
-  const Loading({Key key, this.loadingMessage}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            loadingMessage,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.lightGreen,
-              fontSize: 24,
-            ),
-          ),
-          SizedBox(height: 24),
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.lightGreen),
-          ),
-        ],
-      ),
-    );
-  }
-}
 /*
 class SubscriberGridTile extends StatelessWidget {
   final Subscriber data;

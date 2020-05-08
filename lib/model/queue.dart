@@ -5,18 +5,8 @@ import 'token.dart';
 Queues queuesFromJson(String str) => Queues.fromJson(json.decode(str));
 
 Duration durationFromString(String s) {
-  int hours = 0;
-  int minutes = 0;
-  int micros;
-  List<String> parts = s.split(':');
-  if (parts.length > 2) {
-    hours = int.parse(parts[parts.length - 3]);
-  }
-  if (parts.length > 1) {
-    minutes = int.parse(parts[parts.length - 2]);
-  }
-  micros = (double.parse(parts[parts.length - 1]) * 1000000).round();
-  return Duration(hours: hours, minutes: minutes, microseconds: micros);
+  List<int> parts = s.split(':').map(int.parse).toList();
+  return Duration(hours: parts[0], minutes: parts[1]);
 }
 
 class Queues {
@@ -71,8 +61,12 @@ class Queue {
         lastIssuedToken: json["last_issued_token"],
         lastUpdate: DateTime.parse(json["last_update"]),
         totalIssuedTokens: json["total_issued_tokens"],
-        subscriber: Subscriber.fromJson(json["subscriber"]),
-        eta: durationFromString(json["ETA"]),
-        token: QueueToken.fromJson(json["token"]),
+        subscriber: json["subscriber"] != null
+            ? Subscriber.fromJson(json["subscriber"])
+            : Subscriber(),
+        eta: json["ETA"] != null ? durationFromString(json["ETA"]) : Duration(),
+        token: json["token"] != null
+            ? QueueToken.fromJson(json["token"])
+            : QueueToken(),
       );
 }

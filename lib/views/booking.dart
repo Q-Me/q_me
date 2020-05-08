@@ -1,13 +1,20 @@
 import 'dart:collection';
 import 'package:intl/intl.dart';
-
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../api/base_helper.dart';
+import '../widgets/loader.dart';
+import '../model/subscriber.dart';
 import '../model/queue.dart';
+import '../bloc/queue.dart';
+import '../widgets/error.dart';
 
 import '../constants.dart';
 
 class BookingScreen extends StatefulWidget {
+  final Subscriber subscriber;
+  BookingScreen({this.subscriber});
   static String id = 'booking';
   @override
   _BookingScreenState createState() => _BookingScreenState();
@@ -17,24 +24,30 @@ class _BookingScreenState extends State<BookingScreen> {
   double get w => MediaQuery.of(context).size.width;
   double get h => MediaQuery.of(context).size.height;
   final double appBarOffset = 10;
-  List<Queue> queues = [];
+
+  QueuesBloc _bloc;
+  String queueStatus = 'UPCOMING';
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    queues = queuesFromJson(jsonString).queue;
+    _bloc = QueuesBloc(widget.subscriber.id, queueStatus);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_bloc == null) {
+      _bloc = QueuesBloc(widget.subscriber.id, queueStatus);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final Map arguments = ModalRoute.of(context).settings.arguments as Map;
-    if (arguments != null) print('Recieved id is ${arguments['id']}');
-
     return Scaffold(
       backgroundColor: Colors.green,
       body: SafeArea(
         child: Column(
-//              mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Container(
               padding: EdgeInsets.symmetric(
@@ -64,13 +77,43 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 child: Column(
                   children: <Widget>[
-                    HeaderInfo(),
-                    Expanded(
-                      child: ListView.builder(
-                          itemCount: queues.length,
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) =>
-                              QueueItem(queues[index])),
+                    HeaderInfo(
+                      subscriber: widget.subscriber,
+                    ),
+                    Flexible(
+                      child: RefreshIndicator(
+                        // WIDGET bug https://github.com/flutter/flutter/issues/34990
+                        onRefresh: () => _bloc.fetchQueuesList(),
+                        child: StreamBuilder<ApiResponse<List<Queue>>>(
+                          // Bug in rendering due to late api response
+                          // Bug fix https://github.com/flutter/flutter/issues/16465#issuecomment-493698128
+                          initialData: ApiResponse.completed([]),
+                          stream: _bloc.queuesListStream,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              switch (snapshot.data.status) {
+                                case Status.LOADING:
+                                  return Loading(
+                                      loadingMessage: snapshot.data.message);
+                                  break;
+                                case Status.COMPLETED:
+                                  return QueuesDisplay(snapshot.data.data);
+                                  break;
+                                case Status.ERROR:
+                                  return Error(
+                                    errorMessage: snapshot.data.message,
+                                    onRetryPressed: () =>
+                                        _bloc.fetchQueuesList(),
+                                  );
+                                  break;
+                              }
+                            } else {
+                              log('no Snapshot data');
+                            }
+                            return Container();
+                          },
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -82,117 +125,6 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 }
-
-final String jsonString = '''
-{
-    "queue":[
-        {
-            "queue_id":"CFBIpLGW3",
-            "start_date_time":"2020-05-01T00:36:00.000Z",
-            "end_date_time":"2020-05-01T09:30:00.000Z",
-            "max_allowed":100,
-            "avg_time_on_counter":3,
-            "status":"ACTIVE",
-            "current_token":2,
-            "last_issued_token":4,
-            "last_update":"2020-05-01T01:24:41.000Z",
-            "total_issued_tokens":4,
-            "subscriber":{
-                "id":"YICeXFgnt",
-                "name":"S3",
-                "owner":"Kavya",
-                "email":"S3@gmail.com",
-                "phone":"9898009900"
-            },
-            "ETA":"00:03",
-            "token":{
-                "token_no":4,
-                "status":"WAITING",
-                "subscriber_id":"YICeXFgnt",
-                "ahead":1
-            }
-        },
-        {
-            "queue_id":"CFBIpLGW3",
-            "start_date_time":"2020-05-01T00:36:00.000Z",
-            "end_date_time":"2020-05-01T09:30:00.000Z",
-            "max_allowed":100,
-            "avg_time_on_counter":3,
-            "status":"ACTIVE",
-            "current_token":2,
-            "last_issued_token":4,
-            "last_update":"2020-05-01T01:24:41.000Z",
-            "total_issued_tokens":4,
-            "subscriber":{
-                "id":"YICeXFgnt",
-                "name":"S3",
-                "owner":"Kavya",
-                "email":"S3@gmail.com",
-                "phone":"9898009900"
-            },
-            "ETA":"00:03",
-            "token":{
-                "token_no":4,
-                "status":"WAITING",
-                "subscriber_id":"YICeXFgnt",
-                "ahead":1
-            }
-        },
-        {
-            "queue_id":"CFBIpLGW3",
-            "start_date_time":"2020-05-01T00:36:00.000Z",
-            "end_date_time":"2020-05-01T09:30:00.000Z",
-            "max_allowed":100,
-            "avg_time_on_counter":3,
-            "status":"ACTIVE",
-            "current_token":2,
-            "last_issued_token":4,
-            "last_update":"2020-05-01T01:24:41.000Z",
-            "total_issued_tokens":4,
-            "subscriber":{
-                "id":"YICeXFgnt",
-                "name":"S3",
-                "owner":"Kavya",
-                "email":"S3@gmail.com",
-                "phone":"9898009900"
-            },
-            "ETA":"00:03",
-            "token":{
-                "token_no":4,
-                "status":"WAITING",
-                "subscriber_id":"YICeXFgnt",
-                "ahead":1
-            }
-        },
-        {
-            "queue_id":"CFBIpLGW3",
-            "start_date_time":"2020-05-01T00:36:00.000Z",
-            "end_date_time":"2020-05-01T09:30:00.000Z",
-            "max_allowed":100,
-            "avg_time_on_counter":3,
-            "status":"ACTIVE",
-            "current_token":2,
-            "last_issued_token":4,
-            "last_update":"2020-05-01T01:24:41.000Z",
-            "total_issued_tokens":4,
-            "subscriber":{
-                "id":"YICeXFgnt",
-                "name":"S3",
-                "owner":"Kavya",
-                "email":"S3@gmail.com",
-                "phone":"9898009900"
-            },
-            "ETA":"00:03",
-            "token":{
-                "token_no":4,
-                "status":"WAITING",
-                "subscriber_id":"YICeXFgnt",
-                "ahead":1
-            }
-        }
-    ]
-}
-''';
 
 class QueueItem extends StatelessWidget {
   final Queue queue;
@@ -265,16 +197,11 @@ class QueueItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text('Waiting in queue', style: kSmallTextStyle),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: <Widget>[
-                              Text('${queue.totalIssuedTokens}',
-                                  style: kBigTextStyle),
-                              SizedBox(width: 10),
-                              Text('People', style: kSmallTextStyle)
-                            ],
-                          ),
+                          Text('Already in queue', style: kSmallTextStyle),
+                          Text('${queue.totalIssuedTokens}',
+                              style: kBigTextStyle),
+                          SizedBox(width: 10),
+                          Text('People', style: kSmallTextStyle),
                         ],
                       ),
                     ),
@@ -284,8 +211,10 @@ class QueueItem extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text('Your turn may come at', style: kSmallTextStyle),
-                          Text('21:00', style: kBigTextStyle),
-                          Text('12-05-2020', style: kSmallTextStyle),
+                          Text(getTime(queue.startDateTime.add(queue.eta)),
+                              style: kBigTextStyle),
+                          Text(getDate(queue.startDateTime.add(queue.eta)),
+                              style: kSmallTextStyle),
                         ],
                       ),
                     ),
@@ -337,17 +266,36 @@ class QueueItem extends StatelessWidget {
   }
 }
 
+class QueuesDisplay extends StatelessWidget {
+  final List<Queue> queues;
+  QueuesDisplay(this.queues);
+
+  @override
+  Widget build(BuildContext context) {
+    return queues != null && queues.length != 0
+        ? ListView.builder(
+            itemCount: queues.length,
+            cacheExtent: 4,
+            physics: const AlwaysScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: (context, index) => QueueItem(queues[index]))
+        : Text('No queues found');
+  }
+}
+
 class HeaderInfo extends StatelessWidget {
+  final Subscriber subscriber;
+  HeaderInfo({this.subscriber});
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Dr. Piyush, MBBS',
+          Text(subscriber.name,
               style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
-          SizedBox(height: 20),
-          Text('Raheja Hospital, Bandra(W), Mumbai',
+          SizedBox(height: 10),
+          Text(subscriber.owner,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'app_exceptions.dart';
 import 'dart:io';
 import 'kAPI.dart';
+import 'dart:developer';
 
 class ApiBaseHelper {
   Future<dynamic> get(String url) async {
@@ -20,13 +21,17 @@ class ApiBaseHelper {
       {Map req, Map<String, String> headers}) async {
     var responseJson;
     try {
-//      print('Posting to ${baseURL + url}');
-//      print('$headers');
+      if (req != null) {
+        headers['Accept'] = 'application/json';
+        headers['Content-type'] = 'application/json';
+      }
+//      log('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
       final response = await http.post(
         baseURL + url,
-        headers: headers ?? {"Content-type": "application/json"},
+        headers: headers,
         body: jsonEncode(req),
       );
+//      log('==================');
       responseJson = _returnResponse(response);
     } on SocketException {
       throw FetchDataException('No Internet connection');
@@ -38,7 +43,7 @@ class ApiBaseHelper {
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body.toString());
-        print(responseJson);
+//        log('Response:$responseJson');
         return responseJson;
       case 400:
         throw BadRequestException(response.body.toString());
