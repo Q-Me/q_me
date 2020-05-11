@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../views/token.dart';
+import '../utilities/time.dart';
 import '../api/base_helper.dart';
 import '../widgets/loader.dart';
 import '../model/subscriber.dart';
@@ -130,14 +132,6 @@ class QueueItem extends StatelessWidget {
   final Queue queue;
   QueueItem(this.queue);
 
-  String getDate(DateTime dateTime) =>
-      DateFormat("dd-MM-yyyy").format(dateTime);
-
-  String getTime(DateTime dateTime) => DateFormat("Hm").format(dateTime);
-
-  DateTime nextTokenTime(Queue queue) => queue.startDateTime
-      .add(Duration(minutes: queue.totalIssuedTokens * queue.avgTimeOnCounter));
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -186,9 +180,7 @@ class QueueItem extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 10,
-                ),
+                SizedBox(height: 10),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -205,61 +197,58 @@ class QueueItem extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text('Your turn may come at', style: kSmallTextStyle),
-                          Text(getTime(queue.startDateTime.add(queue.eta)),
-                              style: kBigTextStyle),
-                          Text(getDate(queue.startDateTime.add(queue.eta)),
-                              style: kSmallTextStyle),
-                        ],
-                      ),
+                    Row(
+                      children: <Widget>[
+                        Container(
+                            child: Text(
+                                'Last Updated at\n${DateFormat('hh:mm aaa\nMMM d, yyyy\nEEE').format(queue.lastUpdate)}')),
+                        Container(
+                          height: 35.0,
+                          width: MediaQuery.of(context).size.width / 4,
+                          child: Material(
+                            borderRadius: BorderRadius.circular(20.0),
+                            shadowColor: Colors.greenAccent,
+                            color: Colors.green,
+                            elevation: 7.0,
+                            child: InkWell(
+                              onTap: () {
+                                print('${queue.queueId}');
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            TokenPage(queueId: queue.queueId)));
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Center(
+                                  child: Text(
+                                    // Check
+                                    'Book',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Montserrat'),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          Row(
+          /*Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Container(
-                  child: Text(
-                      'Last Updated at\n${DateFormat('hh:mm aaa, MMM d, yyyy EEE').format(queue.lastUpdate)}')),
-              Container(
-                height: 35.0,
-                width: MediaQuery.of(context).size.width / 4,
-                child: Material(
-                  borderRadius: BorderRadius.circular(20.0),
-                  shadowColor: Colors.greenAccent,
-                  color: Colors.green,
-                  elevation: 7.0,
-                  child: InkWell(
-                    onTap: () {
-                      print('${queue.queueId}');
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Center(
-                        child: Text(
-                          // Check
-                          'Book',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Montserrat'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ],
-          ),
+          ),*/
         ],
       ),
     );

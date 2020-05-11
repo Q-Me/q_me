@@ -25,13 +25,13 @@ class ApiBaseHelper {
         headers['Accept'] = 'application/json';
         headers['Content-type'] = 'application/json';
       }
-//      log('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
+      log('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
       final response = await http.post(
         baseURL + url,
         headers: headers,
         body: jsonEncode(req),
       );
-//      log('==================');
+      log('==================');
       responseJson = _returnResponse(response);
     } on SocketException {
       throw FetchDataException('No Internet connection');
@@ -43,7 +43,7 @@ class ApiBaseHelper {
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body.toString());
-//        log('Response:$responseJson');
+        log('Response:$responseJson');
         return responseJson;
       case 400:
         throw BadRequestException(response.body.toString());

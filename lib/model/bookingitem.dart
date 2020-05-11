@@ -7,12 +7,13 @@ class BookingItemData {
       category; // which category the subscribers falls into like grocery store or bank or doctor
   String hotTag; // tag given like NEW or TRENDING
 
-  BookingItemData(
-      {this.subscriberName,
-      this.distance,
-      this.newUpdate,
-      this.category,
-      this.hotTag});
+  BookingItemData({
+    this.subscriberName,
+    this.distance,
+    this.newUpdate,
+    this.category,
+    this.hotTag,
+  });
 }
 /*
 const categories = {

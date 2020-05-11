@@ -1,8 +1,6 @@
 import 'dart:collection';
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
-
 import '../model/queue.dart';
 import '../model/user.dart';
 import '../api/base_helper.dart';
@@ -21,14 +19,18 @@ class QueuesListRepository {
       req: {'subscriber_id': subscriberId, 'status': status},
     );
 
-    List<Queue> queues = [];
+    /*List<Queue> queues = [];
     Queues.fromJson(response).queue.forEach((queue) async {
       Queue queueObj = await fetchQueue(queue.queueId);
       queues.add(queueObj);
-    });
+    });*/
 
-    return queues;
+    return Queues.fromJson(response).queue;
   }
+}
+
+class QueueRepository {
+  ApiBaseHelper _helper = ApiBaseHelper();
 
   Future<Queue> fetchQueue(String queueId) async {
     final UserData userData = await getUserDataFromStorage();

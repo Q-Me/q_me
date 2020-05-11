@@ -1,9 +1,16 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'profile.dart';
+import 'package:qme/model/token.dart';
+
+import '../model/queue.dart';
 import '../constants.dart';
+import '../widgets/dash.dart';
+import '../utilities/time.dart';
+//import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 
 /*
 
@@ -13,6 +20,8 @@ Display the token number, ETA, Distance
 
 class TokenPage extends StatefulWidget {
   static String id = 'token';
+  final String queueId;
+  TokenPage({this.queueId});
   @override
   _TokenPageState createState() => _TokenPageState();
 }
@@ -20,6 +29,44 @@ class TokenPage extends StatefulWidget {
 class _TokenPageState extends State<TokenPage> {
   double get w => MediaQuery.of(context).size.width;
   double get h => MediaQuery.of(context).size.height;
+  Widget imgWidget = ClipRRect(
+    borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
+    child: Image.asset(
+      'assets/images/profile_pic.jpg',
+      fit: BoxFit.cover,
+    ),
+  );
+
+  Queue queue = Queue.fromJson(jsonDecode('''
+{
+    "queue_id": "CFBIpLGW3",
+    "start_date_time": "2020-05-01T00:36:00.000Z",
+    "end_date_time": "2020-05-01T09:30:00.000Z",
+    "max_allowed": 100,
+    "avg_time_on_counter": 3,
+    "status": "ACTIVE",
+    "current_token": 2,
+    "last_issued_token": 4,
+    "last_update": "2020-05-01T01:24:41.000Z",
+    "total_issued_tokens": 4,
+    "subscriber": {
+        "id": "YICeXFgnt",
+        "name": "S3",
+        "owner": "Mr. A",
+        "email": "S3@gmail.com",
+        "phone": "9898009900"
+    },
+    "ETA": "00:03",
+    "token": {
+        "token_no": 4,
+        "status": "WAITING",
+        "subscriber_id": "YICeXFgnt",
+        "ahead": 1
+    }
+}
+'''));
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -31,16 +78,16 @@ class _TokenPageState extends State<TokenPage> {
           leading: GestureDetector(
               onTap: () {
                 // TODO to profile
-                Navigator.pushNamed(context, ProfilePage.id);
+                Navigator.pop(context);
               },
               child: Icon(Icons.arrow_back_ios)),
-          title: Text('Your Token'),
+          title: Text('Queue Details'),
         ),
         body: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: <Widget>[
-              Expanded(
+              Flexible(
                 child: Container(
                   width: w,
                   margin: EdgeInsets.only(bottom: 10),
@@ -51,139 +98,49 @@ class _TokenPageState extends State<TokenPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       Flexible(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10)),
-                          child: Image.asset(
-                            'assets/images/profile_pic.jpg',
-                            fit: BoxFit.cover,
-                          ),
+                        flex: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.blue[200],
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(10),
+                                  topLeft: Radius.circular(10))),
                         ),
                       ),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text('Dr. Piyush, MBBS',
-                                style: kBigTextStyle.copyWith(
-                                    color: Colors.black)),
-                            Text('wrgg'),
-                            Text('Booked At 27th April, 2020 03:28PM')
-                          ],
+                      Flexible(
+                        flex: 2,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(queue.subscriber.name,
+                                  style: kBigTextStyle.copyWith(
+                                      color: Colors.black)),
+                              Text(queue.subscriber.owner),
+                            ],
+                          ),
                         ),
                       )
                     ],
                   ),
                 ),
               ),
-              Expanded(
-                child: Container(
-                  width: w,
-                  margin: EdgeInsets.only(top: 10),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Flexible(
-                        flex: 3,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text('12', style: kBigTextStyle),
-                                Text('Queue', style: kSmallTextStyle),
-                              ],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text('47', style: kBigTextStyle),
-                                Text('Minutes to go', style: kSmallTextStyle),
-                              ],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text('5.5', style: kBigTextStyle),
-                                Text('km to reach', style: kSmallTextStyle),
-                              ],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text('12', style: kBigTextStyle),
-                                Text('Queue', style: kSmallTextStyle),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        height: 20,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Container(
-                              width: 10,
-                              decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(10),
-                                      bottomRight: Radius.circular(10))),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Dash(
-                                    direction: Axis.horizontal,
-//                                    length: ,
-//                                dashLength: 12,
-                                    dashColor: Colors.black38),
-                              ),
-                            ),
-                            Container(
-                              width: 10,
-                              decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      bottomLeft: Radius.circular(10))),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Flexible(
-                        flex: 4,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  'Your Token Number',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 26),
-                                ),
-                                Text(
-                                  'QA123',
-                                  style: kBigTextStyle.copyWith(fontSize: 50),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              Container(
+                width: w,
+                margin: EdgeInsets.only(top: 10),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Grid2x2(queue),
+                    DashContainer(),
+                    TokenDisplay(QueueToken(tokenNo: 1)),
+                    TokenButton(),
+                  ],
                 ),
               ),
             ],
@@ -194,63 +151,162 @@ class _TokenPageState extends State<TokenPage> {
   }
 }
 
-class Dash extends StatelessWidget {
-  const Dash(
-      {Key key,
-      this.direction = Axis.horizontal,
-      this.dashColor = Colors.black,
-      this.length = 200,
-      this.dashGap = 3,
-      this.dashLength = 6,
-      this.dashThickness = 1,
-      this.dashBorderRadius = 0})
-      : super(key: key);
-
-  final Axis direction;
-  final Color dashColor;
-  final double length;
-  final double dashGap;
-  final double dashLength;
-  final double dashThickness;
-  final double dashBorderRadius;
-
+class DashContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var dashes = <Widget>[];
-    double n = (length + dashGap) / (dashGap + dashLength);
-    int newN = n.round();
-    double newDashGap = (length - dashLength * newN) / (newN - 1);
-    for (var i = newN; i > 0; i--) {
-      dashes.add(step(i, newDashGap));
-    }
-    if (direction == Axis.horizontal) {
-      return SizedBox(
-          width: length,
-          child: Row(
-            children: dashes,
-          ));
-    } else {
-      return Column(children: dashes);
-    }
-  }
-
-  Widget step(int index, double newDashGap) {
-    bool isHorizontal = direction == Axis.horizontal;
-    return Padding(
-        padding: EdgeInsets.fromLTRB(
-            0,
-            0,
-            isHorizontal && index != 1 ? newDashGap : 0,
-            isHorizontal || index == 1 ? 0 : newDashGap),
-        child: SizedBox(
-          width: isHorizontal ? dashLength : dashThickness,
-          height: isHorizontal ? dashThickness : dashLength,
-          child: DecoratedBox(
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 12),
+      height: 20,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Container(
+            width: 10,
             decoration: BoxDecoration(
-                color: dashColor,
-                borderRadius:
-                    BorderRadius.all(Radius.circular(dashBorderRadius))),
+                color: Colors.green,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(10),
+                    bottomRight: Radius.circular(10))),
           ),
-        ));
+          Expanded(
+            child: Center(
+                child: Dash(
+                    direction: Axis.horizontal, dashColor: Colors.black38)),
+          ),
+          Container(
+            width: 10,
+            decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    bottomLeft: Radius.circular(10))),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TokenDisplay extends StatelessWidget {
+  final QueueToken token;
+  TokenDisplay(this.token);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Your Token Number',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 26),
+            ),
+            Text(
+              token.tokenNo.toString(),
+              style: kBigTextStyle.copyWith(fontSize: 50),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TokenButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 50.0,
+      margin: EdgeInsets.all(20),
+      alignment: Alignment.center,
+      child: Material(
+        borderRadius: BorderRadius.circular(20.0),
+        shadowColor: Colors.greenAccent,
+        color: Colors.green,
+        elevation: 7.0,
+        child: InkWell(
+          onTap: () {},
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Center(
+              child: Text(
+                'Get Token',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Montserrat'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Grid2x2 extends StatelessWidget {
+  final Queue queue;
+  Grid2x2(this.queue);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.all(10),
+      child: Table(
+        children: [
+          TableRow(children: [
+            Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
+                child: Grid2x2Item(
+                  'Starts at',
+                  '${getTime(queue.startDateTime)}',
+                  '${getDate(queue.startDateTime)}',
+                )),
+            Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
+                child: Grid2x2Item(
+                  'Ends at',
+                  '${getTime(queue.endDateTime)}',
+                  '${getDate(queue.endDateTime)}',
+                )),
+          ]),
+          TableRow(children: [
+            Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 0.0),
+                child: Grid2x2Item(
+                  'Already in queue',
+                  '${queue.totalIssuedTokens}',
+                  'People',
+                )),
+            Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 0.0),
+                child: Grid2x2Item(
+                  'Your turn may come at',
+                  getTime(queue.startDateTime.add(queue.eta)).toString(),
+                  getDate(queue.startDateTime.add(queue.eta)).toString(),
+                )),
+          ])
+        ],
+      ),
+    );
+  }
+}
+
+class Grid2x2Item extends StatelessWidget {
+  final String top, center, bottom;
+  Grid2x2Item(this.top, this.center, this.bottom);
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(top, style: kSmallTextStyle),
+        Text(center, style: kBigTextStyle),
+        Text(bottom, style: kSmallTextStyle),
+      ],
+    );
   }
 }
