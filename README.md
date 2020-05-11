@@ -1,6 +1,6 @@
-# qme
+# Q Me
 
-A new Flutter project.
+![Made with Flutter](https://img.shields.io/badge/Made%20With-Flutter-blue?style=flat-square)
 
 ## Getting Started
 
