@@ -1,4 +1,5 @@
 import '../repository/queue.dart';
+import '../repository/token.dart';
 import 'dart:async';
 import '../api/base_helper.dart';
 import '../model/queue.dart';
@@ -43,9 +44,9 @@ class QueueBloc {
 
   StreamController _queueController;
 
-  StreamSink<ApiResponse<Queue>> get queuesListSink => _queueController.sink;
+  StreamSink<ApiResponse<Queue>> get queueSink => _queueController.sink;
 
-  Stream<ApiResponse<Queue>> get queuesListStream => _queueController.stream;
+  Stream<ApiResponse<Queue>> get queueStream => _queueController.stream;
   QueueBloc(this.queueId) {
     _queueController = StreamController<ApiResponse<Queue>>();
     _queueRepository = QueueRepository();
@@ -53,17 +54,48 @@ class QueueBloc {
   }
 
   fetchQueueData() async {
-    queuesListSink.add(ApiResponse.loading('Fetching Queue details'));
+    queueSink.add(ApiResponse.loading('Fetching Queue details'));
     try {
       Queue queues = await _queueRepository.fetchQueue(queueId);
-      queuesListSink.add(ApiResponse.completed(queues));
+      queueSink.add(ApiResponse.completed(queues));
     } catch (e) {
-      queuesListSink.add(ApiResponse.error(e.toString()));
+      queueSink.add(ApiResponse.error(e.toString()));
       print(e);
     }
   }
 
   dispose() {
     _queueController?.close();
+  }
+}
+
+class JoinQueueBloc {
+  String queueId;
+  TokenRepository _tokenRepository;
+
+  StreamController _tokenController;
+
+  StreamSink<ApiResponse<Map>> get joinQueueSink => _tokenController.sink;
+
+  Stream<ApiResponse<Map>> get tokenStream => _tokenController.stream;
+  JoinQueueBloc(this.queueId) {
+    _tokenController = StreamController<ApiResponse<Queue>>();
+    _tokenRepository = TokenRepository();
+    fetchQueueData();
+  }
+
+  fetchQueueData() async {
+    joinQueueSink.add(ApiResponse.loading('Fetching Queue details'));
+    try {
+      Map token = await _tokenRepository.joinQueue(queueId);
+      joinQueueSink.add(ApiResponse.completed(token));
+    } catch (e) {
+      joinQueueSink.add(ApiResponse.error(e.toString()));
+      print(e);
+    }
+  }
+
+  dispose() {
+    _tokenController?.close();
   }
 }

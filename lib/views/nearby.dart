@@ -365,7 +365,7 @@ class SubscriberGridTile extends StatelessWidget {
           bottom: 5),
       child: GestureDetector(
         onTap: () {
-          log('Going to id:${subscriberData.id}');
+          log('From Nearby (SubscriberGridTile) Going to Subscriber id:${subscriberData.id}');
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -414,6 +414,16 @@ class SubscriberGridTile extends StatelessWidget {
                               fontWeight: FontWeight.w400,
                               fontSize: 16,
                             )),
+                        SizedBox(height: 8),
+                        Text(
+                          subscriberData.address,
+                          maxLines: 2,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                          ),
+                        ),
                         SizedBox(height: 8),
                       ],
                     ),
@@ -628,7 +638,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
                         return Loading(loadingMessage: snapshot.data.message);
                         break;
                       case Status.COMPLETED:
-                        return SubscriberList(
+                        return SubscribersGrid(
                             subscriberList: snapshot.data.data);
                         break;
                       case Status.ERROR:
@@ -652,10 +662,10 @@ class _NearbyScreenState extends State<NearbyScreen> {
   }
 }
 
-class SubscriberList extends StatelessWidget {
+class SubscribersGrid extends StatelessWidget {
   final List<Subscriber> subscriberList;
 
-  const SubscriberList({this.subscriberList});
+  const SubscribersGrid({this.subscriberList});
 
   @override
   Widget build(BuildContext context) {

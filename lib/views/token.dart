@@ -4,18 +4,20 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:qme/model/token.dart';
+import 'package:provider/provider.dart';
+import '../api/base_helper.dart';
+import '../bloc/queue.dart';
+import '../model/token.dart';
 
 import '../model/queue.dart';
 import '../constants.dart';
 import '../widgets/dash.dart';
+import '../widgets/loader.dart';
+import '../widgets/error.dart';
 import '../utilities/time.dart';
-//import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 
 /*
-
 Display the token number, ETA, Distance
-
 */
 
 class TokenPage extends StatefulWidget {
@@ -27,8 +29,6 @@ class TokenPage extends StatefulWidget {
 }
 
 class _TokenPageState extends State<TokenPage> {
-  double get w => MediaQuery.of(context).size.width;
-  double get h => MediaQuery.of(context).size.height;
   Widget imgWidget = ClipRRect(
     borderRadius: BorderRadius.only(
         topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
@@ -38,34 +38,21 @@ class _TokenPageState extends State<TokenPage> {
     ),
   );
 
-  Queue queue = Queue.fromJson(jsonDecode('''
-{
-    "queue_id": "CFBIpLGW3",
-    "start_date_time": "2020-05-01T00:36:00.000Z",
-    "end_date_time": "2020-05-01T09:30:00.000Z",
-    "max_allowed": 100,
-    "avg_time_on_counter": 3,
-    "status": "ACTIVE",
-    "current_token": 2,
-    "last_issued_token": 4,
-    "last_update": "2020-05-01T01:24:41.000Z",
-    "total_issued_tokens": 4,
-    "subscriber": {
-        "id": "YICeXFgnt",
-        "name": "S3",
-        "owner": "Mr. A",
-        "email": "S3@gmail.com",
-        "phone": "9898009900"
-    },
-    "ETA": "00:03",
-    "token": {
-        "token_no": 4,
-        "status": "WAITING",
-        "subscriber_id": "YICeXFgnt",
-        "ahead": 1
+  QueueBloc _queueDetailsBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _queueDetailsBloc = QueueBloc(widget.queueId);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_queueDetailsBloc == null) {
+      _queueDetailsBloc = QueueBloc(widget.queueId);
     }
-}
-'''));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,68 +72,115 @@ class _TokenPageState extends State<TokenPage> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: <Widget>[
-              Flexible(
-                child: Container(
-                  width: w,
-                  margin: EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Flexible(
-                        flex: 1,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.blue[200],
-                              borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(10),
-                                  topLeft: Radius.circular(10))),
-                        ),
-                      ),
-                      Flexible(
-                        flex: 2,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(queue.subscriber.name,
-                                  style: kBigTextStyle.copyWith(
-                                      color: Colors.black)),
-                              Text(queue.subscriber.owner),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                width: w,
-                margin: EdgeInsets.only(top: 10),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Grid2x2(queue),
-                    DashContainer(),
-                    TokenDisplay(QueueToken(tokenNo: 1)),
-                    TokenButton(),
-                  ],
-                ),
-              ),
-            ],
+          child: RefreshIndicator(
+            onRefresh: () => _queueDetailsBloc.fetchQueueData(),
+            child: StreamBuilder<ApiResponse<Queue>>(
+              stream: _queueDetailsBloc.queueStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  switch (snapshot.data.status) {
+                    case Status.LOADING:
+                      return Loading(loadingMessage: snapshot.data.message);
+                      break;
+                    case Status.COMPLETED:
+                      return QueueDetails(snapshot.data.data);
+                      break;
+                    case Status.ERROR:
+                      return Error(
+                        errorMessage: snapshot.data.message,
+                        onRetryPressed: () =>
+                            _queueDetailsBloc.fetchQueueData(),
+                      );
+                      break;
+                  }
+                } else {
+                  Text('no Snapshot data');
+                }
+                return Container();
+              },
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class QueueDetails extends StatefulWidget {
+  final Queue queue;
+  QueueDetails(this.queue);
+  @override
+  _QueueDetailsState createState() => _QueueDetailsState();
+}
+
+class _QueueDetailsState extends State<QueueDetails> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Flexible(
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Flexible(
+                  flex: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue[200],
+                        borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(10),
+                            topLeft: Radius.circular(10))),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(widget.queue.subscriber.name,
+                            style: kBigTextStyle.copyWith(color: Colors.black)),
+                        Text(widget.queue.subscriber.owner),
+                        Text(
+                          widget.queue.subscriber.address,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          margin: EdgeInsets.only(top: 10),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(10))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Grid2x2(widget.queue),
+              DashContainer(),
+              TokenDisplay(widget.queue.token.tokenNo),
+              TokenButton(widget.queue.token),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -188,8 +222,8 @@ class DashContainer extends StatelessWidget {
 }
 
 class TokenDisplay extends StatelessWidget {
-  final QueueToken token;
-  TokenDisplay(this.token);
+  final int tokenNo;
+  TokenDisplay(this.tokenNo);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -203,7 +237,7 @@ class TokenDisplay extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 26),
             ),
             Text(
-              token.tokenNo.toString(),
+              tokenNo.toString(),
               style: kBigTextStyle.copyWith(fontSize: 50),
             ),
           ],
@@ -214,6 +248,9 @@ class TokenDisplay extends StatelessWidget {
 }
 
 class TokenButton extends StatelessWidget {
+  final QueueToken token;
+  TokenButton(this.token);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -225,22 +262,26 @@ class TokenButton extends StatelessWidget {
         shadowColor: Colors.greenAccent,
         color: Colors.green,
         elevation: 7.0,
-        child: InkWell(
-          onTap: () {},
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Center(
-              child: Text(
-                'Get Token',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Montserrat'),
-              ),
-            ),
-          ),
-        ),
+        child: token.tokenNo != -1
+            ? InkWell(
+                onTap: () {
+                  // TODO Call api to join queue
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Center(
+                    child: Text(
+                      'Get Token',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat'),
+                    ),
+                  ),
+                ),
+              )
+            : InkWell(),
       ),
     );
   }

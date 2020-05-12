@@ -11,20 +11,18 @@ class Subscribers {
 
   Subscribers.fromJson(Map<String, dynamic> json) {
     list = [];
-    if (json['subscribe'] != null) {
-      json['subscribe'].forEach((v) {
+    final subs = json['subscriber'];
+    if (subs != null) {
+      subs.forEach((v) {
         list.add(Subscriber.fromJson(v));
       });
+      totalResults = list.length;
     }
   }
 }
 
 class Subscriber {
-  String id;
-  String name;
-  String owner;
-  String email;
-  String phone;
+  String id, name, address, email, phone, owner;
 
   Subscriber({
     this.id,
@@ -32,6 +30,7 @@ class Subscriber {
     this.owner,
     this.email,
     this.phone,
+    this.address,
   });
 
   factory Subscriber.fromJson(Map<String, dynamic> json) => Subscriber(
@@ -40,6 +39,7 @@ class Subscriber {
         owner: json["owner"],
         email: json["email"],
         phone: json["phone"],
+        address: json["address"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -48,5 +48,6 @@ class Subscriber {
         "owner": owner,
         "email": email,
         "phone": phone,
+        "address": address
       };
 }

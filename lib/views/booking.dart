@@ -212,7 +212,6 @@ class QueueItem extends StatelessWidget {
                             elevation: 7.0,
                             child: InkWell(
                               onTap: () {
-                                print('${queue.queueId}');
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -277,22 +276,29 @@ class HeaderInfo extends StatelessWidget {
   HeaderInfo({this.subscriber});
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(subscriber.name,
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
-          SizedBox(height: 10),
-          Text(subscriber.owner,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-                color: Colors.black54,
-              )),
-          SizedBox(height: 10),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(subscriber.name,
+            style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+        SizedBox(height: 10),
+        Text(subscriber.owner,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              color: Colors.black54,
+            )),
+        SizedBox(height: 10),
+        Text(
+          subscriber.address,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w400,
+            fontSize: 16,
+          ),
+        ),
+        SizedBox(height: 10),
+      ],
     );
   }
 }

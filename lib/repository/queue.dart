@@ -34,10 +34,12 @@ class QueueRepository {
 
   Future<Queue> fetchQueue(String queueId) async {
     final UserData userData = await getUserDataFromStorage();
-    final response = await _helper.post(getQueue,
-        headers: {'Authorization': 'Bearer ${userData.accessToken}'},
-        req: {'queue_id': queueId});
-    log('Queue Repo($queueId): $response');
+    final response = await _helper.post(
+      getQueue,
+      headers: {'Authorization': 'Bearer ${userData.accessToken}'},
+      req: {'queue_id': queueId},
+    );
+//    log('Queue Repo($queueId): $response');
     return Queue.fromJson(response);
   }
 }
