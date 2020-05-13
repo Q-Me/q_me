@@ -1,0 +1,576 @@
+* means Request with auth bearer token
+Queue status can be => "UPCOMING", "ACTIVE", "DONE", "FORCED DONE" or "CANCELLED"
+token status can be => "WAITING", "ACTIVE", "DONE", "CANCELLED BY SUBSCRIBER" or "CANCELLED"
+
+POST /subscriber/signup
+Request => 
+{
+	"name": "S1",
+	"owner": "Kavya",
+	"email": "Kavya24@gmail.com",
+	"phone": "9898009900",
+	"password": "Kavya@124"
+}
+{
+	"name": "S2",
+	"owner": "Kavya",
+	"email": "S2@gmail.com",
+	"phone": "9898009900",
+	"password": "Kavya@124"
+}
+{
+	"name": "S3",
+	"owner": "Kavya",
+	"email": "S3@gmail.com",
+	"phone": "9898009900",
+	"password": "Kavya@124"
+}
+Response =>
+{
+    "msg": "Registation successful"
+}
+ERROR =>
+{
+	error: [ARRAY OF ERRORS] 
+}
+
+POST /subscriber/login
+Request => 
+{
+	"email": "S2@gmail.com",
+	"password": "Kavya@124"
+}
+Response => 
+{
+    "id": "4Q3fOuppX",
+    "name": "S2",
+    "isSubscriber": true,
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRRM2ZPdXBwWCIsIm5hbWUiOiJTMiIsImlzU3Vic2NyaWJlciI6dHJ1ZSwiaWF0IjoxNTg4MjYyMjYyLCJleHAiOjE1ODgzNDg2NjJ9.AWuTV44cSylWUx03QiGHIOtU8dOYMAsKmVCUuDrbBAY",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRRM2ZPdXBwWCIsIm5hbWUiOiJTMiIsImlzU3Vic2NyaWJlciI6dHJ1ZSwiaWF0IjoxNTg4MjYyMjYyfQ.IptgfJungkLd1oWvraJYQh6LVXtif0-NKB1PGPJqEsk"
+}
+OR
+{
+	msg: "Invalid Credential"
+}
+ERROR =>
+{
+	error: [ARRAY OF ERRORS] 
+}
+
+*POST /subscriber/profile
+Request => {}
+Response =>
+{
+    "id": "4Q3fOuppX",
+    "name": "S2",
+    "owner": "Kavya",
+    "email": "S2@gmail.com",
+    "phone": "9898009900"
+}
+Error =>
+{
+	error: "SOME ERROR"
+}
+
+POST /subscriber/accesstoken
+Request =>
+{
+	"refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRRM2ZPdXBwWCIsIm5hbWUiOiJTMiIsImlzU3Vic2NyaWJlciI6dHJ1ZSwiaWF0IjoxNTg4MjYwMzUwfQ.I_bAHsVTIev2LE-QRZcR3HXDa86QakInYZpK2Cz0jfM"
+}
+Response =>
+{
+    "id": "4Q3fOuppX",
+    "name": "S2",
+    "isSubscriber": true,
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRRM2ZPdXBwWCIsIm5hbWUiOiJTMiIsImlzU3Vic2NyaWJlciI6dHJ1ZSwiaWF0IjoxNTg4MjYyMzgwLCJleHAiOjE1ODgzNDg3ODB9.qKozttYvE64yFTwSG0LMPtc2yJLtXOT2WatmsfTZLB8"
+}
+Error =>
+{
+	error: "SOME ERROR LIKE invalid access token"
+}
+
+*POST /subscriber/logout
+Request => {}
+Response =>
+{
+    "msg": "Logged out successfully"
+}
+Error =>
+{
+	error: "SOME ERROR LIKE invalid access token"
+}
+
+*POST /subscriber/createqueue
+Request =>
+{
+	"start_date_time": "05-02-2021 00:06",
+	"end_date_time": "05-03-2021 05:00",
+	"avg_time_on_counter": "3",
+	"max_allowed": "100"
+}
+Response =>
+{
+    "msg": "Queue Created Successfully."
+}
+ERROR =>
+{
+	error: [ARRAY OF ERRORS] 
+}
+
+*POST /subscriber/viewallqueues
+Request =>
+{
+	"status": "CANCELLED"
+}
+Response =>
+{
+    "queue": [
+        {
+            "queue_id": "yl3IWW4rA",
+            "subscriber_id": "4Q3fOuppX",
+            "start_date_time": "2021-05-01T18:36:00.000Z",
+            "end_date_time": "2021-05-01T23:30:00.000Z",
+            "max_allowed": 100,
+            "avg_time_on_counter": 3,
+            "status": "UPCOMING",
+            "current_token": 0,
+            "last_issued_token": 0,
+            "last_update": "2020-04-30T17:52:55.000Z",
+            "total_issued_tokens": 0
+        },
+        {
+            "queue_id": "ncgPSe8di",
+            "subscriber_id": "4Q3fOuppX",
+            "start_date_time": "2021-05-02T18:36:00.000Z",
+            "end_date_time": "2021-05-02T23:30:00.000Z",
+            "max_allowed": 1000000000,
+            "avg_time_on_counter": 3,
+            "status": "UPCOMING",
+            "current_token": 0,
+            "last_issued_token": 0,
+            "last_update": "2020-04-30T17:55:40.000Z",
+            "total_issued_tokens": 0
+        }
+    ]
+}
+ERROR =>
+{
+	error: "error" 
+}
+
+*POST /subscriber/viewqueue
+Request =>
+{
+	"queue_id": "4Q3fOuppX"
+}
+Response =>
+{
+    "queue": {
+        "queue_id": "yl3IWW4rA",
+        "subscriber_id": "4Q3fOuppX",
+        "start_date_time": "2021-05-01T18:36:00.000Z",
+        "end_date_time": "2021-05-01T23:30:00.000Z",
+        "max_allowed": 100,
+        "avg_time_on_counter": 3,
+        "status": "UPCOMING",
+        "current_token": 0,
+        "last_issued_token": 0,
+        "last_update": "2020-04-30T17:52:55.000Z",
+        "total_issued_tokens": 0
+    }
+}
+ERROR =>
+{
+    "error": "ERRORS LIKE No such queue found."
+}
+
+*POST /subscriber/cancelqueue
+Request =>
+{
+	"queue_id": "4Q3fOuppX"
+}
+Response =>
+{
+    "msg": "Queue deleted successfully"
+}
+ERROR =>
+{
+    "error": "ERROR LIKE No such queue found."
+}
+
+*POST /subscriber/getuser
+Request =>
+{
+	"user_id": "4Q3fOuppX"
+}
+Response =>
+{
+    "id": "teAZLZQQz",
+    "name": "Kavya1",
+    "email": "Kavya24@gmail.com",
+    "phone": "9898009900"
+}
+ERROR =>
+{
+    "error": "ERRORS LIKE No such user found."
+}
+
+*POST /subscriber/getqueueuser
+Request =>
+{
+	"queue_id": "CFBIpLGW3",
+	"status": "WAITING"
+}
+Response =>
+{
+    "user": [
+        {
+            "user_id": "teAZLZQQz",
+            "name": "Kavya1",
+            "email": "Kavya24@gmail.com",
+            "phone": "9898009900",
+            "token_no": 1
+        },
+        {
+            "user_id": "YVVnAiZpp",
+            "name": "K2",
+            "email": "K2@gmail.com",
+            "phone": "9898009900",
+            "token_no": 2
+        },
+        {
+            "user_id": "1wURstfk9",
+            "name": "K3",
+            "email": "K3@gmail.com",
+            "phone": "9898009900",
+            "token_no": 3
+        }
+    ]
+}
+ERROR =>
+{
+    "error": "ERRORS LIKE"
+}
+
+*POST /subscriber/startqueue
+Request =>
+{
+	"queue_id": "CFBIpLGW3"
+}
+Response =>
+{
+    "msg": "Queue started successfully",
+    "next_token": {
+        "token_no": 1,
+        "user_id": "YVVnAiZpp"
+    }
+}
+ERROR =>
+{
+    "error": "ERRORS LIKE"
+}
+
+*POST /subscriber/nextqueue
+Request =>
+{
+	"queue_id": "CFBIpLGW3",
+	"status": "DONE"  //ONLY DONE or CANCELLED BY SUBSCRIBER allowed
+}
+Response =>
+{
+    "msg": "Queue moved successfully",
+    "next_token": {
+        "token_no": 2,
+        "user_id": "YVVnAiZpp"
+    }
+}
+OR 
+{
+	msg: "No person in queue"
+}
+ERROR =>
+{
+    "error": "ERRORS LIKE"
+}
+
+*POST /subscriber/endQueue
+Request =>
+{
+	"queue_id": "CFBIpLGW3"
+	"isForced": false
+}
+Response =>
+{
+    "msg": "Queue ended successfully",
+    "num_tokens_cancelled": 0
+}
+ERROR =>
+{
+    "error": "ERRORS LIKE"
+}
+
+
+
+
+
+
+POST /user/signup
+Request =>
+{
+	"name": "Kavya1",
+	"email": "Kavya24@gmail.com",
+	"phone": "9898009900",
+	"password": "Vatsal@2"
+}
+Response =>
+{
+    "msg": "Registation successful"
+}
+ERROR =>
+{
+	error: [ARRAY OF ERRORS] 
+}
+
+POST /user/login
+Request =>
+{
+	"email": "Kavya24@gmail.com",
+	"password": "Vatsal@2"
+}
+Response =>
+{
+    "id": "teAZLZQQz",
+    "name": "Kavya1",
+    "isUser": true,
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlQVpMWlFReiIsIm5hbWUiOiJLYXZ5YTEiLCJpc1VzZXIiOnRydWUsImlhdCI6MTU4ODI2MTYwMiwiZXhwIjoxNTg4MzQ4MDAyfQ.TrEpvwLSufG-VKj8cM6JqZ6fiIHhT8wX38M4W18G_QA",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlQVpMWlFReiIsIm5hbWUiOiJLYXZ5YTEiLCJpc1VzZXIiOnRydWUsImlhdCI6MTU4ODI2MTYwMn0.y--imUE5RB38p45GIfH24beMvAAUIN-CW1GyMwPfUXY"
+}
+ERROR =>
+{
+	error: [ARRAY OF ERRORS] 
+}
+
+*POST /user/profile
+Request => {}
+Response => 
+{
+    "id": "teAZLZQQz",
+    "name": "Kavya1",
+    "email": "Kavya24@gmail.com",
+    "phone": "9898009900"
+}
+Error =>
+{
+	error: "SOME ERROR LIKE invalid access token"
+}
+
+POST /user/accesstoken
+Request =>
+{
+	"refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRRM2ZPdXBwWCIsIm5hbWUiOiJTMiIsImlzU3Vic2NyaWJlciI6dHJ1ZSwiaWF0IjoxNTg4MjYwMzUwfQ.I_bAHsVTIev2LE-QRZcR3HXDa86QakInYZpK2Cz0jfM"
+}
+Response =>
+{
+    "id": "teAZLZQQz",
+    "name": "Kavya1",
+    "isUser": true,
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlQVpMWlFReiIsIm5hbWUiOiJLYXZ5YTEiLCJpc1VzZXIiOnRydWUsImlhdCI6MTU4ODI2Mjg3NywiZXhwIjoxNTg4MzQ5Mjc3fQ.DrTr956_5yGrxGp6yHiQDoczPaGGG8mi2VBd58zRHUg"
+}
+Error =>
+{
+	error: "SOME ERROR LIKE invalid access token"
+}
+
+
+*POST /user/logout
+Request => {}
+Response =>
+{
+    "msg": "Logged out successfully"
+}
+Error =>
+{
+	error: "SOME ERROR LIKE invalid access token"
+}
+
+*POST /user/getallsubscriber
+Request => {}
+Response =>
+{
+    "subscribe": [
+        {
+            "id": "4Q3fOuppX",
+            "name": "S2",
+            "owner": "Kavya",
+            "email": "S2@gmail.com",
+            "phone": "9898009900"
+        },
+        {
+            "id": "gWq659yyr",
+            "name": "S1",
+            "owner": "Kavya",
+            "email": "Kavya24@gmail.com",
+            "phone": "9898009900"
+        },
+        {
+            "id": "YICeXFgnt",
+            "name": "S3",
+            "owner": "Kavya",
+            "email": "S3@gmail.com",
+            "phone": "9898009900"
+        }
+    ]
+}
+ERROR =>
+{
+	error: "SOME ERROR"
+}
+
+*POST /user/getsubscriber
+Request =>
+{
+	"subscriber_id": "4Q3fuppX"
+}
+Response =>
+{
+    "id": "4Q3fOuppX",
+    "name": "S2",
+    "owner": "Kavya",
+    "email": "S2@gmail.com",
+    "phone": "9898009900"
+}
+ERROR =>
+{
+	error: "SOME ERROR"
+}
+
+*POST /user/getallsubscriberqueue
+Request =>
+{
+	"status": "UPCOMING",
+	"subscriber_id": "YICeXFgnt"
+}
+Response =>
+{
+    "queue": [
+        {
+            "queue_id": "d1Lrxp0k8",
+            "subscriber_id": "YICeXFgnt",
+            "start_date_time": "2021-05-01T18:36:00.000Z",
+            "end_date_time": "2021-05-02T23:30:00.000Z",
+            "max_allowed": 100,
+            "avg_time_on_counter": 3,
+            "status": "UPCOMING",
+            "current_token": 0,
+            "last_issued_token": 0,
+            "last_update": "2020-04-30T17:59:30.000Z",
+            "total_issued_tokens": 0
+        },
+        {
+            "queue_id": "t9LiPnpYy",
+            "subscriber_id": "YICeXFgnt",
+            "start_date_time": "2021-03-31T18:36:00.000Z",
+            "end_date_time": "2021-04-30T23:30:00.000Z",
+            "max_allowed": 100,
+            "avg_time_on_counter": 3,
+            "status": "UPCOMING",
+            "current_token": 0,
+            "last_issued_token": 0,
+            "last_update": "2020-04-30T18:02:36.000Z",
+            "total_issued_tokens": 0
+        }
+    ]
+}
+ERROR =>
+{
+	error: "SOME ERROR"
+}
+
+*POST /user/joinqueue
+Request =>
+{
+	"queue_id": "yl3IWW4rA"
+}
+Response =>
+{
+    "msg": "User added to queue successfully.",
+    "token_no": 1
+}
+Error =>
+{
+	error: "SOME ERROR LIKE User already in this queue."
+}
+
+*POST /user/canceltoken
+Request =>
+{
+	"queue_id": "yl3IWW4rA"
+}
+Response =>
+{
+    "msg": "Token cancelled successfully"
+}
+Error =>
+{
+	error: "SOME ERROR"
+}
+
+*POST /user/gettokens
+Request =>
+{
+	"status": "ACTIVE"
+}
+Response =>
+{
+    "token": [
+        {
+            "token_no": 1,
+            "queue_id": "yl3IWW4rA",
+            "user_id": "teAZLZQQz",
+            "status": "ACTIVE",
+            "subscriber_id": "4Q3fOuppX"
+        }
+    ]
+}
+Error =>
+{
+	error: "SOME ERROR"
+}
+
+*POST /user/viewqueue
+Request =>
+{
+	"queue_id": "CFBIpLGW3"
+}
+Response =>
+{
+    "queue_id": "CFBIpLGW3",
+    "start_date_time": "2020-05-01T00:36:00.000Z",
+    "end_date_time": "2020-05-01T09:30:00.000Z",
+    "max_allowed": 100,
+    "avg_time_on_counter": 3,
+    "status": "ACTIVE",
+    "current_token": 2,
+    "last_issued_token": 4,
+    "last_update": "2020-05-01T01:24:41.000Z",
+    "total_issued_tokens": 4,
+    "subscriber": {
+        "id": "YICeXFgnt",
+        "name": "S3",
+        "owner": "Kavya",
+        "email": "S3@gmail.com",
+        "phone": "9898009900"
+    },
+    "ETA": "00:03",
+    "token": {
+        "token_no": 4,
+        "status": "WAITING",
+        "subscriber_id": "YICeXFgnt",
+        "ahead": 1
+    }
+}
+Error =>
+{
+	error: "SOME ERROR like No such queue exists"
+}
+

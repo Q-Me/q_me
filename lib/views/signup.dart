@@ -1,11 +1,12 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
+
+import '../views/signin.dart';
 import '../api/signin.dart';
 import '../widgets/button.dart';
-import 'dart:developer';
-
 import '../widgets/text.dart';
 import '../widgets/formField.dart';
-import 'nearby.dart';
+import '../views/nearby.dart';
 import '../api/signup.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -16,9 +17,16 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  bool showSpinner = false;
+  bool showSpinner = false, passwordVisible;
+
   final formKey = GlobalKey<FormState>();
   Map<String, String> formData = {};
+
+  @override
+  void initState() {
+    passwordVisible = false;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,23 +84,85 @@ class _SignUpPageState extends State<SignUpPage> {
                                   formData['email'] = value;
                                 },
                               ),
-                              SizedBox(height: 10.0),
-                              MyFormField(
-                                required: true,
-                                name: 'PASSWORD',
-                                obscureText: true,
-                                callback: (value) {
-                                  formData['pswd'] = value;
+                              SizedBox(height: 50.0),
+                              TextFormField(
+                                // Password
+                                obscureText: passwordVisible,
+                                validator: (value) {
+                                  if (value.length < 6)
+                                    return 'Password should be not be less than 6 characters';
+                                  else {
+                                    formData['pswd'] = value;
+                                    return null;
+                                  }
                                 },
+                                decoration: InputDecoration(
+                                  labelText: 'PASSWORD',
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color:
+                                              Theme.of(context).primaryColor)),
+                                  focusColor: Colors.lightBlue,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      // Based on passwordVisible state choose the icon
+                                      passwordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    onPressed: () {
+                                      // Update the state i.e. toogle the state of passwordVisible variable
+                                      setState(() {
+                                        passwordVisible = !passwordVisible;
+                                      });
+                                    },
+                                  ),
+                                ),
                               ),
                               SizedBox(height: 10.0),
-                              MyFormField(
-                                required: true,
-                                obscureText: true,
-                                name: 'CONFIRM PASSWORD',
-                                callback: (value) {
-                                  formData['cpswd'] = value;
+                              TextFormField(
+                                // Password
+                                obscureText: passwordVisible,
+                                validator: (value) {
+                                  if (value.length < 6)
+                                    return 'Password should be not be less than 6 characters';
+                                  else {
+                                    formData['cpswd'] = value;
+                                    return null;
+                                  }
                                 },
+                                decoration: InputDecoration(
+                                  labelText: 'CONFIRM PASSWORD',
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.green)),
+                                  focusColor:
+                                      Theme.of(context).primaryColorDark,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      // Based on passwordVisible state choose the icon
+                                      passwordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    onPressed: () {
+                                      // Update the state i.e. toogle the state of passwordVisible variable
+                                      setState(() {
+                                        passwordVisible = !passwordVisible;
+                                      });
+                                    },
+                                  ),
+                                ),
                               ),
                               SizedBox(height: 50.0),
                               Container(
@@ -143,8 +213,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                         log('signup response  $msg');
                                         if (msg ==
                                             'Email already registered.') {
-//                                          Navigator.pushNamed(
-//                                              context, SignInPage.id);
+                                          Navigator.pushNamed(
+                                              context, SignInPage.id);
                                         } else if (msg ==
                                             'Registation successful') {
                                           // TODO SignIn the user
@@ -153,7 +223,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                               formData['pswd']);
 
                                           if (userData['status'] == 200) {
-                                            // Show login success
+                                            // Show SignUp success
                                             Scaffold.of(context).showSnackBar(
                                                 SnackBar(
                                                     content:

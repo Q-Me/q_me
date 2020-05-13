@@ -1,8 +1,7 @@
-import 'dart:convert';
 import 'dart:ui';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../api/base_helper.dart';
@@ -38,7 +37,7 @@ class _TokenPageState extends State<TokenPage> {
     ),
   );
 
-  QueueBloc _queueDetailsBloc;
+  QueueBloc _queueDetailsBloc; //TODO Provide this
 
   @override
   void initState() {
@@ -175,12 +174,128 @@ class _QueueDetailsState extends State<QueueDetails> {
             children: <Widget>[
               Grid2x2(widget.queue),
               DashContainer(),
-              TokenDisplay(widget.queue.token.tokenNo),
-              TokenButton(widget.queue.token),
+              TokenInfo(queue: widget.queue),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class TokenInfo extends StatefulWidget {
+  final Queue queue;
+  TokenInfo({this.queue});
+  @override
+  _TokenInfoState createState() => _TokenInfoState();
+}
+
+class _TokenInfoState extends State<TokenInfo> {
+  bool validToken;
+  QueueToken myToken;
+  QueueBloc _queueDetailsBloc;
+  @override
+  void initState() {
+    myToken = widget.queue.token;
+    validToken = myToken.tokenNo != -1 ? true : false;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    validToken = myToken.tokenNo != -1 ? true : false;
+    Queue queue = widget.queue;
+    validToken = true;
+    List<Widget> colWidgets = [];
+    // TODO Consume bloc here
+    if (validToken) {
+      colWidgets.add(TokenDisplay(queue.token.tokenNo));
+      colWidgets.add(CancelTokenButton());
+    } else {
+      colWidgets.add(GetTokenButton());
+    }
+    return Column(
+      children: colWidgets,
+    );
+  }
+}
+
+class GetTokenButton extends StatelessWidget {
+  const GetTokenButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 50.0,
+      margin: EdgeInsets.all(20),
+      alignment: Alignment.center,
+      child: Material(
+        borderRadius: BorderRadius.circular(20.0),
+        shadowColor: Colors.greenAccent,
+        color: Colors.green,
+        elevation: 7.0,
+        child: InkWell(
+          onTap: () {
+            // TODO Call api to cancel token
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Center(
+              child: Text(
+                'Get Token',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Montserrat'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CancelTokenButton extends StatelessWidget {
+  const CancelTokenButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 50.0,
+      margin: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        border: Border.all(width: 1, color: Colors.red),
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      alignment: Alignment.center,
+      child: Material(
+        borderRadius: BorderRadius.circular(20.0),
+        color: Colors.white,
+        child: InkWell(
+          onTap: () {
+            // TODO Call api to join queue
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Center(
+              child: Text(
+                'Cancel Token',
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Montserrat'),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -242,46 +357,6 @@ class TokenDisplay extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class TokenButton extends StatelessWidget {
-  final QueueToken token;
-  TokenButton(this.token);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 50.0,
-      margin: EdgeInsets.all(20),
-      alignment: Alignment.center,
-      child: Material(
-        borderRadius: BorderRadius.circular(20.0),
-        shadowColor: Colors.greenAccent,
-        color: Colors.green,
-        elevation: 7.0,
-        child: token.tokenNo != -1
-            ? InkWell(
-                onTap: () {
-                  // TODO Call api to join queue
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Center(
-                    child: Text(
-                      'Get Token',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Montserrat'),
-                    ),
-                  ),
-                ),
-              )
-            : InkWell(),
       ),
     );
   }

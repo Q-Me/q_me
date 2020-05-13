@@ -67,6 +67,6 @@ class Queue {
         eta: json["ETA"] != null ? durationFromString(json["ETA"]) : Duration(),
         token: json["token"] != null
             ? QueueToken.fromJson(json["token"])
-            : QueueToken(),
+            : QueueToken(tokenNo: -1),
       );
 }

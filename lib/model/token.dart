@@ -1,11 +1,13 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
+
 class QueueToken {
   int tokenNo, ahead;
   String subscriberId, userId, queueId, status;
 
   QueueToken({
-    this.tokenNo = -1,
+    @required this.tokenNo,
     this.status,
     this.subscriberId,
     this.ahead,

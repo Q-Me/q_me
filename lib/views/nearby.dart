@@ -17,10 +17,7 @@ class MyAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      // TODO Extend the
       child: Container(
-//        color: Colors.green,
-//        height: 30,
         padding: EdgeInsets.symmetric(horizontal: 25),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -62,18 +59,6 @@ class NearbyScreenScroll extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
       child: Scaffold(
-//      appBar: AppBar(
-//        elevation: 0,
-//        backgroundColor: Colors.transparent,
-//        automaticallyImplyLeading: false,
-//        bottom: PreferredSize(
-//          preferredSize: Size(40, 40),
-//          child: SafeArea(
-//            child: Text('wrhg'),
-//          ),
-//        ),
-////        flexibleSpace: Text('war'),
-//      ),
         appBar: PreferredSize(
           preferredSize: Size(double.infinity, 100),
           child: Material(
@@ -138,14 +123,6 @@ class NearbyScreenScroll extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-//                MyAppBar(),
-//              Container(
-//                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-//                child: Text(
-//                  'Browse Nearby.',
-//                  style: TextStyle(fontSize: 40),
-//                ),
-//              ),
                 Container(
                   padding: EdgeInsets.only(left: 30, top: 18),
                   child: ThemedText(
