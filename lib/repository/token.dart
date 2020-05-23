@@ -1,4 +1,5 @@
 import '../model/token.dart';
+import 'dart:async';
 import '../model/user.dart';
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
@@ -36,6 +37,6 @@ class TokenRepository {
       headers: {'Authorization': 'Bearer ${userData.accessToken}'},
       req: {'status': status},
     );
-    return response['token'].map((token) => QueueToken.fromJson(token));
+    return response['token'].map((token) => QueueToken.fromJson(token)).toList();
   }
 }

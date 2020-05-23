@@ -5,3 +5,5 @@ const String getQueue = '/user/viewqueue';
 const String kJoinQueue = '/user/joinqueue';
 const String kCancelToken = '/user/canceltoken';
 const String kGetTokens = '/user/gettokens';
+const String kAccessToken = '/user/accesstoken';
+const String kProfile = '/user/profile';

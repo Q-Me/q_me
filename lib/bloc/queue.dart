@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:qme/model/token.dart';
 
 import '../repository/queue.dart';
 import '../repository/token.dart';
 import 'dart:async';
+import 'dart:developer';
 import '../api/base_helper.dart';
 import '../model/queue.dart';
 
@@ -43,6 +45,8 @@ class QueuesBloc {
 
 class QueueBloc with ChangeNotifier {
   String queueId;
+  Queue queue;
+
   QueueRepository _queueRepository;
   TokenRepository _tokenRepository;
 
@@ -51,16 +55,13 @@ class QueueBloc with ChangeNotifier {
   StreamController _msgController;
 
   StreamSink<ApiResponse<Queue>> get queueSink => _queueController.sink;
-  StreamSink<ApiResponse<QueueToken>> get tokenSink => _tokenController.sink;
   StreamSink<ApiResponse<String>> get msgSink => _msgController.sink;
 
   Stream<ApiResponse<Queue>> get queueStream => _queueController.stream;
-  Stream<ApiResponse<Map>> get tokenStream => _queueController.stream;
-  Stream<ApiResponse<String>> get msgStream => _queueController.stream;
+  Stream<ApiResponse<String>> get msgStream => _msgController.stream;
 
   QueueBloc(this.queueId) {
     _queueController = StreamController<ApiResponse<Queue>>();
-    _tokenController = StreamController<ApiResponse<QueueToken>>();
     _msgController = StreamController<ApiResponse<String>>();
 
     _queueRepository = QueueRepository();
@@ -70,13 +71,17 @@ class QueueBloc with ChangeNotifier {
   fetchQueueData() async {
     queueSink.add(ApiResponse.loading('Fetching Queue details'));
     msgSink.add(ApiResponse.loading('Fetching Queue details'));
+    msgSink.add(ApiResponse.loading('Fetching token details'));
     try {
-      Queue queue = await _queueRepository.fetchQueue(queueId);
-      if (queue.token.tokenNo != -1) {
-        tokenSink.add(ApiResponse.completed(queue.token));
+      Queue _queue = await _queueRepository.fetchQueue(queueId);
+      if (_queue.token != null && _queue.token.tokenNo != -1) {
         msgSink.add(ApiResponse.completed('User already  in queue.'));
+      } else {
+        msgSink.add(ApiResponse.completed('User not in queue.'));
       }
-      queueSink.add(ApiResponse.completed(queue));
+      queue = _queue;
+      queueSink.add(ApiResponse.completed(_queue));
+      log('1. Added a queue to stream');
     } catch (e) {
       queueSink.add(ApiResponse.error(e.toString()));
       print(e);
@@ -84,13 +89,13 @@ class QueueBloc with ChangeNotifier {
   }
 
   joinQueue() async {
+    _tokenRepository = TokenRepository();
     msgSink.add(ApiResponse.loading('Fetching token details'));
     try {
-      Map token = await _tokenRepository.joinQueue(queueId);
-      msgSink.add(ApiResponse.completed(token['msg']));
-      if (token['msg'] == 'User added to queue successfully.')
-        tokenSink
-            .add(ApiResponse.completed(QueueToken(tokenNo: token['token_no'])));
+      Map response = await _tokenRepository.joinQueue(queueId);
+      msgSink.add(ApiResponse.completed(response['msg']));
+      // 'User added to queue successfully.'
+      queue.token = response['token'];
     } catch (e) {
       msgSink.add(ApiResponse.error(e.toString()));
       print(e);
@@ -99,12 +104,16 @@ class QueueBloc with ChangeNotifier {
 
   cancelToken() async {
     msgSink.add(ApiResponse.loading('Cancelling token'));
+    _tokenRepository = TokenRepository();
     try {
+      log('Initialising cancel token request');
       Map response = await _tokenRepository.cancelToken(queueId);
       msgSink.add(ApiResponse.completed(response['msg']));
+      log('Cancel token successful');
+      queue.token = null;
     } catch (e) {
       msgSink.add(ApiResponse.error(e.toString()));
-      print(e);
+      log(e.toString());
     }
   }
 

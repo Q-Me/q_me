@@ -12,6 +12,7 @@ import '../model/queue.dart';
 import '../constants.dart';
 import '../widgets/dash.dart';
 import '../widgets/loader.dart';
+import '../widgets/customStreamBuilder.dart';
 import '../widgets/error.dart';
 import '../utilities/time.dart';
 
@@ -71,32 +72,38 @@ class _TokenPageState extends State<TokenPage> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: RefreshIndicator(
-            onRefresh: () => _queueDetailsBloc.fetchQueueData(),
-            child: StreamBuilder<ApiResponse<Queue>>(
-              stream: _queueDetailsBloc.queueStream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  switch (snapshot.data.status) {
-                    case Status.LOADING:
-                      return Loading(loadingMessage: snapshot.data.message);
-                      break;
-                    case Status.COMPLETED:
-                      return QueueDetails(snapshot.data.data);
-                      break;
-                    case Status.ERROR:
-                      return Error(
-                        errorMessage: snapshot.data.message,
-                        onRetryPressed: () =>
-                            _queueDetailsBloc.fetchQueueData(),
-                      );
-                      break;
+          child: ChangeNotifierProvider.value(
+            value: _queueDetailsBloc,
+            child: RefreshIndicator(
+              onRefresh: () => _queueDetailsBloc.fetchQueueData(),
+              child: StreamBuilder<ApiResponse<Queue>>(
+                stream: _queueDetailsBloc.queueStream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    log('TokenPage Snapshot data: ${snapshot.data.toString()}');
+                    switch (snapshot.data.status) {
+                      case Status.LOADING:
+                        return Loading(loadingMessage: snapshot.data.message);
+                        break;
+                      case Status.COMPLETED:
+                        log('TokenPage COMPLETE Snapshot data: ${snapshot.data.data.toJson()}');
+
+                        return QueueDetails(snapshot.data.data);
+                        break;
+                      case Status.ERROR:
+                        return Error(
+                          errorMessage: snapshot.data.message,
+                          onRetryPressed: () =>
+                              _queueDetailsBloc.fetchQueueData(),
+                        );
+                        break;
+                    }
+                  } else {
+                    Text('no Snapshot data');
                   }
-                } else {
-                  Text('no Snapshot data');
-                }
-                return Container();
-              },
+                  return Container();
+                },
+              ),
             ),
           ),
         ),
@@ -107,7 +114,9 @@ class _TokenPageState extends State<TokenPage> {
 
 class QueueDetails extends StatefulWidget {
   final Queue queue;
-  QueueDetails(this.queue);
+  QueueDetails(this.queue) {
+    log('QueueDetails constructor:${queue.toJson()}');
+  }
   @override
   _QueueDetailsState createState() => _QueueDetailsState();
 }
@@ -172,7 +181,7 @@ class _QueueDetailsState extends State<QueueDetails> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Grid2x2(widget.queue),
+              Grid2x2(Provider.of<QueueBloc>(context).queue),
               DashContainer(),
               TokenInfo(queue: widget.queue),
             ],
@@ -194,28 +203,49 @@ class _TokenInfoState extends State<TokenInfo> {
   bool validToken;
   QueueToken myToken;
   QueueBloc _queueDetailsBloc;
-  @override
-  void initState() {
-    myToken = widget.queue.token;
-    validToken = myToken.tokenNo != -1 ? true : false;
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
-    validToken = myToken.tokenNo != -1 ? true : false;
-    Queue queue = widget.queue;
-    validToken = true;
-    List<Widget> colWidgets = [];
-    // TODO Consume bloc here
-    if (validToken) {
-      colWidgets.add(TokenDisplay(queue.token.tokenNo));
-      colWidgets.add(CancelTokenButton());
-    } else {
-      colWidgets.add(GetTokenButton());
-    }
-    return Column(
-      children: colWidgets,
+    _queueDetailsBloc = Provider.of<QueueBloc>(context);
+    return CustomStreamBuilder<ApiResponse<String>>(
+      stream: _queueDetailsBloc.msgStream,
+      initialWidget: GetTokenButton(),
+      builder: (context, data) {
+        log('msg stream: ${data.toString()}');
+        switch (data.status) {
+          case Status.LOADING:
+            return Loading(
+              loadingMessage: data.message,
+            );
+            break;
+          case Status.COMPLETED:
+            if (data.data == 'User not in queue.' ||
+                data.data == 'Token cancelled successfully') {
+              return GetTokenButton();
+            } else if (data.data == 'User added to queue successfully.' ||
+                data.data == 'User already  in queue.') {
+              // There will be a token in the token stream, fetch that
+              final tokenData = Provider.of<QueueBloc>(context).queue.token;
+              log('tokenData from provider : ${tokenData.toJson()}');
+              if (tokenData is QueueToken && tokenData.tokenNo != -1) {
+                return Column(children: <Widget>[
+                  TokenDisplay(tokenData.tokenNo),
+                  CancelTokenButton(),
+                ]);
+              } else {
+                return GetTokenButton();
+              }
+            }
+            break;
+          case Status.ERROR:
+            return Error(
+              errorMessage: data.message,
+              onRetryPressed: () => _queueDetailsBloc.fetchQueueData(),
+            );
+            break;
+        }
+        return Container();
+      },
     );
   }
 }
@@ -224,9 +254,9 @@ class GetTokenButton extends StatelessWidget {
   const GetTokenButton({
     Key key,
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
+    final _queueDetailsBloc = Provider.of<QueueBloc>(context);
     return Container(
       height: 50.0,
       margin: EdgeInsets.all(20),
@@ -238,7 +268,8 @@ class GetTokenButton extends StatelessWidget {
         elevation: 7.0,
         child: InkWell(
           onTap: () {
-            // TODO Call api to cancel token
+            // TODO Call api to get token
+            _queueDetailsBloc.joinQueue();
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -266,6 +297,7 @@ class CancelTokenButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _queueDetailsBloc = Provider.of<QueueBloc>(context);
     return Container(
       height: 50.0,
       margin: EdgeInsets.all(20),
@@ -280,6 +312,8 @@ class CancelTokenButton extends StatelessWidget {
         child: InkWell(
           onTap: () {
             // TODO Call api to join queue
+            log('Calling cancel token on ${_queueDetailsBloc.queueId}');
+            _queueDetailsBloc.cancelToken();
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),

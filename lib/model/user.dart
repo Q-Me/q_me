@@ -4,11 +4,8 @@ import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserData {
-  String id;
-  String name;
+  String id, name, email, phone, accessToken, refreshToken;
   bool isUser;
-  String accessToken;
-  String refreshToken;
 
   UserData({
     this.id,
@@ -16,6 +13,8 @@ class UserData {
     this.isUser,
     this.accessToken,
     this.refreshToken,
+    this.email,
+    this.phone,
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
@@ -24,19 +23,9 @@ class UserData {
         isUser: json["isUser"],
         accessToken: json["accessToken"],
         refreshToken: json["refreshToken"],
+        email: json['email'],
+        phone: json['phone'],
       );
-
-  /*factory UserData.fromStorage() async {
-    Future<SharedPreferences> prefs = await SharedPreferences.getInstance();
-
-    return UserData(
-      id: prefs.getString('id') ?? null,
-      name: prefs.getString('name') ?? null,
-      accessToken: prefs.getString('name') ?? null,
-      refreshToken: prefs.getString('refreshToken') ?? null,
-      isUser: prefs.getBool('isUser') ?? null,
-    );
-  }*/
 
   Map<String, dynamic> toJson() => {
         "id": id,
@@ -44,6 +33,8 @@ class UserData {
         "isUser": isUser,
         "accessToken": accessToken,
         "refreshToken": refreshToken,
+        "email": email,
+        "phone": phone,
       };
 }
 
@@ -51,11 +42,15 @@ void storeUserData(UserData userData) async {
   // Set the user id, and other details are stored in local storage of the app
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  prefs.setString('id', userData.id);
-  prefs.setString('name', userData.name);
-  prefs.setString('accessToken', userData.accessToken);
-  prefs.setString('refreshToken', userData.refreshToken);
-  prefs.setBool('isUser', userData.isUser);
+  if (userData.id != null) prefs.setString('id', userData.id);
+  if (userData.name != null) prefs.setString('name', userData.name);
+  if (userData.accessToken != null)
+    prefs.setString('accessToken', userData.accessToken);
+  if (userData.refreshToken != null)
+    prefs.setString('refreshToken', userData.refreshToken);
+  if (userData.isUser != null) prefs.setBool('isUser', userData.isUser);
+  if (userData.email != null) prefs.setString('isUser', userData.email);
+  if (userData.phone != null) prefs.setString('isUser', userData.phone);
 
   log('Storing user data succeess');
 
@@ -70,6 +65,8 @@ Future<UserData> getUserDataFromStorage() async {
   String name = prefs.getString('name') ?? null;
   String accessToken = prefs.getString('accessToken') ?? null;
   String refreshToken = prefs.getString('refreshToken') ?? null;
+  String email = prefs.getString('email') ?? null;
+  String phone = prefs.getString('phone') ?? null;
   bool isUser = prefs.getBool('isUser') ?? null;
 
   return UserData(
@@ -78,6 +75,8 @@ Future<UserData> getUserDataFromStorage() async {
     accessToken: accessToken,
     refreshToken: refreshToken,
     isUser: isUser,
+    email: email,
+    phone: phone,
   );
 }
 

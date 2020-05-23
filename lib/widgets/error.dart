@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 class Error extends StatelessWidget {
-  final String errorMessage;
+  final String errorMessage, buttonLabel;
 
   final Function onRetryPressed;
 
-  const Error({Key key, this.errorMessage, this.onRetryPressed})
+  const Error(
+      {Key key,
+      this.errorMessage,
+      this.onRetryPressed,
+      this.buttonLabel = 'Retry'})
       : super(key: key);
 
   @override
@@ -25,7 +29,7 @@ class Error extends StatelessWidget {
           SizedBox(height: 8),
           RaisedButton(
             color: Colors.lightGreen,
-            child: Text('Retry', style: TextStyle(color: Colors.white)),
+            child: Text(buttonLabel, style: TextStyle(color: Colors.white)),
             onPressed: onRetryPressed,
           )
         ],

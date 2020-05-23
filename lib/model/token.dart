@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 
-class QueueToken {
+class QueueToken extends ChangeNotifier {
   int tokenNo, ahead;
   String subscriberId, userId, queueId, status;
 

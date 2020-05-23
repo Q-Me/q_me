@@ -67,6 +67,21 @@ class Queue {
         eta: json["ETA"] != null ? durationFromString(json["ETA"]) : Duration(),
         token: json["token"] != null
             ? QueueToken.fromJson(json["token"])
-            : QueueToken(tokenNo: -1),
+            : json["token"],
       );
+  Map<String, dynamic> toJson() => {
+        "queue_id": queueId,
+        "start_date_time": startDateTime.toIso8601String(),
+        "end_date_time": endDateTime.toIso8601String(),
+        "max_allowed": maxAllowed,
+        "avg_time_on_counter": avgTimeOnCounter,
+        "status": status,
+        "current_token": currentToken,
+        "last_issued_token": lastIssuedToken,
+        "last_update": lastUpdate.toIso8601String(),
+        "total_issued_tokens": totalIssuedTokens,
+        "subscriber": subscriber.toJson(),
+        "ETA": eta,
+        "token": token != null ? token.toJson() : null,
+      };
 }

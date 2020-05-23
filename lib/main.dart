@@ -22,7 +22,8 @@ class MyApp extends StatelessWidget {
         BookingScreen.id: (BuildContext context) => BookingScreen(),
         TokenPage.id: (BuildContext context) => TokenPage(),
       },
-      initialRoute: NearbyScreen.id,
+      initialRoute: NearbyScreen
+          .id, // Check for valid access token if not then refresh it
     );
   }
 }

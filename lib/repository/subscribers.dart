@@ -1,3 +1,5 @@
+import 'package:qme/repository/user.dart';
+
 import '../model/subscriber.dart';
 import '../model/user.dart';
 import '../api/base_helper.dart';
@@ -7,9 +9,16 @@ class SubscribersRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
 
   Future<List<Subscriber>> fetchSubscriberList() async {
-    final UserData userData = await getUserDataFromStorage();
-    final response = await _helper.post(getAllSubscribers,
+    UserData userData = await getUserDataFromStorage();
+    dynamic response = await _helper.post(getAllSubscribers,
         headers: {'Authorization': 'Bearer ${userData.accessToken}'});
+    if (response['error'] == 'Invalid access token') {
+      final userRepo = UserRepository();
+      userRepo.fetchAccessToken();
+      userData = await getUserDataFromStorage();
+      response = await _helper.post(getAllSubscribers,
+          headers: {'Authorization': 'Bearer ${userData.accessToken}'});
+    }
     return Subscribers.fromJson(response).list;
   }
 }

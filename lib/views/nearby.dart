@@ -11,6 +11,8 @@ import '../widgets/text.dart';
 import '../api/base_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../widgets/loader.dart';
+import '../views/signin.dart';
+import '../widgets/Tiles.dart';
 import '../widgets/error.dart';
 
 class MyAppBar extends StatelessWidget {
@@ -328,93 +330,6 @@ class SubscriberTile extends StatelessWidget {
   }
 }
 
-class SubscriberGridTile extends StatelessWidget {
-  final Subscriber subscriberData;
-  final int index;
-  SubscriberGridTile({this.subscriberData, this.index});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(
-          left: index % 2 == 0 ? 10 : 5,
-          right: index % 2 != 0 ? 10 : 5,
-          top: 5,
-          bottom: 5),
-      child: GestureDetector(
-        onTap: () {
-          log('From Nearby (SubscriberGridTile) Going to Subscriber id:${subscriberData.id}');
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BookingScreen(subscriber: subscriberData),
-              ));
-        },
-        child: Container(
-          decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.all(Radius.circular(10))),
-          padding: EdgeInsets.all(8),
-          child: Column(
-            children: <Widget>[
-              // New
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                    decoration: BoxDecoration(
-                        color: Colors.black12,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Text("New", style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
-              Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                          child: Text(subscriberData.name,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 20)),
-                        ),
-                        SizedBox(height: 8),
-                        Text(subscriberData.owner,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
-                            )),
-                        SizedBox(height: 8),
-                        Text(
-                          subscriberData.address,
-                          maxLines: 2,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /*class NearbyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -610,6 +525,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
                 stream: _bloc.subscribersListStream,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
+//                    log('Nearby :${snapshot.data.toString()}');
                     switch (snapshot.data.status) {
                       case Status.LOADING:
                         return Loading(loadingMessage: snapshot.data.message);
@@ -619,6 +535,16 @@ class _NearbyScreenState extends State<NearbyScreen> {
                             subscriberList: snapshot.data.data);
                         break;
                       case Status.ERROR:
+                        // check for valid access token
+                        if (snapshot.data.message ==
+                            'Unauthorised: {"error":"Invalid access token"}') {
+                          return Error(
+                            errorMessage: 'You are not logged in',
+                            buttonLabel: 'Go to login screen',
+                            onRetryPressed: () =>
+                                Navigator.pushNamed(context, SignInPage.id),
+                          );
+                        }
                         return Error(
                           errorMessage: snapshot.data.message,
                           onRetryPressed: () => _bloc.fetchSubscribersList(),
