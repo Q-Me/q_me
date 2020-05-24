@@ -33,14 +33,14 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    _bloc = QueuesBloc(widget.subscriber.id, queueStatus);
+    _bloc = QueuesBloc(widget.subscriber.id);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_bloc == null) {
-      _bloc = QueuesBloc(widget.subscriber.id, queueStatus);
+      _bloc = QueuesBloc(widget.subscriber.id);
     }
   }
 
@@ -290,9 +290,9 @@ class HeaderInfo extends StatelessWidget {
             )),
         SizedBox(height: 10),
         Text(
-          subscriber.address,
+          'subscriber.address',
           style: TextStyle(
-            color: Colors.white,
+            color: Colors.black54,
             fontWeight: FontWeight.w400,
             fontSize: 16,
           ),
