@@ -25,6 +25,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   assorted_layout_widgets: ^1.0.18
   cached_network_image: ^2.1.0+1
+  keyboard_avoider: ^0.1.2
   path_drawing: ^0.4.1
   http: ^0.12.1
   shared_preferences: ^0.5.7

@@ -180,6 +180,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                 elevation: 7.0,
                                 child: InkWell(
                                   onTap: () async {
+                                    FocusScope.of(context).requestFocus(
+                                        FocusNode()); // dismiss the keyboard
                                     if (formKey.currentState.validate()) {
                                       log('$formData');
                                       // check phone number length
@@ -202,8 +204,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                         return null;
                                       }
 
-                                      FocusScope.of(context).requestFocus(
-                                          FocusNode()); // dismiss the keyboard
                                       Scaffold.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text('Processing Data'),
