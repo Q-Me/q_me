@@ -12,7 +12,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-//      theme: , //TODO Apply theme
+      theme: ThemeData.light()
+          .copyWith(primaryColor: Colors.green), //TODO Apply theme
+
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
         SignUpPage.id: (BuildContext context) => SignUpPage(),

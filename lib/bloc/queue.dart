@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
-import 'package:qme/model/token.dart';
 
 import '../repository/queue.dart';
 import '../repository/token.dart';
@@ -30,10 +28,10 @@ class QueuesBloc {
   fetchQueuesList() async {
     queuesListSink.add(ApiResponse.loading('Fetching Queues'));
     try {
-      queuesList =
-          await _queuesRepository.fetchQueueList(subscriberId, "ACTIVE");
-      final List<Queue> upcomingQueues =
-          await _queuesRepository.fetchQueueList(subscriberId, "UPCOMING");
+      queuesList = filterEndedQueues(
+          await _queuesRepository.fetchQueueList(subscriberId, "ACTIVE"));
+      final List<Queue> upcomingQueues = filterEndedQueues(
+          await _queuesRepository.fetchQueueList(subscriberId, "UPCOMING"));
       queuesListSink.add(
           ApiResponse.completed(List.from(queuesList)..addAll(upcomingQueues)));
     } catch (e) {
@@ -45,6 +43,23 @@ class QueuesBloc {
   dispose() {
     _queuesListController?.close();
   }
+}
+
+List<Queue> filterEndedQueues(List<Queue> queues) {
+  if (queues.length == 0) {
+    return queues;
+  }
+  Queue queue;
+  DateTime now = DateTime.now();
+  List<Queue> finalQueueList = [];
+  for (int i = 0; i < queues.length; i++) {
+    queue = queues[i];
+
+    if (!now.isAfter(queue.endDateTime)) {
+      finalQueueList.add(queue);
+    }
+  }
+  return finalQueueList;
 }
 
 class QueueBloc with ChangeNotifier {

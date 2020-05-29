@@ -454,61 +454,10 @@ class _NearbyScreenState extends State<NearbyScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
       child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size(double.infinity, 100),
-          child: Material(
-            elevation: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    spreadRadius: 5,
-                    blurRadius: 2,
-                  )
-                ],
-              ),
-              width: MediaQuery.of(context).size.width,
-              height: 100,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20)),
-                ),
-                child: Container(
-                  color: Colors.transparent,
-                  margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      SizedBox(width: 20),
-                      Icon(CustomIcons.menu, size: 32, color: Colors.white),
-                      Spacer(),
-                      Text("Q Me",
-                          style: TextStyle(fontSize: 30, color: Colors.white)),
-                      Spacer(),
-                      Icon(
-                        Icons.refresh,
-                        size: 32,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Icon(
-                        Icons.more_vert,
-                        size: 32,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 16),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).primaryColor,
+          title:
+              Text("Q Me", style: TextStyle(fontSize: 30, color: Colors.white)),
         ),
         body: Column(
           children: <Widget>[
@@ -519,43 +468,45 @@ class _NearbyScreenState extends State<NearbyScreen> {
                 fontSize: 35,
               ),
             ),
-            RefreshIndicator(
-              onRefresh: () => _bloc.fetchSubscribersList(),
-              child: StreamBuilder<ApiResponse<List<Subscriber>>>(
-                stream: _bloc.subscribersListStream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () => _bloc.fetchSubscribersList(),
+                child: StreamBuilder<ApiResponse<List<Subscriber>>>(
+                  stream: _bloc.subscribersListStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
 //                    log('Nearby :${snapshot.data.toString()}');
-                    switch (snapshot.data.status) {
-                      case Status.LOADING:
-                        return Loading(loadingMessage: snapshot.data.message);
-                        break;
-                      case Status.COMPLETED:
-                        return SubscribersGrid(
-                            subscriberList: snapshot.data.data);
-                        break;
-                      case Status.ERROR:
-                        // check for valid access token
-                        if (snapshot.data.message ==
-                            'Unauthorised: {"error":"Invalid access token"}') {
+                      switch (snapshot.data.status) {
+                        case Status.LOADING:
+                          return Loading(loadingMessage: snapshot.data.message);
+                          break;
+                        case Status.COMPLETED:
+                          return SubscribersGrid(
+                              subscriberList: snapshot.data.data);
+                          break;
+                        case Status.ERROR:
+                          // check for valid access token
+                          if (snapshot.data.message ==
+                              'Unauthorised: {"error":"Invalid access token"}') {
+                            return Error(
+                              errorMessage: 'You are not logged in',
+                              buttonLabel: 'Go to login screen',
+                              onRetryPressed: () =>
+                                  Navigator.pushNamed(context, SignInPage.id),
+                            );
+                          }
                           return Error(
-                            errorMessage: 'You are not logged in',
-                            buttonLabel: 'Go to login screen',
-                            onRetryPressed: () =>
-                                Navigator.pushNamed(context, SignInPage.id),
+                            errorMessage: snapshot.data.message,
+                            onRetryPressed: () => _bloc.fetchSubscribersList(),
                           );
-                        }
-                        return Error(
-                          errorMessage: snapshot.data.message,
-                          onRetryPressed: () => _bloc.fetchSubscribersList(),
-                        );
-                        break;
+                          break;
+                      }
+                    } else {
+                      log('no Snapshot data');
                     }
-                  } else {
-                    log('no Snapshot data');
-                  }
-                  return Container();
-                },
+                    return Container();
+                  },
+                ),
               ),
             ),
           ],
@@ -577,13 +528,12 @@ class SubscribersGrid extends StatelessWidget {
       shrinkWrap: true,
       gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-      itemBuilder: (context, index) => SubscriberGridTile(
-          subscriberData: subscriberList[index], index: index),
+      itemBuilder: (context, index) =>
+          SubscriberGridTile(data: subscriberList[index], index: index),
     );
   }
 }
 
-/*
 class SubscriberGridTile extends StatelessWidget {
   final Subscriber data;
   final int index;
@@ -598,8 +548,15 @@ class SubscriberGridTile extends StatelessWidget {
           bottom: 5),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, BookingScreen.id,
-              arguments: {'id': data.id});
+          log('Navigating to subscriber id:${data.id}');
+//          Navigator.pushNamed(context, BookingScreen.id,
+//              arguments: {'id': data.id});
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => BookingScreen(
+                        subscriber: data,
+                      )));
         },
         child: Stack(
           children: <Widget>[
@@ -673,4 +630,3 @@ class SubscriberGridTile extends StatelessWidget {
     );
   }
 }
-*/

@@ -38,7 +38,7 @@ class UserData {
       };
 }
 
-void storeUserData(UserData userData) async {
+Future<void> storeUserData(UserData userData) async {
   // Set the user id, and other details are stored in local storage of the app
   SharedPreferences prefs = await SharedPreferences.getInstance();
 

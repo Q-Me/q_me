@@ -22,6 +22,7 @@ class ApiBaseHelper {
     var responseJson;
     try {
       if (req != null) {
+        headers = headers == null ? {} : headers;
         headers['Accept'] = 'application/json';
         headers['Content-type'] = 'application/json';
       }
@@ -52,7 +53,7 @@ class ApiBaseHelper {
       case 500:
       default:
         throw FetchDataException(
-            'Error occured while Communication with Server with StatusCode : ${response.statusCode}');
+            'Error occurred while Communication with Server with StatusCode : ${response.statusCode}');
     }
   }
 }

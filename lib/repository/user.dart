@@ -19,4 +19,16 @@ class UserRepository {
     storeUserData(UserData.fromJson(response));
     return response['accessToken'];
   }
+
+  Future<Map<String, dynamic>> signUp(Map<String, String> formData) async {
+    final response = await _helper.post(kSignUp, req: formData);
+    return response;
+  }
+
+  Future<Map<String, dynamic>> signIn(Map<String, String> formData) async {
+    final response = await _helper.post(kSignIn, req: formData);
+    await storeUserData(UserData.fromJson(response));
+
+    return response;
+  }
 }

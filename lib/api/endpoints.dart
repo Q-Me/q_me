@@ -7,3 +7,5 @@ const String kCancelToken = '/user/canceltoken';
 const String kGetTokens = '/user/gettokens';
 const String kAccessToken = '/user/accesstoken';
 const String kProfile = '/user/profile';
+const String kSignUp = '/user/signup';
+const String kSignIn = '/user/login';

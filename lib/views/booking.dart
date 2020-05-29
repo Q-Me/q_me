@@ -28,10 +28,10 @@ class _BookingScreenState extends State<BookingScreen> {
   final double appBarOffset = 10;
 
   QueuesBloc _bloc;
-  String queueStatus = 'UPCOMING';
 
   @override
   void initState() {
+    log('Opening queues for subscriber id:' + widget.subscriber.id);
     super.initState();
     _bloc = QueuesBloc(widget.subscriber.id);
   }
@@ -290,7 +290,7 @@ class HeaderInfo extends StatelessWidget {
             )),
         SizedBox(height: 10),
         Text(
-          'subscriber.address',
+          subscriber.address,
           style: TextStyle(
             color: Colors.black54,
             fontWeight: FontWeight.w400,
