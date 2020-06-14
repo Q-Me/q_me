@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../model/token.dart';
 import 'dart:async';
 import '../model/user.dart';
@@ -30,13 +32,15 @@ class TokenRepository {
     return response;
   }
 
-  Future<Map<String, dynamic>> getTokens(String status) async {
+  Future<Map<String, dynamic>> getTokens({@required String status}) async {
     final UserData userData = await getUserDataFromStorage();
     final response = await _helper.post(
       kGetTokens,
       headers: {'Authorization': 'Bearer ${userData.accessToken}'},
       req: {'status': status},
     );
-    return response['token'].map((token) => QueueToken.fromJson(token)).toList();
+    return response['token']
+        .map((token) => QueueToken.fromJson(token))
+        .toList();
   }
 }

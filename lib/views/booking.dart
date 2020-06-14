@@ -15,9 +15,9 @@ import '../widgets/error.dart';
 import '../constants.dart';
 
 class BookingScreen extends StatefulWidget {
+  static const String id = '/booking';
   final Subscriber subscriber;
   BookingScreen({this.subscriber});
-  static String id = 'booking';
   @override
   _BookingScreenState createState() => _BookingScreenState();
 }
@@ -212,11 +212,13 @@ class QueueItem extends StatelessWidget {
                             elevation: 7.0,
                             child: InkWell(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            TokenPage(queueId: queue.queueId)));
+//                                Navigator.push(
+//                                    context,
+//                                    MaterialPageRoute(
+//                                        builder: (context) =>
+//                                            TokenPage(queueId: queue.queueId)));
+                                Navigator.pushNamed(context, TokenScreen.id,
+                                    arguments: queue.queueId);
                               },
                               child: Padding(
                                 padding:
@@ -282,7 +284,7 @@ class HeaderInfo extends StatelessWidget {
         Text(subscriber.name,
             style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
         SizedBox(height: 10),
-        Text(subscriber.owner,
+        Text(subscriber.category,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 22,

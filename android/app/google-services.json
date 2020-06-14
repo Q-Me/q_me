@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "137294993106",
+    "firebase_url": "https://q-me-user.firebaseio.com",
+    "project_id": "q-me-user",
+    "storage_bucket": "q-me-user.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137294993106:android:e167ae8b85092479107f0b",
+        "android_client_info": {
+          "package_name": "com.vaapso.qme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "137294993106-1nsrl8bi5de8jdmg4a8ajutkekm6eh2v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVef0d0BaEubSiOgSiNkIvxzjjyttvBzo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "137294993106-1nsrl8bi5de8jdmg4a8ajutkekm6eh2v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,11 +1,23 @@
+import 'package:flutter/cupertino.dart';
+import 'package:qme/model/user.dart';
+
 import '../repository/subscribers.dart';
 import '../api/base_helper.dart';
 import '../model/subscriber.dart';
 import 'dart:async';
 import 'dart:developer';
 
-class SubscribersBloc {
+class SubscribersBloc extends ChangeNotifier {
   SubscribersRepository _subscribersRepository;
+  String _accessToken;
+  String _category;
+
+  Future<void> setCategory(String category) async {
+    _category = category;
+    await getSubscriberByCategory(category: _category);
+  }
+
+  List<Subscriber> subscriberList;
 
   StreamController _subscribersListController;
 
@@ -28,10 +40,29 @@ class SubscribersBloc {
     try {
       List<Subscriber> subscribers =
           await _subscribersRepository.fetchSubscriberList();
+      subscriberList = subscribers;
       subscribersListSink.add(ApiResponse.completed(subscribers));
     } catch (e) {
       subscribersListSink.add(ApiResponse.error(e.toString()));
-      print(e);
+      log('Error in Subscriber BLoC:fetchSubscribersList:' + e.toString());
+    }
+  }
+
+  getSubscriberByCategory({@required String category, String location}) async {
+    subscribersListSink.add(ApiResponse.loading('Fetching $category\'s'));
+    _accessToken = await getAccessTokenFromStorage();
+
+    try {
+      List<Subscriber> categorySubscribers =
+          await _subscribersRepository.subscriberByCategory(
+        category: category,
+        accessToken: _accessToken,
+      );
+      subscriberList = categorySubscribers;
+      subscribersListSink.add(ApiResponse.completed(subscriberList));
+    } catch (e) {
+      subscribersListSink.add(ApiResponse.error(e.toString()));
+      log('Error in Subscriber BLoC:fetchSubscribersList:' + e.toString());
     }
   }
 

@@ -20,15 +20,15 @@ import '../utilities/time.dart';
 Display the token number, ETA, Distance
 */
 
-class TokenPage extends StatefulWidget {
-  static String id = 'token';
+class TokenScreen extends StatefulWidget {
+  static const String id = '/token';
   final String queueId;
-  TokenPage({this.queueId});
+  TokenScreen({@required this.queueId});
   @override
-  _TokenPageState createState() => _TokenPageState();
+  _TokenScreenState createState() => _TokenScreenState();
 }
 
-class _TokenPageState extends State<TokenPage> {
+class _TokenScreenState extends State<TokenScreen> {
   Widget imgWidget = ClipRRect(
     borderRadius: BorderRadius.only(
         topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
@@ -146,7 +146,7 @@ class _QueueDetailsState extends State<QueueDetails> {
                             topLeft: Radius.circular(10))),
                   ),
                 ),
-                Flexible(
+                Expanded(
                   flex: 2,
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -434,8 +434,8 @@ class Grid2x2 extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 0.0),
                 child: Grid2x2Item(
                   'Your turn may come at',
-                  getTime(queue.startDateTime.add(queue.eta)).toString(),
-                  getDate(queue.startDateTime.add(queue.eta)).toString(),
+                  getTime(DateTime.now().add(queue.eta)).toString(),
+                  getDate(DateTime.now().add(queue.eta)).toString(),
                 )),
           ])
         ],

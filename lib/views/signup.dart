@@ -8,14 +8,14 @@ import '../views/nearby.dart';
 import '../api/app_exceptions.dart';
 import '../repository/user.dart';
 
-class SignUpPage extends StatefulWidget {
-  static final id = 'signup';
+class SignUpScreen extends StatefulWidget {
+  static const id = '/signup';
 
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  _SignUpScreenState createState() => _SignUpScreenState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignUpScreenState extends State<SignUpScreen> {
   bool showSpinner = false, passwordVisible;
   final ScrollController _scrollController = ScrollController();
 
@@ -246,6 +246,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                             'password': formData['password']
                                           });
                                         } catch (e) {
+                                          log(e.toString());
                                           Scaffold.of(context).showSnackBar(
                                             SnackBar(
                                               content: Text(e.toString()),

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import '../widgets/text.dart';
 import '../widgets/Tiles.dart';
+import '../widgets/appDrawer.dart';import '../widgets/error.dart';
+import '../widgets/loader.dart';
+import '../api/base_helper.dart';
+import 'package:qme/api/base_helper.dart';
+import '../model/token.dart';
 
-class ProfilePage extends StatelessWidget {
-  static String id = 'profile';
+
+class ProfileScreen extends StatelessWidget {
+  static const String id = '/profile';
   final scaffoldBackground = Colors.white;
   @override
   Widget build(BuildContext context) {
@@ -17,43 +23,14 @@ class ProfilePage extends StatelessWidget {
             color: Colors.black,
           ),
         ),
-        drawer: Drawer(
-          // Add a ListView to the drawer. This ensures the user can scroll
-          // through the options in the drawer if there isn't enough vertical
-          // space to fit everything.
-          child: ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                child: Text('Drawer Header'),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-              ),
-              ListTile(
-                title: Text('Item 1'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                title: Text('Item 2'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-            ],
-          ),
-        ),
+        drawer: AppDrawer(),
         backgroundColor: scaffoldBackground,
         /*appBar: AppBar(
           elevation: 0,
           backgroundColor: scaffoldBackground,
         ),*/
         body: SingleChildScrollView(
+          physics: ScrollPhysics(),
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             child: Column(
@@ -98,24 +75,10 @@ class ProfilePage extends StatelessWidget {
                           color: Colors.black12,
                         ),
                         child: Text(
-                          '• Future Bookings',
+                          '• Your Bookings',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
-                      Container(
-                        padding: EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-//                          border: Border.all(),
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(8),
-                              topRight: Radius.circular(8)),
-                          color: Colors.black12,
-                        ),
-                        child: Text(
-                          'Past Bookings',
-//                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      )
                     ],
                   ),
                 ),
@@ -129,68 +92,20 @@ class ProfilePage extends StatelessWidget {
                         bottomLeft: Radius.circular(8)),
                     color: Colors.black12,
                   ),
-
                   width: double.infinity,
-                  child: Column(
-                    children: <Widget>[
-                      CustomListTile(
-                        img: 'assets/images/profile_pic.jpg',
-                        title: 'Anna Poorva',
-                        subtitle: '26th April`20 17:00',
-                        isOpened: false,
-                        onTap: () {},
-                        w: double.infinity,
-                      ),
-                      CustomListTile(
-                        img: 'assets/images/profile_pic.jpg',
-                        title: 'Anna Poorva',
-                        subtitle: '26th April`20 17:00',
-                        isOpened: false,
-                        onTap: () {},
-                        w: double.infinity,
-                      ),
-                      CustomListTile(
-                        img: 'assets/images/profile_pic.jpg',
-                        title: 'Anna Poorva',
-                        subtitle: '26th April`20 17:00',
-                        isOpened: false,
-                        onTap: () {},
-                        w: double.infinity,
-                      ),
-                      CustomListTile(
-                        img: 'assets/images/profile_pic.jpg',
-                        title: 'Anna Poorva',
-                        subtitle: '26th April`20 17:00',
-                        isOpened: false,
-                        onTap: () {},
-                        w: double.infinity,
-                      ),
-                      CustomListTile(
-                        img: 'assets/images/profile_pic.jpg',
-                        title: 'Anna Poorva',
-                        subtitle: '26th April`20 17:00',
-                        isOpened: false,
-                        onTap: () {},
-                        w: double.infinity,
-                      ),
-                      CustomListTile(
-                        img: 'assets/images/profile_pic.jpg',
-                        title: 'Anna Poorva',
-                        subtitle: '26th April`20 17:00',
-                        isOpened: false,
-                        onTap: () {},
-                        w: double.infinity,
-                      ),
-                      CustomListTile(
-                        img: 'assets/images/profile_pic.jpg',
-                        title: 'Anna Poorva',
-                        subtitle: '26th April`20 17:00',
-                        isOpened: false,
-                        onTap: () {},
-                        w: double.infinity,
-                      ),
-                    ],
-                  ),
+                  child: ListView.builder(
+                      itemCount: 10,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return CustomListTile(
+                          title: 'Someones\'s Store',
+                          subtitle: '26th April`20 17:00',
+                          isOpened: false,
+                          onTap: () {},
+                          w: double.infinity,
+                        );
+                      }),
                 )
               ],
             ),

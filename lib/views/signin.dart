@@ -8,13 +8,13 @@ import '../widgets/formField.dart';
 import '../widgets/text.dart';
 import '../api/signin.dart';
 
-class SignInPage extends StatefulWidget {
-  static final id = 'signin';
+class SignInScreen extends StatefulWidget {
+  static const id = '/signin';
   @override
-  _SignInPageState createState() => new _SignInPageState();
+  _SignInScreenState createState() => new _SignInScreenState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _SignInScreenState extends State<SignInScreen> {
   final formKey =
       GlobalKey<FormState>(); // Used in login button and forget password
   String email;
@@ -152,7 +152,7 @@ class _SignInPageState extends State<SignInPage> {
                       SizedBox(width: 5.0),
                       InkWell(
                         onTap: () {
-                          Navigator.of(context).pushNamed(SignUpPage.id);
+                          Navigator.of(context).pushNamed(SignUpScreen.id);
                           print('Register button pressed');
                         },
                         child: Text(

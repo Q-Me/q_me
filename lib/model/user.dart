@@ -52,9 +52,15 @@ Future<void> storeUserData(UserData userData) async {
   if (userData.email != null) prefs.setString('isUser', userData.email);
   if (userData.phone != null) prefs.setString('isUser', userData.phone);
 
-  log('Storing user data succeess');
+  log('Storing user data success');
 
   return;
+}
+
+Future<String> getAccessTokenFromStorage() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String accessToken = prefs.getString('accessToken') ?? null;
+  return accessToken;
 }
 
 Future<UserData> getUserDataFromStorage() async {

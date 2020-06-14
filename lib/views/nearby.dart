@@ -434,7 +434,7 @@ class SubscriberTile extends StatelessWidget {
 }*/
 
 class NearbyScreen extends StatefulWidget {
-  static String id = 'nearby_grid';
+  static const String id = '/nearby_grid';
 
   @override
   _NearbyScreenState createState() => _NearbyScreenState();
@@ -492,7 +492,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
                               errorMessage: 'You are not logged in',
                               buttonLabel: 'Go to login screen',
                               onRetryPressed: () =>
-                                  Navigator.pushNamed(context, SignInPage.id),
+                                  Navigator.pushNamed(context, SignInScreen.id),
                             );
                           }
                           return Error(
@@ -549,14 +549,7 @@ class SubscriberGridTile extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           log('Navigating to subscriber id:${data.id}');
-//          Navigator.pushNamed(context, BookingScreen.id,
-//              arguments: {'id': data.id});
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => BookingScreen(
-                        subscriber: data,
-                      )));
+          Navigator.pushNamed(context, BookingScreen.id, arguments: data);
         },
         child: Stack(
           children: <Widget>[

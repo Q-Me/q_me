@@ -1,6 +1,8 @@
-const String getAllSubscribers = '/user/getallsubscriber';
-const String getSubscriberFromId = '/user/getsubscriber';
+const String kGetAllSubscribers = '/user/getallsubscriber';
+const String kGetSubscriberFromId = '/user/getsubscriber';
 const String getAllSubscriberQueues = '/user/getallsubscriberqueue';
+const String kSubscriberByLocation = '/user/subscriberbylocation';
+const String kSubscriberByCategory = '/user/subscriberbycategory';
 const String getQueue = '/user/viewqueue';
 const String kJoinQueue = '/user/joinqueue';
 const String kCancelToken = '/user/canceltoken';

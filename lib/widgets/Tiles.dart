@@ -36,6 +36,7 @@ class CustomListTile extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 9),
       child: Row(
         children: <Widget>[
+          /*
           Container(
             width: 64,
             height: 64,
@@ -47,6 +48,7 @@ class CustomListTile extends StatelessWidget {
               ),
             ),
           ),
+          */
           SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

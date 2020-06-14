@@ -1,31 +1,35 @@
 import 'package:flutter/material.dart';
-import 'views/nearby.dart';
-import 'views/signup.dart';
-import 'views/signin.dart';
+import 'package:qme/views/home.dart';
 import 'views/profile.dart';
-import 'views/token.dart';
-import 'views/booking.dart';
+import 'views/nearby.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'services/analytics.dart';
+import 'router.dart' as router;
 
-void main() => runApp(new MyApp());
+String initialHome = NearbyScreen.id;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+//  if (await UserRepository()).isSessionReady()) {
+//  initialHome = QueuesScreen.id;
+//  }
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       theme: ThemeData.light()
           .copyWith(primaryColor: Colors.green), //TODO Apply theme
 
       debugShowCheckedModeBanner: false,
-      routes: <String, WidgetBuilder>{
-        SignUpPage.id: (BuildContext context) => SignUpPage(),
-        SignInPage.id: (BuildContext context) => SignInPage(),
-        NearbyScreen.id: (BuildContext context) => NearbyScreen(),
-        ProfilePage.id: (BuildContext context) => ProfilePage(),
-        BookingScreen.id: (BuildContext context) => BookingScreen(),
-        TokenPage.id: (BuildContext context) => TokenPage(),
-      },
-      initialRoute: NearbyScreen
-          .id, // Check for valid access token if not then refresh it
+      onGenerateRoute: router.generateRoute,
+      initialRoute: ProfileScreen.id,
+      navigatorObservers: <NavigatorObserver>[
+        AnalyticsService().getAnalyticsObserver(),
+      ],
     );
   }
 }
