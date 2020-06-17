@@ -1,11 +1,12 @@
-import 'package:flutter/cupertino.dart';
-import 'package:qme/model/user.dart';
-
-import '../repository/subscribers.dart';
-import '../api/base_helper.dart';
-import '../model/subscriber.dart';
 import 'dart:async';
 import 'dart:developer';
+
+import 'package:flutter/cupertino.dart';
+
+import '../api/base_helper.dart';
+import '../model/subscriber.dart';
+import '../model/user.dart';
+import '../repository/subscribers.dart';
 
 class SubscribersBloc extends ChangeNotifier {
   SubscribersRepository _subscribersRepository;
@@ -67,6 +68,7 @@ class SubscribersBloc extends ChangeNotifier {
   }
 
   dispose() {
+    super.dispose();
     _subscribersListController?.close();
   }
 }

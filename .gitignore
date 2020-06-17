@@ -3,3 +3,6 @@ API\ FORMAT.json
 /.flutter-plugins
 /.flutter-plugins-dependencies
 /.packages
+/build/
+/.dart_tool/
+/.idea/

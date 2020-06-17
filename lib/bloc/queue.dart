@@ -1,11 +1,12 @@
-import 'package:flutter/cupertino.dart';
-
-import '../repository/queue.dart';
-import '../repository/token.dart';
 import 'dart:async';
 import 'dart:developer';
+
+import 'package:flutter/cupertino.dart';
+
 import '../api/base_helper.dart';
 import '../model/queue.dart';
+import '../repository/queue.dart';
+import '../repository/token.dart';
 
 class QueuesBloc {
   String subscriberId, queueStatus;
@@ -22,6 +23,7 @@ class QueuesBloc {
   QueuesBloc(this.subscriberId) {
     _queuesListController = StreamController<ApiResponse<List<Queue>>>();
     _queuesRepository = QueuesListRepository();
+
     fetchQueuesList();
   }
 

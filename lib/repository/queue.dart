@@ -1,10 +1,10 @@
 import 'dart:collection';
 import 'dart:developer';
 
-import '../model/queue.dart';
-import '../model/user.dart';
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
+import '../model/queue.dart';
+import '../model/user.dart';
 
 class QueuesListRepository {
   ApiBaseHelper _helper = ApiBaseHelper();

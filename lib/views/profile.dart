@@ -1,16 +1,59 @@
 import 'package:flutter/material.dart';
-import '../widgets/text.dart';
-import '../widgets/Tiles.dart';
-import '../widgets/appDrawer.dart';import '../widgets/error.dart';
-import '../widgets/loader.dart';
+
 import '../api/base_helper.dart';
-import 'package:qme/api/base_helper.dart';
+import '../bloc/profile.dart';
 import '../model/token.dart';
+import '../widgets/Tiles.dart';
+import '../widgets/error.dart';
+import '../widgets/loader.dart';
+import '../widgets/text.dart';
 
+final String myJson = '''
+{
+    "token": [
+        {
+            "subscriber": "S1",
+            "longitude": 25.594095,
+            "latitude": 85.137566,
+            "phone": "9898009900",
+            "address": "Patna Estate",
+            "category": "Saloon",
+            "verified": 1,
+            "profileImage": "NULL",
+            "start_date_time": "2021-05-01T18:36:00.000Z",
+            "end_date_time": "2021-05-02T23:30:00.000Z",
+            "current_token": 0,
+            "queue_status": "UPCOMING",
+            "queue_id": "JAja9QUbS",
+            "subscriber_id": "17dY6K8Hb",
+            "token_no": 1,
+            "token_status": "WAITING",
+            "note": "sdadsad"
+        }
+    ]
+}
+''';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   static const String id = '/profile';
+
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   final scaffoldBackground = Colors.white;
+
+  final List<QueueToken> tokens = tokensFromJson(myJson).tokenList;
+
+  ProfileBloc profileBloc;
+
+  @override
+  void initstate() {
+    profileBloc = ProfileBloc();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -18,17 +61,17 @@ class ProfileScreen extends StatelessWidget {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.transparent,
-          leading: Icon(
-            Icons.menu,
-            color: Colors.black,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.black,
+            ),
           ),
         ),
-        drawer: AppDrawer(),
         backgroundColor: scaffoldBackground,
-        /*appBar: AppBar(
-          elevation: 0,
-          backgroundColor: scaffoldBackground,
-        ),*/
         body: SingleChildScrollView(
           physics: ScrollPhysics(),
           child: Container(
@@ -93,18 +136,48 @@ class ProfileScreen extends StatelessWidget {
                     color: Colors.black12,
                   ),
                   width: double.infinity,
-                  child: ListView.builder(
-                      itemCount: 10,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return CustomListTile(
-                          title: 'Someones\'s Store',
-                          subtitle: '26th April`20 17:00',
-                          isOpened: false,
-                          onTap: () {},
-                          w: double.infinity,
-                        );
+                  child: StreamBuilder<ApiResponse<List<QueueToken>>>(
+                      stream: profileBloc.tokenListStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          switch (snapshot.data.status) {
+                            case Status.COMPLETED:
+                              return ListView.builder(
+                                itemCount: tokens.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return CustomListTile(
+                                    title: tokens[index].subscriber,
+                                    subtitle: tokens[index]
+                                        .startDateTime
+                                        .toLocal()
+                                        .toString(),
+                                    isOpened: false,
+                                    onTap: () {},
+                                    w: double.infinity,
+                                  );
+                                },
+                              );
+                              break;
+                            case Status.ERROR:
+                              return Error(
+                                errorMessage: snapshot.data.message,
+                                onRetryPressed: () => profileBloc.fetchTokens(
+                                  status: 'ALL',
+                                ),
+                              );
+                              break;
+                            case Status.LOADING:
+                              return Loading(
+                                loadingMessage: snapshot.data.message,
+                              );
+                              break;
+                          }
+                          return Text('df');
+                        } else {
+                          return Text('No snapshot data.');
+                        }
                       }),
                 )
               ],

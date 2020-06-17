@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'views/booking.dart';
 import 'views/nearby.dart';
 import 'views/signup.dart';
+import 'views/token.dart';
 import 'views/signin.dart';
 import 'views/profile.dart';
 import 'views/home.dart';
@@ -25,9 +26,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case HomeScreen.id:
       return MaterialPageRoute(
           builder: (context) => HomeScreen(),
-          settings: RouteSettings(
-            name: HomeScreen.id,
-          ));
+          settings: RouteSettings(name: HomeScreen.id),
+      );
 
     case NearbyScreen.id:
       return MaterialPageRoute(
@@ -38,18 +38,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case BookingScreen.id:
       Subscriber subscriber = settings.arguments;
       return MaterialPageRoute(
-        builder: (context) => BookingScreen(
-          subscriber: subscriber,
-        ),
+        builder: (context) => BookingScreen(subscriber: subscriber),
         settings: RouteSettings(name: BookingScreen.id),
       );
 
     case TokenScreen.id:
       String queueId = settings.arguments;
       return MaterialPageRoute(
-        builder: (context) => TokenScreen(
-          queueId: queueId,
-        ),
+        builder: (context) => TokenScreen(queueId: queueId),
         settings: RouteSettings(name: TokenScreen.id),
       );
 
@@ -61,9 +57,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
     default:
       return MaterialPageRoute(
-        builder: (context) => UndefinedView(
-          name: settings.name,
-        ),
+        builder: (context) => UndefinedView(name: settings.name),
         settings: RouteSettings(name: '/undefined'),
       );
   }
