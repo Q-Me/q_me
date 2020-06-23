@@ -5,7 +5,6 @@ import 'views/nearby.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'services/analytics.dart';
 import 'router.dart' as router;
-import 'views/signin.dart';
 
 String initialHome = NearbyScreen.id;
 
@@ -27,7 +26,7 @@ class MyApp extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
       onGenerateRoute: router.generateRoute,
-      initialRoute: SignInScreen.id,//ProfileScreen.id,
+      initialRoute: ProfileScreen.id,
       navigatorObservers: <NavigatorObserver>[
         AnalyticsService().getAnalyticsObserver(),
       ],
