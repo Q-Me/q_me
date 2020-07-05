@@ -1,29 +1,30 @@
+import 'dart:developer';
+
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:qme/api/kAPI.dart';
+import 'package:qme/repository/user.dart';
 import 'package:qme/views/home.dart';
-import 'views/profile.dart';
-import 'views/nearby.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'services/analytics.dart';
-import 'router.dart' as router;
-import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:qme/views/signin.dart';
 
-String initialHome = NearbyScreen.id;
+import 'router.dart' as router;
+import 'services/analytics.dart';
+
+String initialHome = SignInScreen.id;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-//  if (await UserRepository()).isSessionReady()) {
-//  initialHome = QueuesScreen.id;
-//  }
-  runApp(
-    FutureBuilder<RemoteConfig>(
-        future: setupRemoteConfig(),
-        builder: (BuildContext context, AsyncSnapshot<RemoteConfig> snapshot) {
-          return snapshot.hasData ? SettingValue(snapshot.data) :  MyApp();
-        },
-      ) 
-     );
+
+  if (await UserRepository().isSessionReady()) {
+    initialHome = HomeScreen.id;
+  }
+  runApp(FutureBuilder<RemoteConfig>(
+    future: setupRemoteConfig(),
+    builder: (BuildContext context, AsyncSnapshot<RemoteConfig> snapshot) {
+      return snapshot.hasData ? SettingValue(snapshot.data) : MyApp();
+    },
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light().copyWith(primaryColor: Colors.green),
       debugShowCheckedModeBanner: false,
       onGenerateRoute: router.generateRoute,
-      initialRoute: HomeScreen.id,
+      initialRoute: initialHome,
       navigatorObservers: <NavigatorObserver>[
         AnalyticsService().getAnalyticsObserver(),
       ],
@@ -53,9 +54,9 @@ Future<RemoteConfig> setupRemoteConfig() async {
 }
 
 Widget SettingValue(RemoteConfig remoteConfig) {
-  print("value of fibrebase config: ${remoteConfig.getString('apiBaseUrl')}");
-  print("before: $baseURL");
+  log("value of firebase config: ${remoteConfig.getString('apiBaseUrl')}");
+  log("before: $baseURL");
   baseURL = remoteConfig.getString('apiBaseUrl');
-  print("after: $baseURL");
-  return  MyApp();
+  log("after: $baseURL");
+  return MyApp();
 }

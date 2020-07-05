@@ -38,15 +38,15 @@ class SubscribersBloc extends ChangeNotifier {
   fetchSubscribersList() async {
     subscribersListSink
         .add(ApiResponse.loading('Fetching Popular Subscribers'));
-    try {
-      List<Subscriber> subscribers =
-          await _subscribersRepository.fetchSubscriberList();
-      subscriberList = subscribers;
-      subscribersListSink.add(ApiResponse.completed(subscribers));
-    } catch (e) {
-      subscribersListSink.add(ApiResponse.error(e.toString()));
-      log('Error in Subscriber BLoC:fetchSubscribersList:' + e.toString());
-    }
+//    try {
+    List<Subscriber> subscribers =
+        await _subscribersRepository.fetchSubscriberList();
+    subscriberList = subscribers;
+    subscribersListSink.add(ApiResponse.completed(subscribers));
+//    } catch (e) {
+//      subscribersListSink.add(ApiResponse.error(e.toString()));
+//      log('Error in Subscriber BLoC:fetchSubscribersList:' + e.toString());
+//    }
   }
 
   getSubscriberByCategory({@required String category, String location}) async {

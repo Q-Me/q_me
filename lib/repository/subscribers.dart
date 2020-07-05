@@ -1,11 +1,11 @@
-import '../repository/user.dart';
 import 'dart:async';
 import 'dart:developer';
 
-import '../model/subscriber.dart';
-import '../model/user.dart';
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
+import '../model/subscriber.dart';
+import '../model/user.dart';
+import '../repository/user.dart';
 
 class SubscribersRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
@@ -22,6 +22,7 @@ class SubscribersRepository {
       response = await _helper.post(kGetAllSubscribers,
           headers: {'Authorization': 'Bearer $accessToken'});
     }
+    log('fetchSubscriberList repository: ${response.toString()}');
 //    log("${Subscribers.fromJson(response).list[0].toJson()}");
     return Subscribers.fromJson(response).list;
   }

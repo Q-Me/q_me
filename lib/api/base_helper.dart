@@ -1,9 +1,11 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'app_exceptions.dart';
-import 'dart:io';
-import 'kAPI.dart';
 import 'dart:developer';
+import 'dart:io';
+
+import 'package:http/http.dart' as http;
+
+import 'app_exceptions.dart';
+import 'kAPI.dart';
 
 class ApiBaseHelper {
   Future<dynamic> get(String url) async {
@@ -26,7 +28,7 @@ class ApiBaseHelper {
         headers['Accept'] = 'application/json';
         headers['Content-type'] = 'application/json';
       }
-//      log('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
+      log('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
       final response = await http.post(
         baseURL + url,
         headers: headers,
