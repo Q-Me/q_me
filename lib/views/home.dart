@@ -1,15 +1,18 @@
+import 'dart:developer';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
-import 'dart:developer';
+import 'package:qme/bloc/subscriber.dart';
+import 'package:qme/model/subscriber.dart';
+import 'package:qme/views/booking.dart';
 import 'package:qme/widgets/categories.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import '../bloc/subscriber.dart';
-import '../model/subscriber.dart';
-import './booking.dart';
-import '../widgets/loader.dart';
+
 import '../widgets/error.dart';
+import '../widgets/headerHome.dart';
+import '../widgets/loader.dart';
 
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
@@ -40,61 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-//                  SizedBox(width: offset),
-                      GestureDetector(
-                        onTap: () {
-                          log('App drawer clicked');
-                        },
-                        child: Icon(Icons.menu, size: 45),
-                      ),
-                      Spacer(),
-                      Container(
-                        height: 80,
-                        width: 60,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(30),
-                            bottomLeft: Radius.circular(30),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(context).primaryColor,
-                              spreadRadius: 0,
-                              blurRadius: 5,
-                            ),
-                          ],
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            SizedBox(height: 20),
-                            GestureDetector(
-                              onTap: () {
-                                log('Profile button clicked');
-                              },
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
-                                radius: 25,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 40.0,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 20),
-                    ],
-                  ),
+                  Header(),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -108,30 +57,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       Text('Let\'s save some of your time and effort.'),
                       SizedBox(height: 10),
+                      /*SearchBox(),*/
                       /*
-                      TextFormField(
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Search...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                          fillColor: Colors.black26,
-                          suffixIcon: Icon(
-                            Icons.search,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ),
-                      */
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 15),
                         child: Badges(),
                       ),
+                      */
                       StreamBuilder<ApiResponse<List<Subscriber>>>(
                           stream: _bloc.subscribersListStream,
                           builder: (context, snapshot) {
@@ -333,7 +265,8 @@ class ListItem extends StatelessWidget {
                       style: TextStyle(fontSize: 18),
                     ),
                     Visibility(
-                      visible: subscriber.distance != null,
+                      visible: subscriber.distance != null &&
+                          subscriber.distance.length > 0,
                       child: Row(
                         children: <Widget>[
                           Container(
@@ -353,6 +286,57 @@ class ListItem extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class DateTile extends StatelessWidget {
+  int index;
+  var context;
+
+  DateTile(this.context, this.index);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.grey[100],
+      ),
+      height: 80,
+      width: 60,
+      margin: EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Spacer(
+            flex: 1,
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'Tue',
+//              '${DateTime.now().add(Duration(
+//                    days: index,
+//                  )).weekday}', // TODO: Display which weekday
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              '${index % 31 + 1}',
+              style: TextStyle(
+                fontSize: 42,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
