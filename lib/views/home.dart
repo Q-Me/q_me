@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/subscriber.dart';
 import 'package:qme/model/subscriber.dart';
-import 'package:qme/widgets/calenderStrip.dart';
 import 'package:qme/widgets/categories.dart';
 import 'package:qme/widgets/listItem.dart';
 
@@ -47,23 +46,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        'Hello!',
-                        style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text('Let\'s save some of your time and effort.'),
-                      SizedBox(height: 10),
-                      /*SearchBox(),*/
-                      /*
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            'Hello!',
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text('Let\'s save some of your time and effort.'),
+                          SizedBox(height: 10),
+                          /*SearchBox(),*/
+                          /*
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 15),
                         child: Badges(),
                       ),
                       */
-                      CalStrip(),
+                        ],
+                      ),
+                      Container(
+                        child: Text(
+                          'Saloons in Patna',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.w800),
+                        ),
+                      ),
                       StreamBuilder<ApiResponse<List<Subscriber>>>(
                           stream: _bloc.subscribersListStream,
                           builder: (context, snapshot) {

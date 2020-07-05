@@ -7,9 +7,7 @@ DateTime startDate = DateTime.now().subtract(Duration(days: 2));
 DateTime endDate = DateTime.now().add(Duration(days: 2));
 DateTime selectedDate = DateTime.now().subtract(Duration(days: 2));
 List<DateTime> markedDates = [
-  DateTime.now().subtract(Duration(days: 1)),
-  DateTime.now().subtract(Duration(days: 2)),
-  DateTime.now().add(Duration(days: 4))
+  DateTime.now(),
 ];
 
 dateTileBuilder(

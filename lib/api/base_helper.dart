@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -45,7 +44,7 @@ class ApiBaseHelper {
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body.toString());
-        log('Response:$responseJson');
+//        log('Response:$responseJson');
         return responseJson;
       case 400:
         throw BadRequestException(response.body.toString());
