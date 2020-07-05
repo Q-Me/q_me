@@ -1,14 +1,13 @@
 import 'dart:developer';
 
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/subscriber.dart';
 import 'package:qme/model/subscriber.dart';
-import 'package:qme/views/booking.dart';
+import 'package:qme/widgets/calenderStrip.dart';
 import 'package:qme/widgets/categories.dart';
+import 'package:qme/widgets/listItem.dart';
 
 import '../widgets/error.dart';
 import '../widgets/headerHome.dart';
@@ -64,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Badges(),
                       ),
                       */
+                      CalStrip(),
                       StreamBuilder<ApiResponse<List<Subscriber>>>(
                           stream: _bloc.subscribersListStream,
                           builder: (context, snapshot) {
@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       physics: NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemBuilder: (context, index) {
-                                        return ListItem(
+                                        return SubscriberListItem(
                                           subscriber:
                                               _bloc.subscriberList[index],
                                         );
@@ -198,102 +198,9 @@ class _BadgesState extends State<Badges> {
   }
 }
 
-class ListItem extends StatelessWidget {
-  final Subscriber subscriber;
-  ListItem({@required this.subscriber});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7.0),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pushNamed(context, BookingScreen.id, arguments: subscriber);
-        },
-        child: Row(
-          children: <Widget>[
-            Stack(
-              children: <Widget>[
-                ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  child: CachedNetworkImage(
-                    imageUrl: subscriber.imgURL ??
-                        'https://dontwaitapp.co/img/bank1080.png',
-                    height: 150,
-                    width: 150,
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                  ),
-//                      Image.asset('assets/temp/saloon1080.png'),
-                ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black26,
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                      ),
-                      margin: EdgeInsets.all(5),
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        'New',
-                        style: TextStyle(color: Colors.white),
-                      )),
-                ),
-              ],
-            ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    Text(
-                      subscriber.name,
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      maxLines: 2,
-                    ),
-                    Text(
-                      subscriber.address,
-                      maxLines: 3,
-                      overflow: TextOverflow.clip,
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    Visibility(
-                      visible: subscriber.distance != null &&
-                          subscriber.distance.length > 0,
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            child: Row(
-                              children: <Widget>[
-                                Icon(Icons.location_on),
-                                Text(subscriber.distance ?? ''),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class DateTile extends StatelessWidget {
-  int index;
-  var context;
+  final int index;
+  final context;
 
   DateTile(this.context, this.index);
 

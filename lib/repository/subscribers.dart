@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
@@ -22,7 +21,7 @@ class SubscribersRepository {
       response = await _helper.post(kGetAllSubscribers,
           headers: {'Authorization': 'Bearer $accessToken'});
     }
-    log('fetchSubscriberList repository: ${response.toString()}');
+//    log('fetchSubscriberList repository: ${response.toString()}');
 //    log("${Subscribers.fromJson(response).list[0].toJson()}");
     return Subscribers.fromJson(response).list;
   }

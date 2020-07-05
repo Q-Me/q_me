@@ -28,7 +28,7 @@ class ApiBaseHelper {
         headers['Accept'] = 'application/json';
         headers['Content-type'] = 'application/json';
       }
-      log('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
+//      log('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
       final response = await http.post(
         baseURL + url,
         headers: headers,
