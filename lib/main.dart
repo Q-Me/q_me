@@ -43,12 +43,16 @@ class MyApp extends StatelessWidget {
 }
 
 Future<RemoteConfig> setupRemoteConfig() async {
+
+
+  
   final RemoteConfig remoteConfig = await RemoteConfig.instance;
-  // Enable developer mode to relax fetch throttling
+  final defaults = <String, dynamic>{'apiBaseUrl': 'default welcome'};
+await remoteConfig.setDefaults(defaults);
+
+await remoteConfig.fetch(expiration: const Duration(hours: 5));
+await remoteConfig.activateFetched();
   remoteConfig.setConfigSettings(RemoteConfigSettings(debugMode: true));
-  remoteConfig.setDefaults(<String, dynamic>{
-    'apiBaseUrl': 'default welcome',
-  });
   return remoteConfig;
 }
 
