@@ -68,11 +68,13 @@ class Subscriber {
       phone: json["phone"],
       address: json["address"],
       imgURL: json["imgURL"],
-      latitude:
-          json["latitude"] != null ? double.parse(json["latitude"]) : null,
-      longitude:
-          json["longitude"] != null ? double.parse(json["longitude"]) : null,
-      verified: int.parse(json['verified']) == 1 ? true : false,
+      latitude: json["latitude"] != null
+          ? double.parse(json["latitude"].toString())
+          : null,
+      longitude: json["longitude"] != null
+          ? double.parse(json["longitude"].toString())
+          : null,
+      verified: int.parse(json['verified'].toString()) == 1 ? true : false,
       description: json["description"],
       category: json["category"],
       distance: distance,

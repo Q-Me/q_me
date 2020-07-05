@@ -5,11 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
+import 'package:qme/bloc/subscriber.dart';
+import 'package:qme/model/subscriber.dart';
+import 'package:qme/views/booking.dart';
 import 'package:qme/widgets/categories.dart';
 
-import './booking.dart';
-import '../bloc/subscriber.dart';
-import '../model/subscriber.dart';
 import '../widgets/error.dart';
 import '../widgets/headerHome.dart';
 import '../widgets/loader.dart';
@@ -273,7 +273,7 @@ class ListItem extends StatelessWidget {
                             child: Row(
                               children: <Widget>[
                                 Icon(Icons.location_on),
-                                Text(subscriber.distance),
+                                Text(subscriber.distance ?? ''),
                               ],
                             ),
                           ),
