@@ -10,10 +10,13 @@ class Subscribers {
 
   List<Subscriber> list;
 
-  factory Subscribers.fromJson(Map<String, dynamic> json) => Subscribers(
-        list: List<Subscriber>.from(
-            json["subscriber"].map((x) => Subscriber.fromJson(x))),
-      );
+  factory Subscribers.fromJson(Map<String, dynamic> json) {
+    return Subscribers(
+      list: List<Subscriber>.from(json["subscriber"].map((x) {
+        return Subscriber.fromJson(Map<String, dynamic>.from(x));
+      })),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "subscriber": List<dynamic>.from(list.map((x) => x.toJson())),
@@ -65,9 +68,13 @@ class Subscriber {
       phone: json["phone"],
       address: json["address"],
       imgURL: json["imgURL"],
-      latitude: json["latitude"],
-      longitude: json["longitude"],
-      verified: json['verified'] == 1 ? true : false,
+      latitude: json["latitude"] != null
+          ? double.parse(json["latitude"].toString())
+          : null,
+      longitude: json["longitude"] != null
+          ? double.parse(json["longitude"].toString())
+          : null,
+      verified: int.parse(json['verified'].toString()) == 1 ? true : false,
       description: json["description"],
       category: json["category"],
       distance: distance,
@@ -84,7 +91,7 @@ class Subscriber {
         "imgURL": imgURL,
         "latitude": latitude,
         "longitude": longitude,
-        "verified": verified == true ? "1" : "0",
+        "verified": verified == true ? 1 : 0,
         "distance": distance,
         "description": description,
         "category": category,
