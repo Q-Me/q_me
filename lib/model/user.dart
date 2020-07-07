@@ -20,7 +20,6 @@ class UserData {
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
         id: json["id"],
         name: json["name"],
-        isUser: json["isUser"],
         accessToken: json["accessToken"],
         refreshToken: json["refreshToken"],
         email: json['email'],
@@ -30,7 +29,6 @@ class UserData {
   Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
-        "isUser": isUser,
         "accessToken": accessToken,
         "refreshToken": refreshToken,
         "email": email,
@@ -44,11 +42,12 @@ Future<void> storeUserData(UserData userData) async {
 
   if (userData.id != null) prefs.setString('id', userData.id);
   if (userData.name != null) prefs.setString('name', userData.name);
-  if (userData.accessToken != null)
+  if (userData.accessToken != null) {
     prefs.setString('accessToken', userData.accessToken);
+    prefs.setString('expiry', DateTime.now().add(Duration(days: 1)).toString());
+  }
   if (userData.refreshToken != null)
     prefs.setString('refreshToken', userData.refreshToken);
-  if (userData.isUser != null) prefs.setBool('isUser', userData.isUser);
   if (userData.email != null) prefs.setString('isUser', userData.email);
   if (userData.phone != null) prefs.setString('isUser', userData.phone);
 
@@ -73,14 +72,12 @@ Future<UserData> getUserDataFromStorage() async {
   String refreshToken = prefs.getString('refreshToken') ?? null;
   String email = prefs.getString('email') ?? null;
   String phone = prefs.getString('phone') ?? null;
-  bool isUser = prefs.getBool('isUser') ?? null;
 
   return UserData(
     id: id,
     name: name,
     accessToken: accessToken,
     refreshToken: refreshToken,
-    isUser: isUser,
     email: email,
     phone: phone,
   );

@@ -1,18 +1,21 @@
 import 'dart:collection';
-import 'package:intl/intl.dart';
 import 'dart:developer';
+
+import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../views/token.dart';
-import '../utilities/time.dart';
-import '../api/base_helper.dart';
-import '../widgets/loader.dart';
-import '../model/subscriber.dart';
-import '../model/queue.dart';
-import '../bloc/queue.dart';
-import '../widgets/error.dart';
+import 'package:intl/intl.dart';
+import 'package:qme/widgets/calenderStrip.dart';
 
+import '../api/base_helper.dart';
+import '../bloc/queue.dart';
 import '../constants.dart';
+import '../model/queue.dart';
+import '../model/subscriber.dart';
+import '../utilities/time.dart';
+import '../views/token.dart';
+import '../widgets/error.dart';
+import '../widgets/loader.dart';
 
 class BookingScreen extends StatefulWidget {
   static const String id = '/booking';
@@ -79,9 +82,21 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 child: Column(
                   children: <Widget>[
-                    HeaderInfo(
-                      subscriber: widget.subscriber,
+                    SubscriberHeaderInfo(subscriber: widget.subscriber),
+                    // TODO put in the image carousel
+                    SizedBox(
+                      width: 600,
+                      height: 200,
+                      child: Carousel(
+                        images: [
+                          NetworkImage(
+                              'https://cdn-images-1.medium.com/max/2000/1*GqdzzfB_BHorv7V2NV7Jgg.jpeg'),
+                          NetworkImage(
+                              'https://cdn-images-1.medium.com/max/2000/1*wnIEgP1gNMrK5gZU7QS0-A.jpeg'),
+                        ],
+                      ),
                     ),
+                    CalStrip(),
                     Flexible(
                       child: RefreshIndicator(
                         // WIDGET bug https://github.com/flutter/flutter/issues/34990
@@ -273,9 +288,9 @@ class QueuesDisplay extends StatelessWidget {
   }
 }
 
-class HeaderInfo extends StatelessWidget {
+class SubscriberHeaderInfo extends StatelessWidget {
   final Subscriber subscriber;
-  HeaderInfo({this.subscriber});
+  SubscriberHeaderInfo({this.subscriber});
   @override
   Widget build(BuildContext context) {
     return Column(

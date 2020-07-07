@@ -1,9 +1,10 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'app_exceptions.dart';
 import 'dart:io';
+
+import 'package:http/http.dart' as http;
+
+import 'app_exceptions.dart';
 import 'kAPI.dart';
-import 'dart:developer';
 
 class ApiBaseHelper {
   Future<dynamic> get(String url) async {
@@ -43,7 +44,7 @@ class ApiBaseHelper {
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body.toString());
-        log('Response:$responseJson');
+//        log('Response:$responseJson');
         return responseJson;
       case 400:
         throw BadRequestException(response.body.toString());
