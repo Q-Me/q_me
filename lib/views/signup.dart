@@ -1,6 +1,9 @@
 import 'dart:developer';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
+import 'package:qme/constants.dart';
 import '../widgets/button.dart';
 import '../widgets/text.dart';
 import '../widgets/formField.dart';
@@ -18,9 +21,147 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   bool showSpinner = false, passwordVisible;
   final ScrollController _scrollController = ScrollController();
+  final _phoneController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
   Map<String, String> formData = {};
+
+    final _codeController = TextEditingController();
+
+  var idToken;
+  bool showOtpTextfield = false;
+
+  // otp verification with firebase
+  Future<bool> loginUser(String phone, BuildContext context) async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+
+    _auth.verifyPhoneNumber(
+        phoneNumber: phone,
+        timeout: Duration(seconds: 60),
+        verificationCompleted: (AuthCredential credential) async {
+          AuthResult result = await _auth.signInWithCredential(credential);
+
+          FirebaseUser user = result.user;
+
+          if (user != null) {
+            var token = await user.getIdToken().then((result) {
+              idToken = result.token;
+              formData['token'] = idToken;
+              print(" $idToken ");
+            });
+            Navigator.pop(context);
+          } else {
+            print("Error");
+          }
+
+          //This callback would gets called when verification is done auto maticlly
+        },
+        verificationFailed: (AuthException exception) {
+          print(exception.message);
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text(exception.message.toString())));
+        },
+        codeSent: (String verificationId, [int forceResendingToken]) {
+          showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Give the code?"),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      TextField(
+                        controller: _codeController,
+                      ),
+                    ],
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text("Confirm"),
+                      textColor: Colors.white,
+                      color: Theme.of(context).primaryColor,
+                      onPressed: () async {
+                        final code = _codeController.text.trim();
+                        try {
+                          AuthCredential credential =
+                              PhoneAuthProvider.getCredential(
+                                  verificationId: verificationId,
+                                  smsCode: code);
+
+                          AuthResult result =
+                              await _auth.signInWithCredential(credential);
+
+                          FirebaseUser user = result.user;
+
+                          if (user != null) {
+                            var token = await user.getIdToken().then((result) {
+                              idToken = result.token;
+                              formData['token'] = idToken;
+                              print("@@ $idToken @@");
+                            });
+                            Navigator.pop(context);
+                          } else {
+                            print("Error");
+                          }
+                        } on PlatformException catch (e) {
+                          print("Looking for Error code");
+                          print(e.message);
+                          Navigator.of(context).pop();
+
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text("Verification Failed"),
+                                  content: Text(e.code.toString()),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      child: Text("OK"),
+                                      textColor: Colors.white,
+                                      color: Theme.of(context).primaryColor,
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                );
+                              });
+                          print(e.code);
+                        } on Exception catch (e) {
+                          Navigator.of(context).pop();
+
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text("Verification Failed"),
+                                  content: Text(e.toString()),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      child: Text("OK"),
+                                      textColor: Colors.white,
+                                      color: Theme.of(context).primaryColor,
+                                      onPressed: () async {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                );
+                              });
+                          print("Looking for Error message");
+                          print(e);
+                        }
+                      },
+                    )
+                  ],
+                );
+              });
+        },
+        codeAutoRetrievalTimeout: null);
+  }
 
   @override
   void initState() {
@@ -69,14 +210,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               },
                             ),
                             SizedBox(height: 10.0),
-                            MyFormField(
-                              keyboardType: TextInputType.phone,
-                              name: 'PHONE',
-                              required: true,
-                              callback: (value) {
-                                formData['phone'] = value;
-                              },
-                            ),
+                            Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.65,
+                                child: TextFormField(
+                                  keyboardType: TextInputType.phone,
+                                  controller: _phoneController,
+                                  validator: (value) {
+                                    if (value.isEmpty) {
+                                      return 'This field cannot be left blank';
+                                    } else {
+                                      setState(() {
+                                        formData['phone'] = value;
+                                      });
+                                    }
+                                  },
+                                  decoration: kTextFieldDecoration.copyWith(
+                                      labelText: "PHONE"),
+                                ),
+                              ),
+                              RaisedButton(
+                                color: Theme.of(context).primaryColor,
+                                onPressed: () {
+                                  final phone = _phoneController.text.trim();
+                                  print("phone number: $phone");
+                                  loginUser(phone, context);
+                                  if (phone.length != 13) {
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        content: Text(
+                                            'Phone number must have 10 digits with Country code')));
+                                    return;
+                                  }
+                                },
+                                child: const Text(
+                                  'Verify',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              )
+                            ],
+                          ),
                             SizedBox(height: 10.0),
                             MyFormField(
                               keyboardType: TextInputType.emailAddress,
@@ -185,11 +359,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     if (formKey.currentState.validate()) {
                                       log('$formData');
                                       // check phone number length
-                                      if (formData['phone'].length != 10) {
+                                      if (formData['phone'].length != 13) {
                                         Scaffold.of(context).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                                'Phone number must have 10 digits'),
+                                                'Phone number must have 10 digits with country code'),
                                           ),
                                         );
                                       }
@@ -223,9 +397,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         Scaffold.of(context).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                                e.toMap()['error'].join('\n')),
+                                                e.toString(),
                                           ),
-                                        );
+                                        ));
                                       } catch (e) {
                                         log('SignUp failed:' + e.toString());
                                         Scaffold.of(context).showSnackBar(
