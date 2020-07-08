@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../model/subscriber.dart';
-import 'dart:developer';
-import '../views/booking.dart';
+import '../views/subscriber.dart';
 
 class MyTheme {
   static const Color indigo = Color(0xff3f4fa5);
@@ -105,7 +105,8 @@ class SubscriberGridTile extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BookingScreen(subscriber: subscriberData),
+                builder: (context) =>
+                    SubscriberScreen(subscriber: subscriberData),
               ));
         },
         child: Container(

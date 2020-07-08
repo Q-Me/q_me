@@ -1,19 +1,21 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:qme/model/subscriber.dart';
-import 'package:qme/views/booking.dart';
+import 'package:qme/views/subscriber.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SubscriberListItem extends StatelessWidget {
   final Subscriber subscriber;
   SubscriberListItem({@required this.subscriber});
-
+  static const double imgHeight = 150.0, imgWidth = 150.0;
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7.0),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, BookingScreen.id, arguments: subscriber);
+          Navigator.pushNamed(context, SubscriberScreen.id,
+              arguments: subscriber);
         },
         child: Row(
           children: <Widget>[
@@ -24,9 +26,19 @@ class SubscriberListItem extends StatelessWidget {
                   child: CachedNetworkImage(
                     imageUrl: subscriber.imgURL ??
                         'https://dontwaitapp.co/img/bank1080.png',
-                    height: 150,
-                    width: 150,
-                    placeholder: (context, url) => CircularProgressIndicator(),
+                    height: SubscriberListItem.imgHeight,
+                    width: SubscriberListItem.imgWidth,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300],
+                        highlightColor: Colors.grey[100],
+                        child: Container(
+                          width: SubscriberListItem.imgWidth,
+                          height: SubscriberListItem.imgHeight,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        )),
                     errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
                 ),
