@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qme/views/otpPage.dart';
 import 'views/booking.dart';
 import 'views/nearby.dart';
 import 'views/signup.dart';
@@ -25,8 +26,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
     case HomeScreen.id:
       return MaterialPageRoute(
-          builder: (context) => HomeScreen(),
-          settings: RouteSettings(name: HomeScreen.id),
+        builder: (context) => HomeScreen(),
+        settings: RouteSettings(name: HomeScreen.id),
       );
 
     case NearbyScreen.id:
@@ -53,6 +54,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => ProfileScreen(),
         settings: RouteSettings(name: ProfileScreen.id),
+      );
+    case OtpPage.id:
+      return MaterialPageRoute(
+        builder: (context) => OtpPage(),
+        settings: RouteSettings(name: OtpPage.id),
       );
 
     default:
