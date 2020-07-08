@@ -359,6 +359,12 @@ class _SignInScreenState extends State<SignInScreen>
                                                   Navigator.pushNamed(
                                                       context, NearbyScreen.id);
                                                 } else {
+                                                  print(response['status']);
+                                                  print(response);
+                                                   Scaffold.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                        content: Text(
+                                                          response['status'].toString() +" " + response['error'].toString())));
                                                   return print("error in api hit");
                                                 }
                                               } catch (e) {

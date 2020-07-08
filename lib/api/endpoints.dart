@@ -11,6 +11,6 @@ const String kAccessToken = '/user/accesstoken';
 const String kProfile = '/user/profile';
 const String kSignUp = '/user/signupfirebase';
 const String kSignIn = '/user/login';
-const String signInPasswordUrl = '/subscriber/login';
-const String signInOtpUrl = '/subscriber/loginfirebase';
+const String signInPasswordUrl = '/user/login';
+const String signInOtpUrl = '/user/loginfirebase';
 
