@@ -2,48 +2,46 @@ import 'dart:collection';
 import 'dart:developer';
 
 import 'package:carousel_pro/carousel_pro.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:qme/api/base_helper.dart';
+import 'package:qme/bloc/subscriber.dart';
+import 'package:qme/constants.dart';
+import 'package:qme/model/queue.dart';
+import 'package:qme/model/subscriber.dart';
+import 'package:qme/utilities/time.dart';
+import 'package:qme/views/token.dart';
 import 'package:qme/widgets/calenderStrip.dart';
+import 'package:qme/widgets/error.dart';
+import 'package:qme/widgets/loader.dart';
 
-import '../api/base_helper.dart';
-import '../bloc/queue.dart';
-import '../constants.dart';
-import '../model/queue.dart';
-import '../model/subscriber.dart';
-import '../utilities/time.dart';
-import '../views/token.dart';
-import '../widgets/error.dart';
-import '../widgets/loader.dart';
-
-class BookingScreen extends StatefulWidget {
+class SubscriberScreen extends StatefulWidget {
   static const String id = '/booking';
   final Subscriber subscriber;
-  BookingScreen({this.subscriber});
+  SubscriberScreen({this.subscriber});
   @override
-  _BookingScreenState createState() => _BookingScreenState();
+  _SubscriberScreenState createState() => _SubscriberScreenState();
 }
 
-class _BookingScreenState extends State<BookingScreen> {
+class _SubscriberScreenState extends State<SubscriberScreen> {
   double get w => MediaQuery.of(context).size.width;
   double get h => MediaQuery.of(context).size.height;
   final double appBarOffset = 10;
 
-  QueuesBloc _bloc;
+  BookingBloc _bloc;
 
   @override
   void initState() {
     log('Opening queues for subscriber id:' + widget.subscriber.id);
     super.initState();
-    _bloc = QueuesBloc(widget.subscriber.id);
+    _bloc = BookingBloc(widget.subscriber.id);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_bloc == null) {
-      _bloc = QueuesBloc(widget.subscriber.id);
+      _bloc = BookingBloc(widget.subscriber.id);
     }
   }
 
@@ -83,7 +81,6 @@ class _BookingScreenState extends State<BookingScreen> {
                 child: Column(
                   children: <Widget>[
                     SubscriberHeaderInfo(subscriber: widget.subscriber),
-                    // TODO put in the image carousel
                     SizedBox(
                       width: 600,
                       height: 200,
@@ -97,41 +94,33 @@ class _BookingScreenState extends State<BookingScreen> {
                       ),
                     ),
                     CalStrip(),
-                    Flexible(
-                      child: RefreshIndicator(
-                        // WIDGET bug https://github.com/flutter/flutter/issues/34990
-                        onRefresh: () => _bloc.fetchQueuesList(),
-                        child: StreamBuilder<ApiResponse<List<Queue>>>(
-                          // Bug in rendering due to late api response
-                          // Bug fix https://github.com/flutter/flutter/issues/16465#issuecomment-493698128
-                          initialData: ApiResponse.completed([]),
-                          stream: _bloc.queuesListStream,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              switch (snapshot.data.status) {
-                                case Status.LOADING:
-                                  return Loading(
-                                      loadingMessage: snapshot.data.message);
-                                  break;
-                                case Status.COMPLETED:
-                                  return QueuesDisplay(snapshot.data.data);
-                                  break;
-                                case Status.ERROR:
-                                  return Error(
-                                    errorMessage: snapshot.data.message,
-                                    onRetryPressed: () =>
-                                        _bloc.fetchQueuesList(),
-                                  );
-                                  break;
-                              }
-                            } else {
-                              log('no Snapshot data');
-                            }
-                            return Container();
-                          },
-                        ),
-                      ),
+                    StreamBuilder<ApiResponse<List<Queue>>>(
+                      stream: _bloc.queuesListStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          switch (snapshot.data.status) {
+                            case Status.LOADING:
+                              return Loading(
+                                  // TODO add shimmer loader
+                                  loadingMessage: snapshot.data.message);
+                              break;
+                            case Status.COMPLETED:
+                              return QueuesDisplay(snapshot.data.data);
+                              break;
+                            case Status.ERROR:
+                              return Error(
+                                errorMessage: snapshot.data.message,
+                                onRetryPressed: () => _bloc.fetchQueuesList(),
+                              );
+                              break;
+                          }
+                        } else {
+                          log('no Snapshot data');
+                        }
+                        return Container();
+                      },
                     ),
+                    Divider(),
                   ],
                 ),
               ),

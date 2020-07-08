@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'views/booking.dart';
-import 'views/nearby.dart';
-import 'views/signup.dart';
-import 'views/token.dart';
-import 'views/signin.dart';
-import 'views/profile.dart';
-import 'views/home.dart';
-import 'views/unknown.dart';
+
 import 'model/subscriber.dart';
+import 'views/home.dart';
+import 'views/nearby.dart';
+import 'views/profile.dart';
+import 'views/signin.dart';
+import 'views/signup.dart';
+import 'views/subscriber.dart';
+import 'views/token.dart';
+import 'views/unknown.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
@@ -25,8 +26,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
     case HomeScreen.id:
       return MaterialPageRoute(
-          builder: (context) => HomeScreen(),
-          settings: RouteSettings(name: HomeScreen.id),
+        builder: (context) => HomeScreen(),
+        settings: RouteSettings(name: HomeScreen.id),
       );
 
     case NearbyScreen.id:
@@ -35,11 +36,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: NearbyScreen.id),
       );
 
-    case BookingScreen.id:
+    case SubscriberScreen.id:
       Subscriber subscriber = settings.arguments;
       return MaterialPageRoute(
-        builder: (context) => BookingScreen(subscriber: subscriber),
-        settings: RouteSettings(name: BookingScreen.id),
+        builder: (context) => SubscriberScreen(subscriber: subscriber),
+        settings: RouteSettings(name: SubscriberScreen.id),
       );
 
     case TokenScreen.id:

@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
-import 'package:qme/bloc/subscriber.dart';
+import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/widgets/categories.dart';
 import 'package:qme/widgets/listItem.dart';
@@ -20,10 +20,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   SubscribersBloc _bloc;
-
+  bool _enabled;
   @override
   void initState() {
     _bloc = SubscribersBloc();
+    _enabled = true;
     super.initState();
   }
 
@@ -81,10 +82,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (snapshot.hasData) {
                               switch (snapshot.data.status) {
                                 case Status.LOADING:
-                                  return Loading(
-                                      loadingMessage: snapshot.data.message);
+                                  return ShimmerListLoader(_enabled);
                                   break;
                                 case Status.COMPLETED:
+                                  _enabled = false;
                                   if (_bloc.subscriberList.length == 0) {
                                     return Text(
                                       'Sorry. We found nothing as per your search.',

@@ -1,20 +1,20 @@
-import 'dart:ui';
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../api/base_helper.dart';
-import '../bloc/queue.dart';
-import '../model/token.dart';
+import 'package:qme/bloc/queue.dart';
 
-import '../model/queue.dart';
+import '../api/base_helper.dart';
 import '../constants.dart';
-import '../widgets/dash.dart';
-import '../widgets/loader.dart';
-import '../widgets/customStreamBuilder.dart';
-import '../widgets/error.dart';
+import '../model/queue.dart';
+import '../model/token.dart';
 import '../utilities/time.dart';
+import '../widgets/customStreamBuilder.dart';
+import '../widgets/dash.dart';
+import '../widgets/error.dart';
+import '../widgets/loader.dart';
 
 /*
 Display the token number, ETA, Distance
@@ -38,7 +38,7 @@ class _TokenScreenState extends State<TokenScreen> {
     ),
   );
 
-  QueueBloc _queueDetailsBloc; //TODO Provide this
+  QueueBloc _queueDetailsBloc;
 
   @override
   void initState() {

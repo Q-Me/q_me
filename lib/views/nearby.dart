@@ -1,19 +1,19 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../bloc/subscriber.dart';
-import '../model/subscriber.dart';
-import 'booking.dart';
-import '../widgets/CustomIcons.dart';
-import '../widgets/text.dart';
+
 import '../api/base_helper.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import '../widgets/loader.dart';
+import '../bloc/subscribersHome.dart';
+import '../model/subscriber.dart';
 import '../views/signin.dart';
-import '../widgets/Tiles.dart';
+import '../widgets/CustomIcons.dart';
 import '../widgets/error.dart';
+import '../widgets/loader.dart';
+import '../widgets/text.dart';
+import 'subscriber.dart';
 
 class MyAppBar extends StatelessWidget {
   @override
@@ -193,7 +193,7 @@ class SubscriberTile extends StatelessWidget {
           : EdgeInsets.symmetric(horizontal: 4),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, BookingScreen.id);
+          Navigator.pushNamed(context, SubscriberScreen.id);
         },
         child: Stack(
           children: <Widget>[
@@ -549,7 +549,7 @@ class SubscriberGridTile extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           log('Navigating to subscriber id:${data.id}');
-          Navigator.pushNamed(context, BookingScreen.id, arguments: data);
+          Navigator.pushNamed(context, SubscriberScreen.id, arguments: data);
         },
         child: Stack(
           children: <Widget>[
