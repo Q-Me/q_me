@@ -7,6 +7,7 @@ import 'package:qme/api/kAPI.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
+import 'package:qme/views/signup.dart';
 
 import 'router.dart' as router;
 import 'services/analytics.dart';
@@ -16,9 +17,9 @@ String initialHome = SignInScreen.id;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (await UserRepository().isSessionReady()) {
-    initialHome = HomeScreen.id;
-  }
+  // if (await UserRepository().isSessionReady()) {
+  //   initialHome = HomeScreen.id;
+  // }
   runApp(FutureBuilder<RemoteConfig>(
     future: setupRemoteConfig(),
     builder: (BuildContext context, AsyncSnapshot<RemoteConfig> snapshot) {
