@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 import 'package:ordered_set/comparing.dart';
 import 'package:qme/controllers/slot.dart';
@@ -11,7 +10,7 @@ Reception receptionFromJson(String str) => Reception.fromJson(json.decode(str));
 
 String receptionToJson(Reception data) => json.encode(data.toJson());
 
-class Reception extends ChangeNotifier {
+class Reception {
   Reception({
     @required this.receptionId,
     @required this.subscriberId,
