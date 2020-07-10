@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
-import 'model/subscriber.dart';
-import 'views/home.dart';
+import 'package:qme/model/subscriber.dart';
+import 'package:qme/views/home.dart';
+import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
 // import 'views/booking.dart';
 import 'views/nearby.dart';
@@ -11,6 +11,12 @@ import 'views/signup.dart';
 import 'views/subscriber.dart';
 import 'views/token.dart';
 import 'views/unknown.dart';
+import 'package:qme/views/profile.dart';
+import 'package:qme/views/signin.dart';
+import 'package:qme/views/signup.dart';
+import 'package:qme/views/subscriber.dart';
+import 'package:qme/views/token.dart';
+import 'package:qme/views/unknown.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
@@ -24,6 +30,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => SignInScreen(),
         settings: RouteSettings(name: SignInScreen.id),
+      );
+
+    case OtpPage.id:
+      return MaterialPageRoute(
+        builder: (context) => OtpPage(),
+        settings: RouteSettings(name: OtpPage.id),
       );
 
     case HomeScreen.id:
@@ -56,11 +68,6 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => ProfileScreen(),
         settings: RouteSettings(name: ProfileScreen.id),
-      );
-    case OtpPage.id:
-      return MaterialPageRoute(
-        builder: (context) => OtpPage(),
-        settings: RouteSettings(name: OtpPage.id),
       );
 
     default:

@@ -1,20 +1,24 @@
 import 'dart:developer';
+<<<<<<< HEAD
 import 'dart:io';
+=======
+
+>>>>>>> fbfa4b0aab283c218bc6ee2c65236a48e901085a
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
+import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/signin.dart';
 import 'package:qme/constants.dart';
+import 'package:qme/repository/user.dart';
+import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
+import 'package:qme/widgets/button.dart';
+import 'package:qme/widgets/formField.dart';
+import 'package:qme/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/button.dart';
-import '../widgets/text.dart';
-import '../widgets/formField.dart';
-import '../views/nearby.dart';
-import '../api/app_exceptions.dart';
-import '../repository/user.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const id = '/signup';
@@ -73,6 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               );
               formData['name'] =
                   formData['firstName'] + " " + formData['lastName'];
+<<<<<<< HEAD
 
               Scaffold.of(context).showSnackBar(
                 SnackBar(
@@ -80,6 +85,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               );
 
+=======
+
+              Scaffold.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Processing Data'),
+                ),
+              );
+
+>>>>>>> fbfa4b0aab283c218bc6ee2c65236a48e901085a
               UserRepository user = UserRepository();
               formData['name'] =
                   '${formData['firstName']}|${formData['lastName']}';
@@ -131,6 +145,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     var responsefcm = await fcmTokenSubmit(_fcmToken);
                     print("fcm token Api: $responsefcm");
                     print("fcm token api status: ${responsefcm['status']}");
+                    Navigator.pushNamed(context, NearbyScreen.id);
                   } else {
                     return print("error in api hit");
                   }

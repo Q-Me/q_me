@@ -4,17 +4,16 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/queue.dart';
-
-import '../api/base_helper.dart';
-import '../constants.dart';
-import '../model/queue.dart';
-import '../model/token.dart';
-import '../utilities/time.dart';
-import '../widgets/customStreamBuilder.dart';
-import '../widgets/dash.dart';
-import '../widgets/error.dart';
-import '../widgets/loader.dart';
+import 'package:qme/constants.dart';
+import 'package:qme/model/queue.dart';
+import 'package:qme/model/token.dart';
+import 'package:qme/utilities/time.dart';
+import 'package:qme/widgets/customStreamBuilder.dart';
+import 'package:qme/widgets/dash.dart';
+import 'package:qme/widgets/error.dart';
+import 'package:qme/widgets/loader.dart';
 
 /*
 Display the token number, ETA, Distance
@@ -411,14 +410,14 @@ class Grid2x2 extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
                 child: Grid2x2Item(
                   'Starts at',
-                  '${getTime(queue.startDateTime)}',
+                  '${getTimeAmPm(queue.startDateTime)}',
                   '${getDate(queue.startDateTime)}',
                 )),
             Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
                 child: Grid2x2Item(
                   'Ends at',
-                  '${getTime(queue.endDateTime)}',
+                  '${getTimeAmPm(queue.endDateTime)}',
                   '${getDate(queue.endDateTime)}',
                 )),
           ]),
@@ -434,7 +433,7 @@ class Grid2x2 extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 0.0),
                 child: Grid2x2Item(
                   'Your turn may come at',
-                  getTime(DateTime.now().add(queue.eta)).toString(),
+                  getTimeAmPm(DateTime.now().add(queue.eta)).toString(),
                   getDate(DateTime.now().add(queue.eta)).toString(),
                 )),
           ])
