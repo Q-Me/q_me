@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
@@ -33,9 +35,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Map<String, String> formData = {};
 
   final _codeController = TextEditingController();
-
+  var _fcmToken;
   var idToken;
   bool showOtpTextfield = false;
+  final FirebaseMessaging _messaging = FirebaseMessaging();
 
   // otp verification with firebase
   Future<bool> loginUser(String phone, BuildContext context) async {
@@ -57,89 +60,96 @@ class _SignUpScreenState extends State<SignUpScreen> {
             });
             final code = _codeController.text.trim();
             try {
-                log('$formData');
-                SharedPreferences prefs = await SharedPreferences.getInstance();
+              log('$formData');
+              SharedPreferences prefs = await SharedPreferences.getInstance();
 
-                formData['firstName'] = prefs.getString('userFirstNameSignup');
-                formData['lastName'] = prefs.getString('userLastNameSignup');
-                formData['phone'] = prefs.getString('userPhoneSignup');
-                formData['password'] = prefs.getString('userPasswordSignup');
-                formData['cpassword'] = prefs.getString('userCpasswordSignup');
-                formData['email'] = prefs.getString(
-                  'userEmailSignup',
-                );
-                formData['name'] =
-                    formData['firstName'] + " " + formData['lastName'];
+              formData['firstName'] = prefs.getString('userFirstNameSignup');
+              formData['lastName'] = prefs.getString('userLastNameSignup');
+              formData['phone'] = prefs.getString('userPhoneSignup');
+              formData['password'] = prefs.getString('userPasswordSignup');
+              formData['cpassword'] = prefs.getString('userCpasswordSignup');
+              formData['email'] = prefs.getString(
+                'userEmailSignup',
+              );
+              formData['name'] =
+                  formData['firstName'] + " " + formData['lastName'];
 
+              Scaffold.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Processing Data'),
+                ),
+              );
+
+              UserRepository user = UserRepository();
+              formData['name'] =
+                  '${formData['firstName']}|${formData['lastName']}';
+              // Make SignUp API call
+              Map response;
+              try {
+                print("signUpData");
+                print(formData['phone']);
+                print(formData['name']);
+                print(formData);
+                response = await user.signUp(formData);
+                print(response['status']);
+                print(response);
+              } on BadRequestException catch (e) {
+                log('BadRequestException on SignUp:' + e.toString());
+                Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                    e.toString(),
+                  ),
+                ));
+              } catch (e) {
+                log('SignUp failed:' + e.toString());
                 Scaffold.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Processing Data'),
+                    content: Text(e.toString()),
                   ),
                 );
+              }
+              log('SignUp response:${response.toString()}');
 
-                UserRepository user = UserRepository();
-                formData['name'] =
-                    '${formData['firstName']}|${formData['lastName']}';
-                // Make SignUp API call
-                Map response;
+              if (response != null &&
+                  response['msg'] == 'Registation successful') {
+                // Make SignIn call
                 try {
-                  print("signUpData");
-                  print(formData['phone']);
-                  print(formData['name']);
-                  print(formData);
-                  response = await user.signUp(formData);
-                  print(response['status']);
-                  print(response);
-                } on BadRequestException catch (e) {
-                  log('BadRequestException on SignUp:' + e.toString());
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      e.toString(),
-                    ),
-                  ));
-                } catch (e) {
-                  log('SignUp failed:' + e.toString());
-                  Scaffold.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(e.toString()),
-                    ),
-                  );
-                }
-                log('SignUp response:${response.toString()}');
+                  response =
+                      // Make LOGIN API call
+                      response = await signInWithOtp(idToken);
+                  print("reponse Status ");
 
-                if (response != null &&
-                    response['msg'] == 'Registation successful') {
-                  // Make SignIn call
-                  try {
-                    response =
-                        // Make LOGIN API call
-                        response = await signInWithOtp(idToken);
-                    print("reponse Status ");
-
-                    if (response['status'] == 200) {
-                      print("respose of ${response['status']}");
-                      print(response);
-                      Navigator.pushNamed(context, NearbyScreen.id);
-                    } else {
-                      return print("error in api hit");
-                    }
-                  } catch (e) {
-                    Scaffold.of(context)
-                        .showSnackBar(SnackBar(content: Text(e.toString())));
-                    // _showSnackBar(e.toString());
-                    log('Error in signIn API: ' + e.toString());
-                    return;
+                  if (response['status'] == 200) {
+                    print("respose of ${response['status']}");
+                    print(response);
+                     Scaffold.of(context).showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(
+                                                          'Processing Data')));
+                    Navigator.pushNamed(context, NearbyScreen.id);
+                    
+                    var responsefcm = await fcmTokenSubmit(_fcmToken);
+                    print("fcm token Api: $responsefcm");
+                    print("fcm token api status: ${responsefcm['status']}");
+                  } else {
+                    return print("error in api hit");
                   }
-                  // if (response['name'] != null) {
-                  //   // SignIn successful
-                  //   Navigator.pushNamed(
-                  //       context, NearbyScreen.id);
-                  // }
-                } else {
-                  print("SignUp failed");
+                } catch (e) {
+                  Scaffold.of(context)
+                      .showSnackBar(SnackBar(content: Text(e.toString())));
+                  // _showSnackBar(e.toString());
+                  log('Error in signIn API: ' + e.toString());
                   return;
                 }
-             
+                // if (response['name'] != null) {
+                //   // SignIn successful
+                //   Navigator.pushNamed(
+                //       context, NearbyScreen.id);
+                // }
+              } else {
+                print("SignUp failed");
+                return;
+              }
             } on PlatformException catch (e) {
               print("Looking for Error code");
               print(e.message);
@@ -215,6 +225,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void initState() {
     passwordVisible = false;
     super.initState();
+    firebaseCloudMessagingListeners();
+
+    _messaging.getToken().then((token) {
+      print("fcmToken: $token");
+      _fcmToken = token;
+    });
+  }
+
+  void firebaseCloudMessagingListeners() {
+    if (Platform.isIOS) iosPermission();
+
+    _messaging.getToken().then((token) {
+      print(token);
+    });
+
+    _messaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        //showNotification(message['notification']);
+        print('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print('on launch $message');
+      },
+    );
+  }
+
+  void iosPermission() {
+    _messaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, badge: true, alert: true));
+    _messaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
   }
 
   @override
@@ -434,6 +480,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       prefs.setString(
                                           'userEmailSignup', formData['email']);
                                       loginUser(phone, context);
+
+                                      prefs.setString('fcmToken', _fcmToken);
                                       //   UserRepository user = UserRepository();
                                       //   formData['name'] =
                                       //       '${formData['firstName']}|${formData['lastName']}';
