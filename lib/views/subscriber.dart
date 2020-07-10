@@ -1,19 +1,18 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/subscriber.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/model/queue.dart';
+import 'package:qme/model/reception.dart';
+import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/time.dart';
 import 'package:qme/views/token.dart';
-import 'package:qme/widgets/calenderStrip.dart';
-import 'package:qme/widgets/error.dart';
-import 'package:qme/widgets/loader.dart';
 
 class SubscriberScreen extends StatefulWidget {
   static const String id = '/booking';
@@ -28,50 +27,76 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
   double get h => MediaQuery.of(context).size.height;
   final double appBarOffset = 10;
 
-  BookingBloc _bloc;
+  SubscriberBloc _bloc;
 
   @override
   void initState() {
     log('Opening queues for subscriber id:' + widget.subscriber.id);
     super.initState();
-    _bloc = BookingBloc(widget.subscriber.id);
+    _bloc = SubscriberBloc(widget.subscriber.id);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_bloc == null) {
-      _bloc = BookingBloc(widget.subscriber.id);
+      _bloc = SubscriberBloc(widget.subscriber.id);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    List receptionList = List<ReceptionCard>.from(
+        Map<String, dynamic>.from(jsonDecode('''{
+    "counters": [
+        {
+            "id": "FyKQeYVM8",
+            "subscriber_id": "17dY6K8Hb",
+            "starttime": "2020-06-28T20:00:00.000Z",
+            "endtime": "2020-06-28T21:00:00.000Z",
+            "slot": 15,
+            "cust_per_slot": 1,
+            "status": "UPCOMING"
+        }
+        ,
+        {
+            "id": "pgXN_rw-0",
+            "subscriber_id": "17dY6K8Hb",
+            "starttime": "2020-06-28T18:00:00.000Z",
+            "endtime": "2020-06-28T19:45:00.000Z",
+            "slot": 15,
+            "cust_per_slot": 3,
+            "status": "UPCOMING"
+        }
+    ]
+}'''))["counters"]
+            .map((item) => ReceptionCard(Reception.fromJson(item)))
+            .toList());
     return Scaffold(
       backgroundColor: Colors.green,
       body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.symmetric(
-                  vertical: 15, horizontal: appBarOffset / 2),
-              width: w - appBarOffset * 2,
-              color: Colors.transparent,
-              alignment: Alignment(-1, -1),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.green,
-                  radius: 20,
-                  child: Icon(Icons.arrow_back_ios),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(
+                    vertical: 15, horizontal: appBarOffset / 2),
+                width: w - appBarOffset * 2,
+                color: Colors.transparent,
+                alignment: Alignment(-1, -1),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.green,
+                    radius: 20,
+                    child: Icon(Icons.arrow_back_ios),
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: Container(
+              Container(
                 width: w,
                 padding: EdgeInsets.only(left: 15, right: 15, top: 20),
                 decoration: BoxDecoration(
@@ -93,6 +118,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                         ],
                       ),
                     ),
+                    /*
                     CalStrip(),
                     StreamBuilder<ApiResponse<List<Queue>>>(
                       stream: _bloc.queuesListStream,
@@ -121,11 +147,110 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                       },
                     ),
                     Divider(),
+                    */
+                    Column(children: receptionList),
+                    /*Column(
+                      children: <Widget>[
+                        ReceptionCard(Reception.fromJson(jsonDecode('''{
+              "id": "FyKQeYVM8",
+              "subscriber_id": "17dY6K8Hb",
+              "starttime": "2020-06-28T20:00:00.000Z",
+              "endtime": "2020-06-28T21:00:00.000Z",
+              "slot": 15,
+              "cust_per_slot": 1,
+              "status": "UPCOMING"
+          }'''))),
+                        ReceptionCard(Reception.fromJson(jsonDecode('''{
+    "counters": [
+          {
+              "id": "FyKQeYVM8",
+              "subscriber_id": "17dY6K8Hb",
+              "starttime": "2020-06-28T20:00:00.000Z",
+              "endtime": "2020-06-28T21:00:00.000Z",
+              "slot": 15,
+              "cust_per_slot": 1,
+              "status": "UPCOMING"
+          },
+          {
+              "id": "pgXN_rw-0",
+              "subscriber_id": "17dY6K8Hb",
+              "starttime": "2020-06-28T18:00:00.000Z",
+              "endtime": "2020-06-28T19:45:00.000Z",
+              "slot": 15,
+              "cust_per_slot": 3,
+              "status": "UPCOMING"
+          }
+    ]
+}''')["counters"][0])),
+                      ],
+                    ),*/
                   ],
                 ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ReceptionCard extends StatelessWidget {
+  ReceptionCard(this.reception);
+  Reception reception;
+  @override
+  Widget build(BuildContext context) {
+    print(reception.toJson());
+    return Card(
+      elevation: 8,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: <Widget>[
+            Container(
+              alignment: Alignment(-1, 0),
+              child: Text(
+                DateFormat('MMMMEEEEd').format(reception.startTime),
+                style: TextStyle(fontSize: 24),
               ),
-            )
+            ),
+            Divider(),
+            Container(
+              child: Wrap(
+                spacing: 4.0, // gap between adjacent chips
+                runSpacing: 4.0, // gap between lines
+                children: reception
+                    .createSlots()
+                    .map((item) => SlotItem(item))
+                    .toList(),
+              ),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class SlotItem extends StatelessWidget {
+  SlotItem(this.slot);
+
+  final Slot slot;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      child: Container(
+        padding: EdgeInsets.all(5),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(5.0)),
+            border: Border.all(width: 1, color: Colors.green[400])),
+        child: Text(
+          getTimeAmPm(slot.startTime) + '-' + getTimeAmPm(slot.endTime),
+          style: TextStyle(
+            color: Colors.green[800],
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -161,7 +286,7 @@ class QueueItem extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text('Starts at', style: kSmallTextStyle),
-                            Text(getTime(queue.startDateTime),
+                            Text(getTimeAmPm(queue.startDateTime),
                                 style: kBigTextStyle),
                             Text(getDate(queue.startDateTime),
                                 style: kSmallTextStyle),
@@ -175,7 +300,7 @@ class QueueItem extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text('Ends at', style: kSmallTextStyle),
-                          Text(getTime(queue.endDateTime),
+                          Text(getTimeAmPm(queue.endDateTime),
                               style: kBigTextStyle),
                           Text(getDate(queue.endDateTime),
                               style: kSmallTextStyle),

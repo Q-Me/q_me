@@ -5,12 +5,10 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:qme/api/kAPI.dart';
 import 'package:qme/repository/user.dart';
+import 'package:qme/router.dart' as router;
+import 'package:qme/services/analytics.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
-import 'package:qme/views/signup.dart';
-
-import 'router.dart' as router;
-import 'services/analytics.dart';
 
 String initialHome = SignInScreen.id;
 
