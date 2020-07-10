@@ -1,15 +1,15 @@
 //import 'dart:html';
 import 'dart:developer';
+
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'nearby.dart';
-import 'signup.dart';
-import '../constants.dart';
-import '../widgets/formField.dart';
-import '../widgets/text.dart';
-import '../api/signin.dart';
+import 'package:qme/api/signin.dart';
+import 'package:qme/constants.dart';
+import 'package:qme/views/nearby.dart';
+import 'package:qme/views/signup.dart';
+import 'package:qme/widgets/text.dart';
 
 class SignInScreen extends StatefulWidget {
   static const id = '/signin';
@@ -350,22 +350,29 @@ class _SignInScreenState extends State<SignInScreen>
                                               try {
                                                 response =
                                                     // Make LOGIN API call
-                                                    response = await signInWithOtp(
-                                                        idToken);
+                                                    response =
+                                                        await signInWithOtp(
+                                                            idToken);
 
                                                 if (response['status'] == 200) {
-                                                  print("respose of ${response['status']}");
+                                                  print(
+                                                      "respose of ${response['status']}");
                                                   print(response);
                                                   Navigator.pushNamed(
                                                       context, NearbyScreen.id);
                                                 } else {
                                                   print(response['status']);
                                                   print(response);
-                                                   Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(
-                                                          response['status'].toString() +" " + response['error'].toString())));
-                                                  return print("error in api hit");
+                                                  Scaffold.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(response[
+                                                                      'status']
+                                                                  .toString() +
+                                                              " " +
+                                                              response['error']
+                                                                  .toString())));
+                                                  return print(
+                                                      "error in api hit");
                                                 }
                                               } catch (e) {
                                                 Scaffold.of(context)
@@ -526,27 +533,37 @@ class _SignInScreenState extends State<SignInScreen>
                                               // email and password both are available here
                                               Map response;
                                               try {
-                                                print("signInWithPassword api is called");
-                                                print("phoneNumber : $phoneNumber and password: $password");
+                                                print(
+                                                    "signInWithPassword api is called");
+                                                print(
+                                                    "phoneNumber : $phoneNumber and password: $password");
                                                 response =
                                                     // Make LOGIN API call
-                                                    response = await signInWithPassword(
-                                                        phoneNumber, password
-                                                        );
-                                                         print("signInWithPassword api call over");
+                                                    response =
+                                                        await signInWithPassword(
+                                                            phoneNumber,
+                                                            password);
+                                                print(
+                                                    "signInWithPassword api call over");
                                                 if (response['status'] == 200) {
-                                                  print("respose of ${response['status']}");
+                                                  print(
+                                                      "respose of ${response['status']}");
                                                   print(response);
                                                   Navigator.pushNamed(
                                                       context, NearbyScreen.id);
                                                 } else {
-                                                   print("respose of ${response['status']}");
+                                                  print(
+                                                      "respose of ${response['status']}");
                                                   print(response);
                                                   Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text( "statusCode : " +
-                                                            response['status'].toString())));
-                                                  return print("error in Api hit");
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(
+                                                              "statusCode : " +
+                                                                  response[
+                                                                          'status']
+                                                                      .toString())));
+                                                  return print(
+                                                      "error in Api hit");
                                                 }
                                               } catch (e) {
                                                 print(" !!$e !!");
@@ -581,8 +598,7 @@ class _SignInScreenState extends State<SignInScreen>
                           ),
                         ],
                       ),
-                    )
-                    ),
+                    )),
                 SizedBox(height: 15.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

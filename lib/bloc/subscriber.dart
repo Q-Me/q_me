@@ -8,7 +8,7 @@ import 'package:qme/model/reception.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/repository/queue.dart';
 
-class BookingBloc {
+class SubscriberBloc {
   String subscriberId, queueStatus;
   List<Queue> queuesList = [];
   List<Reception> receptionList = [];
@@ -28,17 +28,20 @@ class BookingBloc {
   Stream<ApiResponse<List<Queue>>> get receptionListStream =>
       _receptionListController.stream;
 
-  BookingBloc(this.subscriberId) {
+  SubscriberBloc(this.subscriberId) {
     _queuesListController = StreamController<ApiResponse<List<Queue>>>();
     _receptionListController = StreamController<ApiResponse<List<Reception>>>();
 
     _queuesRepository = QueuesListRepository();
     _appointmentRepository = AppointmentRepository();
 
-    fetchQueuesList();
-    // TODO fetchReceptions and their slots
+//    fetchQueuesList();
+
+    // fetchReceptions and their slots
+    fetchReceptions();
   }
   fetchReceptions() async {
+    receptionListSink.add(ApiResponse.loading('Fetching appointment slots'));
     final response = jsonDecode('''{
     "counters": [
         {
@@ -75,6 +78,15 @@ class BookingBloc {
       status: ['UPCOMING', 'ACTIVE'],
       accessToken: accessToken,
     );*/
+
+    // slots from start time and send and slot duration
+    for (int i = 0; i < receptionList.length; i++) {
+      Reception reception = receptionList[i];
+      reception.createSlots();
+      /*List<Slot> slots = createSlotsFromDuration(reception);
+      reception.addSlotList(slots);*/
+    }
+    receptionListSink.add(ApiResponse.completed(receptionList));
   }
 
   fetchQueuesList() async {
@@ -113,4 +125,12 @@ List<Queue> filterEndedQueues(List<Queue> queues) {
     }
   }
   return finalQueueList;
+}
+
+void main() {
+  SubscriberBloc subscriberBloc = SubscriberBloc('');
+  subscriberBloc.fetchReceptions();
+  for (Reception reception in subscriberBloc.receptionList) {
+    print('${reception.toJson()}');
+  }
 }

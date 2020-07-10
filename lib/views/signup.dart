@@ -1,18 +1,19 @@
 import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
+import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/signin.dart';
 import 'package:qme/constants.dart';
+import 'package:qme/repository/user.dart';
+import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
+import 'package:qme/widgets/button.dart';
+import 'package:qme/widgets/formField.dart';
+import 'package:qme/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/button.dart';
-import '../widgets/text.dart';
-import '../widgets/formField.dart';
-import '../views/nearby.dart';
-import '../api/app_exceptions.dart';
-import '../repository/user.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const id = '/signup';
@@ -57,89 +58,88 @@ class _SignUpScreenState extends State<SignUpScreen> {
             });
             final code = _codeController.text.trim();
             try {
-                log('$formData');
-                SharedPreferences prefs = await SharedPreferences.getInstance();
+              log('$formData');
+              SharedPreferences prefs = await SharedPreferences.getInstance();
 
-                formData['firstName'] = prefs.getString('userFirstNameSignup');
-                formData['lastName'] = prefs.getString('userLastNameSignup');
-                formData['phone'] = prefs.getString('userPhoneSignup');
-                formData['password'] = prefs.getString('userPasswordSignup');
-                formData['cpassword'] = prefs.getString('userCpasswordSignup');
-                formData['email'] = prefs.getString(
-                  'userEmailSignup',
-                );
-                formData['name'] =
-                    formData['firstName'] + " " + formData['lastName'];
+              formData['firstName'] = prefs.getString('userFirstNameSignup');
+              formData['lastName'] = prefs.getString('userLastNameSignup');
+              formData['phone'] = prefs.getString('userPhoneSignup');
+              formData['password'] = prefs.getString('userPasswordSignup');
+              formData['cpassword'] = prefs.getString('userCpasswordSignup');
+              formData['email'] = prefs.getString(
+                'userEmailSignup',
+              );
+              formData['name'] =
+                  formData['firstName'] + " " + formData['lastName'];
 
+              Scaffold.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Processing Data'),
+                ),
+              );
+
+              UserRepository user = UserRepository();
+              formData['name'] =
+                  '${formData['firstName']}|${formData['lastName']}';
+              // Make SignUp API call
+              Map response;
+              try {
+                print("signUpData");
+                print(formData['phone']);
+                print(formData['name']);
+                print(formData);
+                response = await user.signUp(formData);
+                print(response['status']);
+                print(response);
+              } on BadRequestException catch (e) {
+                log('BadRequestException on SignUp:' + e.toString());
+                Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                    e.toString(),
+                  ),
+                ));
+              } catch (e) {
+                log('SignUp failed:' + e.toString());
                 Scaffold.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Processing Data'),
+                    content: Text(e.toString()),
                   ),
                 );
+              }
+              log('SignUp response:${response.toString()}');
 
-                UserRepository user = UserRepository();
-                formData['name'] =
-                    '${formData['firstName']}|${formData['lastName']}';
-                // Make SignUp API call
-                Map response;
+              if (response != null &&
+                  response['msg'] == 'Registation successful') {
+                // Make SignIn call
                 try {
-                  print("signUpData");
-                  print(formData['phone']);
-                  print(formData['name']);
-                  print(formData);
-                  response = await user.signUp(formData);
-                  print(response['status']);
-                  print(response);
-                } on BadRequestException catch (e) {
-                  log('BadRequestException on SignUp:' + e.toString());
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      e.toString(),
-                    ),
-                  ));
-                } catch (e) {
-                  log('SignUp failed:' + e.toString());
-                  Scaffold.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(e.toString()),
-                    ),
-                  );
-                }
-                log('SignUp response:${response.toString()}');
+                  response =
+                      // Make LOGIN API call
+                      response = await signInWithOtp(idToken);
+                  print("reponse Status ");
 
-                if (response != null &&
-                    response['msg'] == 'Registation successful') {
-                  // Make SignIn call
-                  try {
-                    response =
-                        // Make LOGIN API call
-                        response = await signInWithOtp(idToken);
-                    print("reponse Status ");
-
-                    if (response['status'] == 200) {
-                      print("respose of ${response['status']}");
-                      print(response);
-                      Navigator.pushNamed(context, NearbyScreen.id);
-                    } else {
-                      return print("error in api hit");
-                    }
-                  } catch (e) {
-                    Scaffold.of(context)
-                        .showSnackBar(SnackBar(content: Text(e.toString())));
-                    // _showSnackBar(e.toString());
-                    log('Error in signIn API: ' + e.toString());
-                    return;
+                  if (response['status'] == 200) {
+                    print("respose of ${response['status']}");
+                    print(response);
+                    Navigator.pushNamed(context, NearbyScreen.id);
+                  } else {
+                    return print("error in api hit");
                   }
-                  // if (response['name'] != null) {
-                  //   // SignIn successful
-                  //   Navigator.pushNamed(
-                  //       context, NearbyScreen.id);
-                  // }
-                } else {
-                  print("SignUp failed");
+                } catch (e) {
+                  Scaffold.of(context)
+                      .showSnackBar(SnackBar(content: Text(e.toString())));
+                  // _showSnackBar(e.toString());
+                  log('Error in signIn API: ' + e.toString());
                   return;
                 }
-             
+                // if (response['name'] != null) {
+                //   // SignIn successful
+                //   Navigator.pushNamed(
+                //       context, NearbyScreen.id);
+                // }
+              } else {
+                print("SignUp failed");
+                return;
+              }
             } on PlatformException catch (e) {
               print("Looking for Error code");
               print(e.message);
