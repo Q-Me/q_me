@@ -1,4 +1,7 @@
+import 'dart:collection';
+
 import 'package:meta/meta.dart';
+import 'package:ordered_set/comparing.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/model/reception.dart';
@@ -12,7 +15,7 @@ class AppointmentRepository {
     @required String accessToken,
   }) async {
     final response = await _helper.post(
-      'user/slot/counters',
+      '/user/slot/counters',
       req: {
         "subscriber_id": subscriberId,
         "status": status.length < 4 ? status : "ALL",
@@ -20,11 +23,12 @@ class AppointmentRepository {
       headers: {'Authorization': 'Bearer $accessToken'},
     );
 
-    List<Reception> receptions = [];
+    SplayTreeSet<Reception> _receptions = SplayTreeSet<Reception>(
+        Comparing.on((Reception reception) => reception.startTime));
     for (var element in response['counters']) {
-      receptions.add(Reception.fromJson(Map<String, dynamic>.from(element)));
+      _receptions.add(Reception.fromJson(Map<String, dynamic>.from(element)));
     }
-    return receptions;
+    return _receptions.toList();
   }
 
   Future book({

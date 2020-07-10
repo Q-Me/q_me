@@ -1,17 +1,12 @@
-import 'dart:convert';
-
-import '../model/user.dart';
+import 'package:qme/model/user.dart';
+import 'package:qme/repository/user.dart';
 
 void setSession() async {
-  final Map<String, dynamic> signInResponse = jsonDecode('''
-{
-    "id": "Epq4hLrOt",
-    "name": "Mr. B",
+  final Map<String, dynamic> signInResponse = await UserRepository().signIn({
     "phone": "+919673582517",
-    "isUser": true,
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkVwcTRoTHJPdCIsIm5hbWUiOiJNci4gQiIsInBob25lIjoiKzkxOTY3MzU4MjUxNyIsImlzVXNlciI6dHJ1ZSwiaWF0IjoxNTk0MTI1MzQ3LCJleHAiOjE1OTQyMTE3NDd9.5AdVXYB0kM-nF-UoSHvY-sdDPO8HJT_WEMz82-qh4x8",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkVwcTRoTHJPdCIsIm5hbWUiOiJNci4gQiIsInBob25lIjoiKzkxOTY3MzU4MjUxNyIsImlzVXNlciI6dHJ1ZSwiaWF0IjoxNTk0MTI1MzQ3fQ.qbddxXRH8XciDc7mTMpbYPRuRuYUmQDQCj5ELrFDOF8"
-}''');
+    "password": "P1yush.123",
+  });
+  print('SignIn session: ${signInResponse.toString()}');
   await storeUserData(UserData.fromJson(signInResponse));
 }
 
