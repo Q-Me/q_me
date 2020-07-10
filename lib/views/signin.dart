@@ -1,4 +1,6 @@
 //import 'dart:html';
+import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:developer';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,12 +31,13 @@ class _SignInScreenState extends State<SignInScreen>
   String countryCodeVal;
   String countryCodePassword;
   bool showOtpTextfield = false;
-
+  final FirebaseMessaging _messaging = FirebaseMessaging();
   final formKey =
       GlobalKey<FormState>(); // Used in login button and forget password
   String email;
   String password;
   String phoneNumber;
+  var _fcmToken;
 
   Future<bool> loginUser(String phone, BuildContext context) async {
     FirebaseAuth _auth = FirebaseAuth.instance;
@@ -64,7 +67,13 @@ class _SignInScreenState extends State<SignInScreen>
                     response = await signInWithOtp(idToken);
 
                 if (response['status'] == 200) {
+                  Scaffold.of(context)
+                      .showSnackBar(SnackBar(content: Text('Processing Data')));
                   Navigator.pushNamed(context, NearbyScreen.id);
+
+                  var responsefcm = await fcmTokenSubmit(_fcmToken);
+                  print("fcm token Api: $responsefcm");
+                  print("fcm token  Apiresponse: ${responsefcm['status']}");
                 } else {
                   return;
                 }
@@ -104,6 +113,48 @@ class _SignInScreenState extends State<SignInScreen>
   void initState() {
     super.initState();
     _controller = new TabController(length: 2, vsync: this);
+    firebaseCloudMessagingListeners();
+    _messaging.getToken().then((token) {
+      print("fcmToken: $token");
+      _fcmToken = token;
+    });
+
+    Stream<String> fcmStream = _messaging.onTokenRefresh.distinct();
+    print(fcmStream);
+    fcmStream.listen((token) {
+      print(" new refreshed token : $token");
+//saveToken(token);
+    });
+  }
+
+  void firebaseCloudMessagingListeners() {
+    if (Platform.isIOS) iosPermission();
+
+    _messaging.getToken().then((token) {
+      print(token);
+    });
+
+    _messaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        //showNotification(message['notification']);
+        print('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print('on launch $message');
+      },
+    );
+  }
+
+  void iosPermission() {
+    _messaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, badge: true, alert: true));
+    _messaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
   }
 
   @override
@@ -350,22 +401,40 @@ class _SignInScreenState extends State<SignInScreen>
                                               try {
                                                 response =
                                                     // Make LOGIN API call
-                                                    response = await signInWithOtp(
-                                                        idToken);
+                                                    response =
+                                                        await signInWithOtp(
+                                                            idToken);
 
                                                 if (response['status'] == 200) {
-                                                  print("respose of ${response['status']}");
+                                                  print(
+                                                      "respose of ${response['status']}");
                                                   print(response);
+                                                  Scaffold.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(
+                                                              'Processing Data')));
+                                                  var responsefcm =
+                                                      await fcmTokenSubmit(
+                                                          _fcmToken);
+                                                  print(
+                                                      "fcm token Api: $responsefcm");
+                                                  print(
+                                                      "fcm token Api status: ${responsefcm['status']}");
                                                   Navigator.pushNamed(
                                                       context, NearbyScreen.id);
                                                 } else {
                                                   print(response['status']);
                                                   print(response);
-                                                   Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(
-                                                          response['status'].toString() +" " + response['error'].toString())));
-                                                  return print("error in api hit");
+                                                  Scaffold.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(response[
+                                                                      'status']
+                                                                  .toString() +
+                                                              " " +
+                                                              response['error']
+                                                                  .toString())));
+                                                  return print(
+                                                      "error in api hit");
                                                 }
                                               } catch (e) {
                                                 Scaffold.of(context)
@@ -526,27 +595,49 @@ class _SignInScreenState extends State<SignInScreen>
                                               // email and password both are available here
                                               Map response;
                                               try {
-                                                print("signInWithPassword api is called");
-                                                print("phoneNumber : $phoneNumber and password: $password");
+                                                print(
+                                                    "signInWithPassword api is called");
+                                                print(
+                                                    "phoneNumber : $phoneNumber and password: $password");
                                                 response =
                                                     // Make LOGIN API call
-                                                    response = await signInWithPassword(
-                                                        phoneNumber, password
-                                                        );
-                                                         print("signInWithPassword api call over");
+                                                    response =
+                                                        await signInWithPassword(
+                                                            phoneNumber,
+                                                            password);
+                                                print(
+                                                    "signInWithPassword api call over");
                                                 if (response['status'] == 200) {
-                                                  print("respose of ${response['status']}");
+                                                  print(
+                                                      "respose of ${response['status']}");
                                                   print(response);
+
                                                   Navigator.pushNamed(
                                                       context, NearbyScreen.id);
+                                                  Scaffold.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(
+                                                              'Processing Data')));
+                                                  var responsefcm =
+                                                      await fcmTokenSubmit(
+                                                          _fcmToken);
+                                                  print(
+                                                      "fcm token api: $responsefcm");
+                                                  print(
+                                                      "fcm token status: ${responsefcm['status']}");
                                                 } else {
-                                                   print("respose of ${response['status']}");
+                                                  print(
+                                                      "respose of ${response['status']}");
                                                   print(response);
                                                   Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text( "statusCode : " +
-                                                            response['status'].toString())));
-                                                  return print("error in Api hit");
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(
+                                                              "statusCode : " +
+                                                                  response[
+                                                                          'status']
+                                                                      .toString())));
+                                                  return print(
+                                                      "error in Api hit");
                                                 }
                                               } catch (e) {
                                                 print(" !!$e !!");
@@ -581,8 +672,7 @@ class _SignInScreenState extends State<SignInScreen>
                           ),
                         ],
                       ),
-                    )
-                    ),
+                    )),
                 SizedBox(height: 15.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

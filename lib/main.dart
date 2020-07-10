@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light().copyWith(primaryColor: Colors.green),
       debugShowCheckedModeBanner: false,
       onGenerateRoute: router.generateRoute,
-      initialRoute: initialHome,
+      initialRoute: SignInScreen.id,
       navigatorObservers: <NavigatorObserver>[
         AnalyticsService().getAnalyticsObserver(),
       ],

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'model/subscriber.dart';
 import 'views/home.dart';
 import 'package:qme/views/otpPage.dart';
-import 'views/booking.dart';
+// import 'views/booking.dart';
 import 'views/nearby.dart';
 import 'views/profile.dart';
 import 'views/signin.dart';
