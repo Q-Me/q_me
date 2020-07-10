@@ -25,7 +25,7 @@ class SubscriberBloc {
 
   Stream<ApiResponse<List<Queue>>> get queuesListStream =>
       _queuesListController.stream;
-  Stream<ApiResponse<List<Queue>>> get receptionListStream =>
+  Stream<ApiResponse<List<Reception>>> get receptionListStream =>
       _receptionListController.stream;
 
   SubscriberBloc(this.subscriberId) {
@@ -51,6 +51,15 @@ class SubscriberBloc {
             "endtime": "2020-06-28T21:00:00.000Z",
             "slot": 15,
             "cust_per_slot": 1,
+            "status": "UPCOMING"
+        },
+        {
+            "id": "pgXN_rw-0",
+            "subscriber_id": "17dY6K8Hb",
+            "starttime": "2020-06-28T18:00:00.000Z",
+            "endtime": "2020-06-28T19:45:00.000Z",
+            "slot": 15,
+            "cust_per_slot": 3,
             "status": "UPCOMING"
         },
         {

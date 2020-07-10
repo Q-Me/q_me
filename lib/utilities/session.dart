@@ -6,6 +6,7 @@ void setSession() async {
     "phone": "+919673582517",
     "password": "P1yush.123",
   });
+  print('SignIn session: ${signInResponse.toString()}');
   await storeUserData(UserData.fromJson(signInResponse));
 }
 
