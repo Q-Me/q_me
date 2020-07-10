@@ -173,10 +173,15 @@ class _OtpPageState extends State<OtpPage> {
                                                 'Registation successful') {
                                           // Make SignIn call
                                           try {
+                                            SharedPreferences prefs =
+                                                await SharedPreferences
+                                                    .getInstance();
+                                            prefs.setString(
+                                                'fcmToken', _fcmToken);
                                             Scaffold.of(context).showSnackBar(
-                                                  SnackBar(
-                                                      content: Text(
-                                                          'Processing Data')));
+                                                SnackBar(
+                                                    content: Text(
+                                                        'Processing Data')));
                                             response =
                                                 // Make LOGIN API call
                                                 response = await signInWithOtp(
@@ -187,7 +192,7 @@ class _OtpPageState extends State<OtpPage> {
                                               print(
                                                   "respose of ${response['status']}");
                                               print(response);
-                                              
+
                                               Navigator.pushNamed(
                                                   context, NearbyScreen.id);
                                               var responsefcm =

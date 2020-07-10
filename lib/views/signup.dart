@@ -1,9 +1,5 @@
 import 'dart:developer';
-<<<<<<< HEAD
 import 'dart:io';
-=======
-
->>>>>>> fbfa4b0aab283c218bc6ee2c65236a48e901085a
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +73,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               );
               formData['name'] =
                   formData['firstName'] + " " + formData['lastName'];
-<<<<<<< HEAD
 
               Scaffold.of(context).showSnackBar(
                 SnackBar(
@@ -85,15 +80,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               );
 
-=======
-
-              Scaffold.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Processing Data'),
-                ),
-              );
-
->>>>>>> fbfa4b0aab283c218bc6ee2c65236a48e901085a
               UserRepository user = UserRepository();
               formData['name'] =
                   '${formData['firstName']}|${formData['lastName']}';
@@ -136,15 +122,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   if (response['status'] == 200) {
                     print("respose of ${response['status']}");
                     print(response);
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
                      Scaffold.of(context).showSnackBar(
                                                   SnackBar(
                                                       content: Text(
                                                           'Processing Data')));
+                                                          
                     Navigator.pushNamed(context, NearbyScreen.id);
                     
                     var responsefcm = await fcmTokenSubmit(_fcmToken);
                     print("fcm token Api: $responsefcm");
                     print("fcm token api status: ${responsefcm['status']}");
+              prefs.setString('fcmToken',_fcmToken );
                     Navigator.pushNamed(context, NearbyScreen.id);
                   } else {
                     return print("error in api hit");

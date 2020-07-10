@@ -12,6 +12,7 @@ import 'package:qme/constants.dart';
 import 'package:qme/views/nearby.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/widgets/text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   static const id = '/signin';
@@ -62,6 +63,8 @@ class _SignInScreenState extends State<SignInScreen>
                   .showSnackBar(SnackBar(content: Text('Processing Data')));
               var response;
               try {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString('fcmToken',_fcmToken );
                 response =
                     // Make LOGIN API call
                     response = await signInWithOtp(idToken);
@@ -74,6 +77,8 @@ class _SignInScreenState extends State<SignInScreen>
                   var responsefcm = await fcmTokenSubmit(_fcmToken);
                   print("fcm token Api: $responsefcm");
                   print("fcm token  Apiresponse: ${responsefcm['status']}");
+                  
+                  
                 } else {
                   return;
                 }
@@ -117,13 +122,6 @@ class _SignInScreenState extends State<SignInScreen>
     _messaging.getToken().then((token) {
       print("fcmToken: $token");
       _fcmToken = token;
-    });
-
-    Stream<String> fcmStream = _messaging.onTokenRefresh.distinct();
-    print(fcmStream);
-    fcmStream.listen((token) {
-      print(" new refreshed token : $token");
-//saveToken(token);
     });
   }
 
@@ -413,6 +411,8 @@ class _SignInScreenState extends State<SignInScreen>
                                                       .showSnackBar(SnackBar(
                                                           content: Text(
                                                               'Processing Data')));
+                                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+
                                                   var responsefcm =
                                                       await fcmTokenSubmit(
                                                           _fcmToken);
@@ -420,6 +420,7 @@ class _SignInScreenState extends State<SignInScreen>
                                                       "fcm token Api: $responsefcm");
                                                   print(
                                                       "fcm token Api status: ${responsefcm['status']}");
+              prefs.setString('fcmToken',_fcmToken );
                                                   Navigator.pushNamed(
                                                       context, NearbyScreen.id);
                                                 } else {
@@ -595,6 +596,7 @@ class _SignInScreenState extends State<SignInScreen>
                                               // email and password both are available here
                                               Map response;
                                               try {
+                                                SharedPreferences prefs = await SharedPreferences.getInstance();
                                                 print(
                                                     "signInWithPassword api is called");
                                                 print(
@@ -625,9 +627,12 @@ class _SignInScreenState extends State<SignInScreen>
                                                       "fcm token api: $responsefcm");
                                                   print(
                                                       "fcm token status: ${responsefcm['status']}");
+              prefs.setString('fcmToken',_fcmToken );
                                                 } else {
                                                   print(
                                                       "respose of ${response['status']}");
+                                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+
                                                   print(response);
                                                   Scaffold.of(context)
                                                       .showSnackBar(SnackBar(
