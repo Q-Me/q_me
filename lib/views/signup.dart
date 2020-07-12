@@ -1,6 +1,7 @@
 import 'dart:developer';
-
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
@@ -34,9 +35,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Map<String, String> formData = {};
 
   final _codeController = TextEditingController();
-
+  var _fcmToken;
   var idToken;
   bool showOtpTextfield = false;
+  final FirebaseMessaging _messaging = FirebaseMessaging();
 
   // otp verification with firebase
   Future<bool> loginUser(String phone, BuildContext context) async {
@@ -120,6 +122,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   if (response['status'] == 200) {
                     print("respose of ${response['status']}");
                     print(response);
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                     Scaffold.of(context).showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(
+                                                          'Processing Data')));
+                                                          
+                    Navigator.pushNamed(context, NearbyScreen.id);
+                    
+                    var responsefcm = await fcmTokenSubmit(_fcmToken);
+                    print("fcm token Api: $responsefcm");
+                    print("fcm token api status: ${responsefcm['status']}");
+              prefs.setString('fcmToken',_fcmToken );
                     Navigator.pushNamed(context, NearbyScreen.id);
                   } else {
                     return print("error in api hit");
@@ -215,6 +229,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void initState() {
     passwordVisible = false;
     super.initState();
+    firebaseCloudMessagingListeners();
+
+    _messaging.getToken().then((token) {
+      print("fcmToken: $token");
+      _fcmToken = token;
+    });
+  }
+
+  void firebaseCloudMessagingListeners() {
+    if (Platform.isIOS) iosPermission();
+
+    _messaging.getToken().then((token) {
+      print(token);
+    });
+
+    _messaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        //showNotification(message['notification']);
+        print('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print('on launch $message');
+      },
+    );
+  }
+
+  void iosPermission() {
+    _messaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, badge: true, alert: true));
+    _messaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
   }
 
   @override
@@ -434,6 +484,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       prefs.setString(
                                           'userEmailSignup', formData['email']);
                                       loginUser(phone, context);
+
+                                      prefs.setString('fcmToken', _fcmToken);
                                       //   UserRepository user = UserRepository();
                                       //   formData['name'] =
                                       //       '${formData['firstName']}|${formData['lastName']}';
