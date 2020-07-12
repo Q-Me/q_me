@@ -35,7 +35,8 @@ class SubscriberBloc {
     _queuesRepository = QueuesListRepository();
     _appointmentRepository = AppointmentRepository();
 
-//    fetchQueuesList();
+    // TODO Get subscriber information like address and images
+    // fetchQueuesList();
 
     // fetchReceptions and their slots
     fetchReceptions();
