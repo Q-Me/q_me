@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:ordered_set/comparing.dart';
 import 'package:qme/controllers/slot.dart';
@@ -10,9 +11,9 @@ Reception receptionFromJson(String str) => Reception.fromJson(json.decode(str));
 
 String receptionToJson(Reception data) => json.encode(data.toJson());
 
-class Reception {
+class Reception extends ChangeNotifier {
   Reception({
-    @required this.receptionId,
+    @required this.id,
     @required this.subscriberId,
     @required this.startTime,
     @required this.endTime,
@@ -21,7 +22,7 @@ class Reception {
     @required this.status,
   });
 
-  final String receptionId;
+  final String id;
   final String subscriberId;
   final DateTime startTime;
   final DateTime endTime;
@@ -44,7 +45,7 @@ class Reception {
   }
 
   factory Reception.fromJson(Map<String, dynamic> json) => Reception(
-        receptionId: json["id"],
+        id: json["id"],
         subscriberId: json["subscriber_id"],
         startTime: DateTime.parse(json["starttime"]).toLocal(),
         endTime: DateTime.parse(json["endtime"]).toLocal(),
@@ -54,7 +55,7 @@ class Reception {
       );
 
   Map<String, dynamic> toJson() => {
-        "id": receptionId,
+        "id": id,
         "subscriber_id": subscriberId,
         "starttime": startTime.toIso8601String(),
         "endtime": endTime.toIso8601String(),

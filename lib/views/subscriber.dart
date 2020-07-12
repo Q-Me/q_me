@@ -13,6 +13,7 @@ import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/time.dart';
+import 'package:qme/views/appointment.dart';
 import 'package:qme/views/token.dart';
 import 'package:qme/widgets/error.dart';
 import 'package:qme/widgets/loader.dart';
@@ -53,78 +54,53 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
       backgroundColor: Colors.green,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.symmetric(
-                    vertical: 15, horizontal: appBarOffset / 2),
-                width: w - appBarOffset * 2,
-                color: Colors.transparent,
-                alignment: Alignment(-1, -1),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.green,
-                    radius: 20,
-                    child: Icon(Icons.arrow_back_ios),
+          child: ChangeNotifierProvider.value(
+            value: widget.subscriber,
+            child: Column(
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.symmetric(
+                      vertical: 15, horizontal: appBarOffset / 2),
+                  width: w - appBarOffset * 2,
+                  color: Colors.transparent,
+                  alignment: Alignment(-1, -1),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.green,
+                      radius: 20,
+                      child: Icon(Icons.arrow_back_ios),
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                width: w,
-                padding: EdgeInsets.only(left: 15, right: 15, top: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  color: Colors.white,
-                ),
-                child: Column(
-                  children: <Widget>[
-                    SubscriberHeaderInfo(subscriber: widget.subscriber),
-                    SizedBox(
-                      width: 600,
-                      height: 200,
-                      child: Carousel(
-                        images: [
-                          NetworkImage(
-                              'https://cdn-images-1.medium.com/max/2000/1*GqdzzfB_BHorv7V2NV7Jgg.jpeg'),
-                          NetworkImage(
-                              'https://cdn-images-1.medium.com/max/2000/1*wnIEgP1gNMrK5gZU7QS0-A.jpeg'),
-                        ],
+                Container(
+                  width: w,
+                  padding: EdgeInsets.only(left: 15, right: 15, top: 20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      SubscriberHeaderInfo(subscriber: widget.subscriber),
+                      SizedBox(
+                        width: 600,
+                        height: 200,
+                        child: Carousel(
+                          images: [
+                            NetworkImage(
+                                'https://cdn-images-1.medium.com/max/2000/1*GqdzzfB_BHorv7V2NV7Jgg.jpeg'),
+                            NetworkImage(
+                                'https://cdn-images-1.medium.com/max/2000/1*wnIEgP1gNMrK5gZU7QS0-A.jpeg'),
+                          ],
+                        ),
                       ),
-                    ),
 //                    CalStrip(),
-                    /*StreamBuilder<ApiResponse<List<Queue>>>(
-                      stream: _bloc.queuesListStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          switch (snapshot.data.status) {
-                            case Status.LOADING:
-                              return Loading(
-                                  // TODO add shimmer loader
-                                  loadingMessage: snapshot.data.message);
-                              break;
-                            case Status.COMPLETED:
-                              return QueuesDisplay(snapshot.data.data);
-                              break;
-                            case Status.ERROR:
-                              return Error(
-                                errorMessage: snapshot.data.message,
-                                onRetryPressed: () => _bloc.fetchQueuesList(),
-                              );
-                              break;
-                          }
-                        } else {
-                          log('no Snapshot data');
-                        }
-                        return Container();
-                      },
-                    ),
-                    Divider(),*/
-                    StreamBuilder<ApiResponse<List<Reception>>>(
-                        stream: _bloc.receptionListStream,
+                      /*StreamBuilder<ApiResponse<List<Queue>>>(
+                        stream: _bloc.queuesListStream,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             switch (snapshot.data.status) {
@@ -133,66 +109,97 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                                     // TODO add shimmer loader
                                     loadingMessage: snapshot.data.message);
                                 break;
-
+                              case Status.COMPLETED:
+                                return QueuesDisplay(snapshot.data.data);
+                                break;
                               case Status.ERROR:
                                 return Error(
                                   errorMessage: snapshot.data.message,
                                   onRetryPressed: () => _bloc.fetchQueuesList(),
                                 );
                                 break;
-                              case Status.COMPLETED:
-                                List receptionList = List<ReceptionCard>.from(
-                                    snapshot.data.data
-                                        .map((item) => ReceptionCard(item))
-                                        .toList());
-                                return Column(children: receptionList);
-                                break;
                             }
                           } else {
-                            log('No snapshot data for receptions');
-                            return Text('dsg');
+                            log('no Snapshot data');
                           }
-                          return Text('sgsDGzg');
-                        }),
-                    /*Column(
-                      children: <Widget>[
-                        ReceptionCard(Reception.fromJson(jsonDecode('''{
-              "id": "FyKQeYVM8",
-              "subscriber_id": "17dY6K8Hb",
-              "starttime": "2020-06-28T20:00:00.000Z",
-              "endtime": "2020-06-28T21:00:00.000Z",
-              "slot": 15,
-              "cust_per_slot": 1,
-              "status": "UPCOMING"
-          }'''))),
-                        ReceptionCard(Reception.fromJson(jsonDecode('''{
+                          return Container();
+                        },
+                      ),
+                      Divider(),*/
+                      StreamBuilder<ApiResponse<List<Reception>>>(
+                          stream: _bloc.receptionListStream,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              switch (snapshot.data.status) {
+                                case Status.LOADING:
+                                  return Loading(
+                                      // TODO add shimmer loader
+                                      loadingMessage: snapshot.data.message);
+                                  break;
+
+                                case Status.ERROR:
+                                  return Error(
+                                    errorMessage: snapshot.data.message,
+                                    onRetryPressed: () =>
+                                        _bloc.fetchQueuesList(),
+                                  );
+                                  break;
+                                case Status.COMPLETED:
+                                  return Column(
+                                      children: List<ReceptionCard>.from(
+                                          snapshot
+                                              .data.data
+                                              .map(
+                                                  (item) => ReceptionCard(item))
+                                              .toList()));
+                                  break;
+                              }
+                            } else {
+                              log('No snapshot data for receptions');
+                              return Text('dsg');
+                            }
+                            return Text('sgsDGzg');
+                          }),
+                      /*Column(
+                        children: <Widget>[
+                          ReceptionCard(Reception.fromJson(jsonDecode('''{
+                "id": "FyKQeYVM8",
+                "subscriber_id": "17dY6K8Hb",
+                "starttime": "2020-06-28T20:00:00.000Z",
+                "endtime": "2020-06-28T21:00:00.000Z",
+                "slot": 15,
+                "cust_per_slot": 1,
+                "status": "UPCOMING"
+            }'''))),
+                          ReceptionCard(Reception.fromJson(jsonDecode('''{
     "counters": [
-          {
-              "id": "FyKQeYVM8",
-              "subscriber_id": "17dY6K8Hb",
-              "starttime": "2020-06-28T20:00:00.000Z",
-              "endtime": "2020-06-28T21:00:00.000Z",
-              "slot": 15,
-              "cust_per_slot": 1,
-              "status": "UPCOMING"
-          },
-          {
-              "id": "pgXN_rw-0",
-              "subscriber_id": "17dY6K8Hb",
-              "starttime": "2020-06-28T18:00:00.000Z",
-              "endtime": "2020-06-28T19:45:00.000Z",
-              "slot": 15,
-              "cust_per_slot": 3,
-              "status": "UPCOMING"
-          }
+            {
+                "id": "FyKQeYVM8",
+                "subscriber_id": "17dY6K8Hb",
+                "starttime": "2020-06-28T20:00:00.000Z",
+                "endtime": "2020-06-28T21:00:00.000Z",
+                "slot": 15,
+                "cust_per_slot": 1,
+                "status": "UPCOMING"
+            },
+            {
+                "id": "pgXN_rw-0",
+                "subscriber_id": "17dY6K8Hb",
+                "starttime": "2020-06-28T18:00:00.000Z",
+                "endtime": "2020-06-28T19:45:00.000Z",
+                "slot": 15,
+                "cust_per_slot": 3,
+                "status": "UPCOMING"
+            }
     ]
 }''')["counters"][0])),
-                      ],
-                    ),*/
-                  ],
-                ),
-              )
-            ],
+                        ],
+                      ),*/
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -205,32 +212,34 @@ class ReceptionCard extends StatelessWidget {
   final Reception reception;
   @override
   Widget build(BuildContext context) {
-    print(reception.toJson());
-    return Card(
-      elevation: 8,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: <Widget>[
-            Container(
-              alignment: Alignment(-1, 0),
-              child: Text(
-                DateFormat('MMMMEEEEd').format(reception.startTime),
-                style: TextStyle(fontSize: 24),
+    return ChangeNotifierProvider.value(
+      value: reception,
+      child: Card(
+        elevation: 8,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: <Widget>[
+              Container(
+                alignment: Alignment(-1, 0),
+                child: Text(
+                  DateFormat('MMMMEEEEd').format(reception.startTime),
+                  style: TextStyle(fontSize: 24),
+                ),
               ),
-            ),
-            Divider(),
-            Container(
-              child: Wrap(
-                spacing: 4.0, // gap between adjacent chips
-                runSpacing: 4.0, // gap between lines
-                children: reception
-                    .createSlots()
-                    .map((item) => SlotItem(item))
-                    .toList(),
+              Divider(),
+              Container(
+                child: Wrap(
+                  spacing: 4.0, // gap between adjacent chips
+                  runSpacing: 4.0, // gap between lines
+                  children: reception
+                      .createSlots()
+                      .map((item) => SlotItem(item))
+                      .toList(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -245,7 +254,15 @@ class SlotItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        log('Reception Id:${Provider.of<Reception>(context, listen: false).receptionId}\nSlot:${slot.startTime.toString()}-${slot.endTime.toString()}');
+        final Reception reception =
+            Provider.of<Reception>(context, listen: false);
+        final Subscriber subscriber =
+            Provider.of<Subscriber>(context, listen: false);
+        log('Reception Id:${reception.id}\nSubscriber id:${subscriber.id}\nSlot:${slot.startTime.toString()}-${slot.endTime.toString()}');
+        Navigator.popAndPushNamed(context, AppointmentScreen.id, arguments: {
+          "subscriber": subscriber,
+          "reception": reception,
+        });
       },
       child: Container(
         padding: EdgeInsets.all(5),

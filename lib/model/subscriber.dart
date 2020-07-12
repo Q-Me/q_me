@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 Subscribers subscribersFromJson(String str) =>
     Subscribers.fromJson(json.decode(str));
 
@@ -23,7 +25,7 @@ class Subscribers {
       };
 }
 
-class Subscriber {
+class Subscriber extends ChangeNotifier {
   String id,
       name,
       description,

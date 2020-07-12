@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
@@ -54,6 +55,16 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => TokenScreen(queueId: queueId),
         settings: RouteSettings(name: TokenScreen.id),
+      );
+
+    case AppointmentScreen.id:
+      Map<String, dynamic> arguments = settings.arguments;
+      return MaterialPageRoute(
+        builder: (context) => AppointmentScreen(
+          subscriber: arguments["subscriber"],
+          reception: arguments["reception"],
+        ),
+        settings: RouteSettings(name: AppointmentScreen.id),
       );
 
     case ProfileScreen.id:
