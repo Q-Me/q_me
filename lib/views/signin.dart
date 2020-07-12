@@ -1,4 +1,6 @@
 //import 'dart:html';
+import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:developer';
 
 import 'package:country_code_picker/country_code_picker.dart';
@@ -10,6 +12,7 @@ import 'package:qme/constants.dart';
 import 'package:qme/views/nearby.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/widgets/text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   static const id = '/signin';
@@ -29,12 +32,13 @@ class _SignInScreenState extends State<SignInScreen>
   String countryCodeVal;
   String countryCodePassword;
   bool showOtpTextfield = false;
-
+  final FirebaseMessaging _messaging = FirebaseMessaging();
   final formKey =
       GlobalKey<FormState>(); // Used in login button and forget password
   String email;
   String password;
   String phoneNumber;
+  var _fcmToken;
 
   Future<bool> loginUser(String phone, BuildContext context) async {
     FirebaseAuth _auth = FirebaseAuth.instance;
@@ -59,12 +63,22 @@ class _SignInScreenState extends State<SignInScreen>
                   .showSnackBar(SnackBar(content: Text('Processing Data')));
               var response;
               try {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString('fcmToken',_fcmToken );
                 response =
                     // Make LOGIN API call
                     response = await signInWithOtp(idToken);
 
                 if (response['status'] == 200) {
+                  Scaffold.of(context)
+                      .showSnackBar(SnackBar(content: Text('Processing Data')));
                   Navigator.pushNamed(context, NearbyScreen.id);
+
+                  var responsefcm = await fcmTokenSubmit(_fcmToken);
+                  print("fcm token Api: $responsefcm");
+                  print("fcm token  Apiresponse: ${responsefcm['status']}");
+                  
+                  
                 } else {
                   return;
                 }
@@ -104,6 +118,41 @@ class _SignInScreenState extends State<SignInScreen>
   void initState() {
     super.initState();
     _controller = new TabController(length: 2, vsync: this);
+    firebaseCloudMessagingListeners();
+    _messaging.getToken().then((token) {
+      print("fcmToken: $token");
+      _fcmToken = token;
+    });
+  }
+
+  void firebaseCloudMessagingListeners() {
+    if (Platform.isIOS) iosPermission();
+
+    _messaging.getToken().then((token) {
+      print(token);
+    });
+
+    _messaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        //showNotification(message['notification']);
+        print('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print('on launch $message');
+      },
+    );
+  }
+
+  void iosPermission() {
+    _messaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, badge: true, alert: true));
+    _messaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
   }
 
   @override
@@ -358,6 +407,20 @@ class _SignInScreenState extends State<SignInScreen>
                                                   print(
                                                       "respose of ${response['status']}");
                                                   print(response);
+                                                  Scaffold.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(
+                                                              'Processing Data')));
+                                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+                                                  var responsefcm =
+                                                      await fcmTokenSubmit(
+                                                          _fcmToken);
+                                                  print(
+                                                      "fcm token Api: $responsefcm");
+                                                  print(
+                                                      "fcm token Api status: ${responsefcm['status']}");
+              prefs.setString('fcmToken',_fcmToken );
                                                   Navigator.pushNamed(
                                                       context, NearbyScreen.id);
                                                 } else {
@@ -533,6 +596,7 @@ class _SignInScreenState extends State<SignInScreen>
                                               // email and password both are available here
                                               Map response;
                                               try {
+                                                SharedPreferences prefs = await SharedPreferences.getInstance();
                                                 print(
                                                     "signInWithPassword api is called");
                                                 print(
@@ -549,11 +613,26 @@ class _SignInScreenState extends State<SignInScreen>
                                                   print(
                                                       "respose of ${response['status']}");
                                                   print(response);
+
                                                   Navigator.pushNamed(
                                                       context, NearbyScreen.id);
+                                                  Scaffold.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(
+                                                              'Processing Data')));
+                                                  var responsefcm =
+                                                      await fcmTokenSubmit(
+                                                          _fcmToken);
+                                                  print(
+                                                      "fcm token api: $responsefcm");
+                                                  print(
+                                                      "fcm token status: ${responsefcm['status']}");
+              prefs.setString('fcmToken',_fcmToken );
                                                 } else {
                                                   print(
                                                       "respose of ${response['status']}");
+                                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+
                                                   print(response);
                                                   Scaffold.of(context)
                                                       .showSnackBar(SnackBar(

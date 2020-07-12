@@ -24,6 +24,7 @@ class _OtpPageState extends State<OtpPage> {
   var idToken;
   final formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
+  var _fcmToken;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,9 @@ class _OtpPageState extends State<OtpPage> {
                         child: ThemedText(words: ['Hop', 'In'])),
                     Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: MediaQuery.of(context).size.height * 0.15),
+                            horizontal: 20.0,
+                            vertical:
+                                MediaQuery.of(context).size.height * 0.15),
                         child: Column(
                           children: <Widget>[
                             Card(
@@ -118,6 +121,9 @@ class _OtpPageState extends State<OtpPage> {
                                         formData['email'] = prefs.getString(
                                           'userEmailSignup',
                                         );
+                                        _fcmToken = prefs.getString(
+                                          'fcmToken',
+                                        );
                                         formData['name'] =
                                             formData['firstName'] +
                                                 " " +
@@ -167,6 +173,15 @@ class _OtpPageState extends State<OtpPage> {
                                                 'Registation successful') {
                                           // Make SignIn call
                                           try {
+                                            SharedPreferences prefs =
+                                                await SharedPreferences
+                                                    .getInstance();
+                                            prefs.setString(
+                                                'fcmToken', _fcmToken);
+                                            Scaffold.of(context).showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        'Processing Data')));
                                             response =
                                                 // Make LOGIN API call
                                                 response = await signInWithOtp(
@@ -177,8 +192,16 @@ class _OtpPageState extends State<OtpPage> {
                                               print(
                                                   "respose of ${response['status']}");
                                               print(response);
+
                                               Navigator.pushNamed(
                                                   context, NearbyScreen.id);
+                                              var responsefcm =
+                                                  await fcmTokenSubmit(
+                                                      _fcmToken);
+                                              print(
+                                                  "fcm token Api: $responsefcm");
+                                              print(
+                                                  "fcm token Api response: ${responsefcm['status']}");
                                             } else {
                                               return print("error in api hit");
                                             }
