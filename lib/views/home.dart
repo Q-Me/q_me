@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/categories.dart';
 import 'package:qme/widgets/listItem.dart';
@@ -33,39 +34,40 @@ class _HomeScreenState extends State<HomeScreen> {
     _bloc = SubscribersBloc();
     _enabled = true;
     super.initState();
-     firebaseCloudMessagingListeners();
+    firebaseCloudMessagingListeners();
     _messaging.getToken().then((token) {
-      print("fcmToken: $token");
+      logger.i("fcmToken: $token");
       _fcmToken = token;
       verifyFcmTokenChange(_fcmToken);
     });
-    
   }
-   void verifyFcmTokenChange(String _fcmToken)async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-             var fcmToken=  prefs.getString('fcmToken' );
-             print("verify fcm: $fcmToken");
-                print("verify _fcm: $_fcmToken");
-              if (fcmToken != _fcmToken){
-         Navigator.pushNamed(context, SignInScreen.id);}
-              }
-    void firebaseCloudMessagingListeners() {
+
+  void verifyFcmTokenChange(String _fcmToken) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var fcmToken = prefs.getString('fcmToken');
+    logger.i("verify fcm: $fcmToken\nverify _fcm: $_fcmToken");
+    if (fcmToken != _fcmToken) {
+      Navigator.pushNamed(context, SignInScreen.id);
+    }
+  }
+
+  void firebaseCloudMessagingListeners() {
     if (Platform.isIOS) iosPermission();
 
     _messaging.getToken().then((token) {
-      print(token);
+      logger.i(token);
     });
 
     _messaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         //showNotification(message['notification']);
-        print('on message $message');
+        logger.i('on message $message');
       },
       onResume: (Map<String, dynamic> message) async {
-        print('on resume $message');
+        logger.i('on resume $message');
       },
       onLaunch: (Map<String, dynamic> message) async {
-        print('on launch $message');
+        logger.i('on launch $message');
       },
     );
   }
@@ -75,11 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
         IosNotificationSettings(sound: true, badge: true, alert: true));
     _messaging.onIosSettingsRegistered
         .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
+      logger.i("Settings registered: $settings");
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {

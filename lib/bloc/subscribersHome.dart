@@ -9,7 +9,7 @@ import '../model/user.dart';
 import '../repository/subscribers.dart';
 
 class SubscribersBloc extends ChangeNotifier {
-  SubscribersRepository _subscribersRepository;
+  SubscriberRepository _subscribersRepository;
   String _accessToken;
   String _category;
 
@@ -31,7 +31,7 @@ class SubscribersBloc extends ChangeNotifier {
   SubscribersBloc() {
     _subscribersListController =
         StreamController<ApiResponse<List<Subscriber>>>();
-    _subscribersRepository = SubscribersRepository();
+    _subscribersRepository = SubscriberRepository();
     fetchSubscribersList();
   }
 
@@ -70,39 +70,5 @@ class SubscribersBloc extends ChangeNotifier {
   dispose() {
     super.dispose();
     _subscribersListController?.close();
-  }
-}
-
-class SingleSubscriberBloc {
-  SingleSubscriberRepository _subscriberRepository;
-
-  StreamController _subscriberController;
-
-  StreamSink<ApiResponse<Subscriber>> get subscriberSink =>
-      _subscriberController.sink;
-
-  Stream<ApiResponse<Subscriber>> get subscribersListStream =>
-      _subscriberController.stream;
-
-  SingleSubscriberBloc(String subscriberId) {
-    _subscriberController = StreamController<ApiResponse<Subscriber>>();
-    _subscriberRepository = SingleSubscriberRepository();
-    fetchSubscriber(subscriberId);
-  }
-
-  fetchSubscriber(String subscriberId) async {
-    subscriberSink.add(ApiResponse.loading('Fetching subscriber details'));
-    try {
-      Subscriber subscriber =
-          await _subscriberRepository.fetchSubscriber(subscriberId);
-      subscriberSink.add(ApiResponse.completed(subscriber));
-    } catch (e) {
-      subscriberSink.add(ApiResponse.error(e.toString()));
-      print(e);
-    }
-  }
-
-  dispose() {
-    _subscriberController?.close();
   }
 }

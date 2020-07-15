@@ -11,9 +11,9 @@ class UserRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
 
   Future<UserData> fetchProfile() async {
-    final UserData userData = await getUserDataFromStorage();
-    dynamic response = await _helper.post(kProfile,
-        headers: {'Authorization': 'Bearer ${userData.accessToken}'});
+    final String accessToken = await getAccessTokenFromStorage();
+    dynamic response = await _helper
+        .post(kProfile, headers: {'Authorization': 'Bearer $accessToken}'});
     return UserData.fromJson(response);
   }
 
@@ -38,6 +38,8 @@ class UserRepository {
   }
 
   Future<bool> isSessionReady() async {
+    // If the session is not ready then try to set the session and after
+    // successful session set return true else return false
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final expiry = prefs.getString('expiry');
     final refreshToken = prefs.getString('refreshToken');

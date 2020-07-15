@@ -9,6 +9,7 @@ import 'package:qme/bloc/queue.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/model/queue.dart';
 import 'package:qme/model/token.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/time.dart';
 import 'package:qme/widgets/customStreamBuilder.dart';
 import 'package:qme/widgets/dash.dart';
@@ -267,7 +268,6 @@ class GetTokenButton extends StatelessWidget {
         elevation: 7.0,
         child: InkWell(
           onTap: () {
-            // TODO Call api to get token
             _queueDetailsBloc.joinQueue();
           },
           child: Padding(
@@ -310,8 +310,7 @@ class CancelTokenButton extends StatelessWidget {
         color: Colors.white,
         child: InkWell(
           onTap: () {
-            // TODO Call api to join queue
-            log('Calling cancel token on ${_queueDetailsBloc.queueId}');
+            logger.i('Calling cancel token on ${_queueDetailsBloc.queueId}');
             _queueDetailsBloc.cancelToken();
           },
           child: Padding(

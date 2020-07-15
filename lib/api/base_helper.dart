@@ -2,9 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:qme/utilities/logger.dart';
 
 import 'app_exceptions.dart';
 import 'kAPI.dart';
+
+String getPrettyJSONString(jsonObject) {
+  var encoder = new JsonEncoder.withIndent("     ");
+  return encoder.convert(jsonObject);
+}
 
 class ApiBaseHelper {
   Future<dynamic> get(String url) async {
@@ -27,7 +33,7 @@ class ApiBaseHelper {
         headers['Accept'] = 'application/json';
         headers['Content-type'] = 'application/json';
       }
-//      log('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
+//      logger.d('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
       final response = await http.post(
         baseURL + url,
         headers: headers,
@@ -37,6 +43,7 @@ class ApiBaseHelper {
     } on SocketException {
       throw FetchDataException('No Internet connection');
     }
+    logger.d('Response' + getPrettyJSONString(responseJson));
     return responseJson;
   }
 
@@ -44,7 +51,7 @@ class ApiBaseHelper {
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body.toString());
-//        log('Response:$responseJson');
+//        logger.d('Response:$responseJson');
         return responseJson;
       case 400:
         throw BadRequestException(response.body.toString());

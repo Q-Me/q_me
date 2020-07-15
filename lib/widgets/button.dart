@@ -5,7 +5,11 @@ import 'package:flutter/material.dart';
 class ThemedSolidButton extends StatelessWidget {
   final String text, notification;
   final Function buttonFunction;
-  const ThemedSolidButton({this.text, this.notification, this.buttonFunction});
+  const ThemedSolidButton({
+    @required this.text,
+    this.notification,
+    @required this.buttonFunction,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +31,7 @@ class ThemedSolidButton extends StatelessWidget {
               displaySnackBar(notification);
             }
 //            log('Solid Theme Button pressed');
-            buttonFunction;
+            buttonFunction();
 //            log('btn fn executed');
           },
           child: Padding(

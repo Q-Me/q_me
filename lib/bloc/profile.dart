@@ -9,7 +9,6 @@ import '../model/user.dart';
 import '../repository/token.dart';
 
 class ProfileBloc extends ChangeNotifier {
-  String _accessToken;
   TokenRepository _tokenRepository;
   StreamController _tokensController;
 
@@ -27,7 +26,6 @@ class ProfileBloc extends ChangeNotifier {
 
   accessToken() async {
     final UserData userData = await getUserDataFromStorage();
-    _accessToken = userData.accessToken;
   }
 
   fetchTokens({@required String status}) async {
