@@ -54,31 +54,36 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green,
+      appBar: AppBar(
+        leading: Container(
+          padding:
+              EdgeInsets.symmetric(vertical: 15, horizontal: appBarOffset / 2),
+          width: w - appBarOffset * 2,
+          color: Colors.transparent,
+          alignment: Alignment(-1, -1),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: CircleAvatar(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.transparent,
+              radius: 20,
+              child: Icon(
+                Icons.keyboard_backspace,
+                size: 30,
+              ),
+            ),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: ChangeNotifierProvider.value(
             value: _bloc,
             child: Column(
               children: <Widget>[
-                Container(
-                  padding: EdgeInsets.symmetric(
-                      vertical: 15, horizontal: appBarOffset / 2),
-                  width: w - appBarOffset * 2,
-                  color: Colors.transparent,
-                  alignment: Alignment(-1, -1),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.green,
-                      radius: 20,
-                      child: Icon(Icons.arrow_back_ios),
-                    ),
-                  ),
-                ),
+                SubscriberHeaderInfo(subscriber: widget.subscriber),
                 SubscriberImages(),
                 Container(
                   width: w,
@@ -89,7 +94,6 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                   ),
                   child: Column(
                     children: <Widget>[
-                      SubscriberHeaderInfo(subscriber: widget.subscriber),
                       Queues(),
                       Divider(),
                       ReceptionsDisplay(),
