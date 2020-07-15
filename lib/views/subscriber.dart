@@ -1,17 +1,20 @@
 import 'dart:collection';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
+import 'package:qme/api/kAPI.dart';
 import 'package:qme/bloc/subscriber.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/model/queue.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/time.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/token.dart';
@@ -35,7 +38,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
 
   @override
   void initState() {
-    log('Opening queues for subscriber id:' + widget.subscriber.id);
+    logger.d('Opening queues for subscriber id:' + widget.subscriber.id);
     super.initState();
     _bloc = SubscriberBloc(widget.subscriber.id);
   }
@@ -55,7 +58,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: ChangeNotifierProvider.value(
-            value: widget.subscriber,
+            value: _bloc,
             child: Column(
               children: <Widget>[
                 Container(
@@ -76,125 +79,21 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                     ),
                   ),
                 ),
+                SubscriberImages(),
                 Container(
                   width: w,
                   padding: EdgeInsets.only(left: 15, right: 15, top: 20),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
+//                    borderRadius: BorderRadius.all(Radius.circular(15)),
                     color: Colors.white,
                   ),
                   child: Column(
                     children: <Widget>[
                       SubscriberHeaderInfo(subscriber: widget.subscriber),
-                      SizedBox(
-                        width: 600,
-                        height: 200,
-                        child: Carousel(
-                          images: [
-                            NetworkImage(
-                                'https://cdn-images-1.medium.com/max/2000/1*GqdzzfB_BHorv7V2NV7Jgg.jpeg'),
-                            NetworkImage(
-                                'https://cdn-images-1.medium.com/max/2000/1*wnIEgP1gNMrK5gZU7QS0-A.jpeg'),
-                          ],
-                        ),
-                      ),
-//                    CalStrip(),
-                      /*StreamBuilder<ApiResponse<List<Queue>>>(
-                        stream: _bloc.queuesListStream,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            switch (snapshot.data.status) {
-                              case Status.LOADING:
-                                return Loading(
-                                    // TODO add shimmer loader
-                                    loadingMessage: snapshot.data.message);
-                                break;
-                              case Status.COMPLETED:
-                                return QueuesDisplay(snapshot.data.data);
-                                break;
-                              case Status.ERROR:
-                                return Error(
-                                  errorMessage: snapshot.data.message,
-                                  onRetryPressed: () => _bloc.fetchQueuesList(),
-                                );
-                                break;
-                            }
-                          } else {
-                            log('no Snapshot data');
-                          }
-                          return Container();
-                        },
-                      ),
-                      Divider(),*/
-                      StreamBuilder<ApiResponse<List<Reception>>>(
-                          stream: _bloc.receptionListStream,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              switch (snapshot.data.status) {
-                                case Status.LOADING:
-                                  return Loading(
-                                      // TODO add shimmer loader
-                                      loadingMessage: snapshot.data.message);
-                                  break;
-
-                                case Status.ERROR:
-                                  return Error(
-                                    errorMessage: snapshot.data.message,
-                                    onRetryPressed: () =>
-                                        _bloc.fetchQueuesList(),
-                                  );
-                                  break;
-                                case Status.COMPLETED:
-                                  return Column(
-                                      children: List<ReceptionCard>.from(
-                                          snapshot
-                                              .data.data
-                                              .map(
-                                                  (item) => ReceptionCard(item))
-                                              .toList()));
-                                  break;
-                              }
-                            } else {
-                              log('No snapshot data for receptions');
-                              return Text('dsg');
-                            }
-                            return Text('sgsDGzg');
-                          }),
-                      /*Column(
-                        children: <Widget>[
-                          ReceptionCard(Reception.fromJson(jsonDecode('''{
-                "id": "FyKQeYVM8",
-                "subscriber_id": "17dY6K8Hb",
-                "starttime": "2020-06-28T20:00:00.000Z",
-                "endtime": "2020-06-28T21:00:00.000Z",
-                "slot": 15,
-                "cust_per_slot": 1,
-                "status": "UPCOMING"
-            }'''))),
-                          ReceptionCard(Reception.fromJson(jsonDecode('''{
-    "counters": [
-            {
-                "id": "FyKQeYVM8",
-                "subscriber_id": "17dY6K8Hb",
-                "starttime": "2020-06-28T20:00:00.000Z",
-                "endtime": "2020-06-28T21:00:00.000Z",
-                "slot": 15,
-                "cust_per_slot": 1,
-                "status": "UPCOMING"
-            },
-            {
-                "id": "pgXN_rw-0",
-                "subscriber_id": "17dY6K8Hb",
-                "starttime": "2020-06-28T18:00:00.000Z",
-                "endtime": "2020-06-28T19:45:00.000Z",
-                "slot": 15,
-                "cust_per_slot": 3,
-                "status": "UPCOMING"
-            }
-    ]
-}''')["counters"][0])),
-                        ],
-                      ),*/
+                      Queues(),
+                      Divider(),
+                      ReceptionsDisplay(),
+                      SizedBox(height: 20),
                     ],
                   ),
                 )
@@ -204,6 +103,131 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
         ),
       ),
     );
+  }
+}
+
+class SubscriberImages extends StatelessWidget {
+  const SubscriberImages({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    SubscriberBloc subscriberBloc = Provider.of<SubscriberBloc>(context);
+    final String accessToken = subscriberBloc.accessToken;
+    logger.i('Access token: $accessToken');
+    return StreamBuilder<ApiResponse<List<String>>>(
+        stream: subscriberBloc.imageStream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            switch (snapshot.data.status) {
+              case Status.COMPLETED:
+                if (snapshot.data.data.length == 0) {
+                  logger.i('No images to display');
+                  return Container();
+                }
+                List<String> imgs = snapshot.data.data
+                    .map((e) => '$baseURL/user/displayimage/' + e)
+                    .toList();
+                return SizedBox(
+                  width: 600,
+                  height: 200,
+                  child: Carousel(
+                    images: imgs.map((imgUrl) {
+                      return NetworkImage(imgUrl, headers: {
+                        HttpHeaders.authorizationHeader: 'Bearer $accessToken'
+                      });
+                    }).toList(),
+                  ),
+                );
+                break;
+              case Status.LOADING:
+                return Loading(
+                    // TODO add shimmer loader
+                    loadingMessage: snapshot.data.message);
+                break;
+              case Status.ERROR:
+                return Error(
+                  errorMessage: snapshot.data.message,
+                  onRetryPressed: () => subscriberBloc.fetchSubscriberDetails(),
+                );
+                break;
+            }
+          } else {
+            log('no Snapshot data');
+          }
+          return Container();
+        });
+  }
+}
+
+class Queues extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    SubscriberBloc _bloc = Provider.of<SubscriberBloc>(context);
+    return StreamBuilder<ApiResponse<List<Queue>>>(
+      stream: _bloc.queuesListStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          switch (snapshot.data.status) {
+            case Status.COMPLETED:
+              return QueuesDisplay(snapshot.data.data);
+              break;
+            case Status.LOADING:
+              return Loading(
+                  // TODO add shimmer loader
+                  loadingMessage: snapshot.data.message);
+              break;
+            case Status.ERROR:
+              return Error(
+                errorMessage: snapshot.data.message,
+                onRetryPressed: () => _bloc.fetchQueuesList(),
+              );
+              break;
+          }
+        } else {
+          log('no Snapshot data');
+        }
+        return Container();
+      },
+    );
+  }
+}
+
+class ReceptionsDisplay extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    SubscriberBloc _bloc = Provider.of<SubscriberBloc>(context);
+    return StreamBuilder<ApiResponse<List<Reception>>>(
+        stream: _bloc.receptionListStream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            switch (snapshot.data.status) {
+              case Status.LOADING:
+                return Loading(
+                    // TODO add shimmer loader
+                    loadingMessage: snapshot.data.message);
+                break;
+
+              case Status.ERROR:
+                return Error(
+                  errorMessage: snapshot.data.message,
+                  onRetryPressed: () => _bloc.fetchQueuesList(),
+                );
+                break;
+              case Status.COMPLETED:
+                return Column(
+                    children: List<ReceptionCard>.from(snapshot.data.data
+                        .map((item) => ReceptionCard(item))
+                        .toList()));
+                break;
+            }
+          } else {
+            log('No snapshot data for receptions');
+            return Text('No data for receptions');
+          }
+          return Text('sgsDGzg');
+        });
   }
 }
 
@@ -257,11 +281,17 @@ class SlotItem extends StatelessWidget {
         final Reception reception =
             Provider.of<Reception>(context, listen: false);
         final Subscriber subscriber =
-            Provider.of<Subscriber>(context, listen: false);
-        log('Reception Id:${reception.id}\nSubscriber id:${subscriber.id}\nSlot:${slot.startTime.toString()}-${slot.endTime.toString()}');
-        Navigator.popAndPushNamed(context, AppointmentScreen.id, arguments: {
+            Provider.of<SubscriberBloc>(context, listen: false).subscriber;
+        logger.i(
+          'Selected\nReception Id:${reception.id}\n'
+          'Subscriber id:${subscriber.id}\n'
+          'Slot:\nStart:${slot.startTime.toString()}\n'
+          'End:${slot.endTime.toString()}',
+        );
+        Navigator.pushNamed(context, AppointmentScreen.id, arguments: {
           "subscriber": subscriber,
           "reception": reception,
+          "slot": slot,
         });
       },
       child: Container(

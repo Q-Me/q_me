@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,9 +8,10 @@ import 'package:qme/api/signin.dart';
 import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../views/nearby.dart';
+
 import '../api/app_exceptions.dart';
 import '../repository/user.dart';
+import '../views/nearby.dart';
 import 'signup.dart';
 
 class OtpPage extends StatefulWidget {
@@ -69,6 +71,8 @@ class _OtpPageState extends State<OtpPage> {
                                       fillColor: Colors.grey[100],
                                       hintText: "Enter OTP"),
                                   controller: _codeController,
+                                  keyboardType: TextInputType.number,
+                                  textInputAction: TextInputAction.go,
                                 ),
                               ),
                             ),

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:qme/model/subscriber.dart';
@@ -47,13 +49,13 @@ class SubscriberListItem extends StatelessWidget {
                   top: 0,
                   child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black26,
+                        color: Colors.black26.withOpacity(0.5),
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
                       margin: EdgeInsets.all(5),
                       padding: const EdgeInsets.all(8),
                       child: Text(
-                        'New',
+                        subscriber.verified ? 'Verified' : 'Unverified',
                         style: TextStyle(color: Colors.white),
                       )),
                 ),

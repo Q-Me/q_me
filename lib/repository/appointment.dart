@@ -5,6 +5,8 @@ import 'package:ordered_set/comparing.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/model/reception.dart';
+import 'package:qme/model/slot.dart';
+import 'package:qme/model/user.dart';
 
 class AppointmentRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
@@ -37,8 +39,8 @@ class AppointmentRepository {
     @required DateTime startTime,
     @required DateTime endTime,
     @required String note,
-    @required String accessToken,
   }) async {
+    final String accessToken = await getAccessTokenFromStorage();
     final response = await _helper.post(
       '/user/slot/book',
       req: {
@@ -77,6 +79,34 @@ class AppointmentRepository {
       headers: {'Authorization': 'Bearer $accessToken'},
     );
     return Reception.fromJson(response);
+  }
+
+  Future addWish({@required receptionId, @required Slot slot}) async {
+    final String _accessToken = await getAccessTokenFromStorage();
+
+    final response = await _helper.post(
+      '/user/slot/addwish',
+      req: {
+        "counter_id": receptionId,
+        "starttime": [slot.startTime.toIso8601String()]
+      },
+      headers: {'Authorization': 'Bearer $_accessToken'},
+    );
+    return response;
+  }
+
+  Future removeWish({@required receptionId, @required Slot slot}) async {
+    final String _accessToken = await getAccessTokenFromStorage();
+
+    final response = await _helper.post(
+      '/user/slot/removewish',
+      req: {
+        "counter_id": receptionId,
+        "starttime": [slot.startTime.toIso8601String()]
+      },
+      headers: {'Authorization': 'Bearer $_accessToken'},
+    );
+    return response;
   }
 }
 
