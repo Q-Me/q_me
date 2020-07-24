@@ -7,7 +7,6 @@ import 'package:qme/repository/user.dart';
 import 'package:qme/router.dart' as router;
 import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
-import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
@@ -21,7 +20,8 @@ void main() async {
   // TODO show splash screen
   // TODO setConfigs();
   // TODO fetch user related information
-  setSession();
+//  setSession();
+//  clearSession();
   if (await UserRepository().isSessionReady()) {
     initialHome = HomeScreen.id;
   }

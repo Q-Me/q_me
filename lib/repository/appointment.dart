@@ -22,7 +22,7 @@ class AppointmentRepository {
         "subscriber_id": subscriberId,
         "status": status.length < 4 ? status : "ALL",
       },
-      headers: {'Authorization': 'Bearer $accessToken'},
+      authToken: accessToken,
     );
 
     SplayTreeSet<Reception> _receptions = SplayTreeSet<Reception>(
@@ -39,8 +39,8 @@ class AppointmentRepository {
     @required DateTime startTime,
     @required DateTime endTime,
     @required String note,
+    @required String accessToken,
   }) async {
-    final String accessToken = await getAccessTokenFromStorage();
     final response = await _helper.post(
       '/user/slot/book',
       req: {
@@ -50,7 +50,7 @@ class AppointmentRepository {
         "endtime": endTime.toIso8601String(),
         "note": note,
       },
-      headers: {'Authorization': 'Bearer $accessToken'},
+      authToken: accessToken,
     );
     return response;
   }
@@ -59,10 +59,8 @@ class AppointmentRepository {
       {@required List<String> status, @required String accessToken}) async {
     final response = await _helper.post(
       '/user/slot/book',
-      req: {
-        "status": status.length < 4 ? status : "ALL",
-      },
-      headers: {'Authorization': 'Bearer $accessToken'},
+      req: {"status": status.length < 4 ? status : "ALL"},
+      authToken: accessToken,
     );
     final List<Appointment> appointments = List.from(response["slots"]
         .map((element) => Appointment.fromMap(Map.from(element))));
@@ -76,7 +74,7 @@ class AppointmentRepository {
     final response = await _helper.post(
       '/user/slot/book',
       req: {"counter_id": receptionId},
-      headers: {'Authorization': 'Bearer $accessToken'},
+      authToken: accessToken,
     );
     return Reception.fromJson(response);
   }
@@ -90,7 +88,7 @@ class AppointmentRepository {
         "counter_id": receptionId,
         "starttime": [slot.startTime.toIso8601String()]
       },
-      headers: {'Authorization': 'Bearer $_accessToken'},
+      authToken: _accessToken,
     );
     return response;
   }
@@ -113,10 +111,12 @@ class AppointmentRepository {
 void main() async {
   final String accessToken = '';
   AppointmentRepository appointmentRepository = AppointmentRepository();
-  /*List<Appointment> aptms = await appointmentRepository.fetchAppointments();
+  /*
+  List<Appointment> aptms = await appointmentRepository.fetchAppointments();
   for (Appointment appointment in aptms) {
     print(appointment.toMap());
-  }*/
+  }
+  */
   final Reception reception = await appointmentRepository.viewReception(
       receptionId: 'null', accessToken: 'f');
   print(reception.toJson());

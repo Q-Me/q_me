@@ -28,6 +28,8 @@ class SubscribersBloc extends ChangeNotifier {
   Stream<ApiResponse<List<Subscriber>>> get subscribersListStream =>
       _subscribersListController.stream;
 
+  String get accessToken => _accessToken;
+
   SubscribersBloc() {
     _subscribersListController =
         StreamController<ApiResponse<List<Subscriber>>>();

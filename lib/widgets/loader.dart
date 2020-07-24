@@ -13,7 +13,7 @@ class ShimmerListLoader extends StatelessWidget {
       child: ListView.builder(
         itemCount: 6,
         shrinkWrap: true,
-//        physics: NeverScrollableScrollPhysics(),
+        physics: NeverScrollableScrollPhysics(),
         itemBuilder: (_, __) => Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
           child: Row(
