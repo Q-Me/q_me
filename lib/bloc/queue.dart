@@ -81,9 +81,11 @@ class QueueBloc with ChangeNotifier {
     }
   }
 
+  @override
   dispose() {
     _queueController?.close();
     _tokenController?.close();
     _msgController?.close();
+    super.dispose();
   }
 }

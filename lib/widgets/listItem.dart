@@ -42,22 +42,26 @@ class SubscriberListItem extends StatelessWidget {
                           ),
                         )),
                     errorWidget: (context, url, error) => Icon(Icons.error),
+                    useOldImageOnUrlChange: true,
                   ),
                 ),
                 Positioned(
                   right: 0,
                   top: 0,
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black26.withOpacity(0.5),
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                      ),
-                      margin: EdgeInsets.all(5),
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        subscriber.verified ? 'Verified' : 'Unverified',
-                        style: TextStyle(color: Colors.white),
-                      )),
+                  child: subscriber.verified
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black26.withOpacity(0.5),
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+                          margin: EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            subscriber.verified ? 'Verified' : 'Unverified',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : Container(),
                 ),
               ],
             ),

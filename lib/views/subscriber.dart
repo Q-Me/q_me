@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -85,22 +86,10 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
               children: <Widget>[
                 SubscriberHeaderInfo(subscriber: widget.subscriber),
                 SubscriberImages(),
-                Container(
-                  width: w,
-                  padding: EdgeInsets.only(left: 15, right: 15, top: 20),
-                  decoration: BoxDecoration(
-//                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Queues(),
-                      Divider(),
-                      ReceptionsDisplay(),
-                      SizedBox(height: 20),
-                    ],
-                  ),
-                )
+                Queues(),
+                Divider(),
+                ReceptionsDisplay(),
+                SizedBox(height: 20)
               ],
             ),
           ),
@@ -117,11 +106,8 @@ class SubscriberImages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SubscriberBloc subscriberBloc = Provider.of<SubscriberBloc>(context);
-    final String accessToken = subscriberBloc.accessToken;
-    logger.i('Access token: $accessToken');
     return StreamBuilder<ApiResponse<List<String>>>(
-        stream: subscriberBloc.imageStream,
+        stream: Provider.of<SubscriberBloc>(context).imageStream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             switch (snapshot.data.status) {
@@ -133,14 +119,21 @@ class SubscriberImages extends StatelessWidget {
                 List<String> imgs = snapshot.data.data
                     .map((e) => '$baseURL/user/displayimage/' + e)
                     .toList();
+                logger.i(
+                    'SubscriberBloc Access Token:${Provider.of<SubscriberBloc>(context).accessToken}');
                 return SizedBox(
                   width: 600,
-                  height: 200,
+                  height: 300,
                   child: Carousel(
                     images: imgs.map((imgUrl) {
-                      return NetworkImage(imgUrl, headers: {
-                        HttpHeaders.authorizationHeader: 'Bearer $accessToken'
-                      });
+                      return CachedNetworkImage(
+                        imageUrl: imgUrl,
+                        fit: BoxFit.contain,
+                        httpHeaders: {
+                          HttpHeaders.authorizationHeader:
+                              'Bearer ${Provider.of<SubscriberBloc>(context).accessToken}'
+                        },
+                      );
                     }).toList(),
                   ),
                 );
@@ -153,7 +146,8 @@ class SubscriberImages extends StatelessWidget {
               case Status.ERROR:
                 return Error(
                   errorMessage: snapshot.data.message,
-                  onRetryPressed: () => subscriberBloc.fetchSubscriberDetails(),
+                  onRetryPressed: () => Provider.of<SubscriberBloc>(context)
+                      .fetchSubscriberDetails(),
                 );
                 break;
             }
@@ -216,7 +210,7 @@ class ReceptionsDisplay extends StatelessWidget {
               case Status.ERROR:
                 return Error(
                   errorMessage: snapshot.data.message,
-                  onRetryPressed: () => _bloc.fetchQueuesList(),
+                  onRetryPressed: () => _bloc.fetchReceptions(),
                 );
                 break;
               case Status.COMPLETED:

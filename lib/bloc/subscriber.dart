@@ -62,8 +62,6 @@ class SubscriberBloc extends ChangeNotifier {
       accessToken = await getAccessTokenFromStorage();
       subscriber = await _subscriberRepository.fetchSubscriberDetails(
           subscriberId: subscriberId);
-      // TODO get all image of the subscriber
-
       imagesSink.add(ApiResponse.completed(subscriber.displayImages));
       notifyListeners();
     } on Exception catch (e) {

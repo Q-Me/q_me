@@ -48,8 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   ProfileBloc profileBloc;
 
-  @override
-  void initstate() {
+  void initState() {
     profileBloc = ProfileBloc();
     super.initState();
   }

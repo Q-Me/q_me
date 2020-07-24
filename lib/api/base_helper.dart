@@ -12,6 +12,8 @@ String getPrettyJSONString(jsonObject) {
   return encoder.convert(jsonObject);
 }
 
+String bearerToken(String accessToken) => 'Bearer $accessToken';
+
 class ApiBaseHelper {
   Future<dynamic> get(String url) async {
     var responseJson;
@@ -25,15 +27,18 @@ class ApiBaseHelper {
   }
 
   Future<dynamic> post(String url,
-      {Map req, Map<String, String> headers}) async {
+      {Map req, Map<String, String> headers, String authToken}) async {
     var responseJson;
     try {
       if (req != null) {
         headers = headers == null ? {} : headers;
         headers['Accept'] = 'application/json';
         headers['Content-type'] = 'application/json';
+        if (authToken != null) {
+          headers[HttpHeaders.authorizationHeader] = bearerToken(authToken);
+        }
       }
-//      logger.d('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
+      logger.d('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
       final response = await http.post(
         baseURL + url,
         headers: headers,
@@ -42,8 +47,9 @@ class ApiBaseHelper {
       responseJson = _returnResponse(response);
     } on SocketException {
       throw FetchDataException('No Internet connection');
+    } finally {
+      // logger.d('Response' + getPrettyJSONString(responseJson));
     }
-    logger.d('Response' + getPrettyJSONString(responseJson));
     return responseJson;
   }
 
