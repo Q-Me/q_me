@@ -25,11 +25,12 @@ class SignUpScreen extends StatefulWidget {
 
 var verificationIdOtp;
 var authOtp;
+String loginPage;
 
 class _SignUpScreenState extends State<SignUpScreen> {
   bool showSpinner = false, passwordVisible;
   final ScrollController _scrollController = ScrollController();
-  final _phoneController = TextEditingController();
+  final _phoneController = TextEditingController(text: "+91");
 
   final formKey = GlobalKey<FormState>();
   Map<String, String> formData = {};
@@ -122,18 +123,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   if (response['status'] == 200) {
                     print("respose of ${response['status']}");
                     print(response);
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                     Scaffold.of(context).showSnackBar(
-                                                  SnackBar(
-                                                      content: Text(
-                                                          'Processing Data')));
-                                                          
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    Scaffold.of(context).showSnackBar(
+                        SnackBar(content: Text('Processing Data')));
+
                     Navigator.pushNamed(context, NearbyScreen.id);
-                    
+
                     var responsefcm = await fcmTokenSubmit(_fcmToken);
                     print("fcm token Api: $responsefcm");
                     print("fcm token api status: ${responsefcm['status']}");
-              prefs.setString('fcmToken',_fcmToken );
+                    prefs.setString('fcmToken', _fcmToken);
                     Navigator.pushNamed(context, NearbyScreen.id);
                   } else {
                     return print("error in api hit");
@@ -218,6 +218,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         codeSent: (String verificationId, [int forceResendingToken]) {
           verificationIdOtp = verificationId;
           authOtp = _auth;
+          loginPage = "SignUp";
 
           Navigator.of(context).pushNamed(OtpPage.id);
           //
@@ -313,6 +314,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             SizedBox(height: 10.0),
                             Container(
                               child: TextFormField(
+                                
                                 keyboardType: TextInputType.phone,
                                 controller: _phoneController,
                                 validator: (value) {
