@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:qme/model/slot.dart';
+
 Appointment appointmentFromMap(String str) =>
     Appointment.fromMap(json.decode(str));
 
@@ -11,7 +13,7 @@ String appointmentToMap(Appointment data) => json.encode(data.toMap());
 
 class Appointment {
   Appointment({
-    this.subscriber,
+    this.subscriberName,
     this.longitude,
     this.latitude,
     this.phone,
@@ -24,13 +26,13 @@ class Appointment {
     this.counterStatus,
     this.subscriberId,
     this.counterId,
-    this.slotStartTime,
-    this.slotEndTime,
+    this.slot,
     this.slotStatus,
     this.note,
+    this.otp,
   });
 
-  final String subscriber;
+  final String subscriberName;
   final double longitude;
   final double latitude;
   final String phone;
@@ -43,13 +45,13 @@ class Appointment {
   final String counterStatus;
   final String subscriberId;
   final String counterId;
-  final DateTime slotStartTime;
-  final DateTime slotEndTime;
+  final Slot slot;
   final String slotStatus;
   final String note;
+  final int otp;
 
   factory Appointment.fromMap(Map<String, dynamic> json) => Appointment(
-        subscriber: json["subscriber"] == null ? null : json["subscriber"],
+        subscriberName: json["subscriber"] == null ? null : json["subscriber"],
         longitude:
             json["longitude"] == null ? null : json["longitude"].toDouble(),
         latitude: json["latitude"] == null ? null : json["latitude"].toDouble(),
@@ -70,18 +72,21 @@ class Appointment {
         subscriberId:
             json["subscriber_id"] == null ? null : json["subscriber_id"],
         counterId: json["counter_id"] == null ? null : json["counter_id"],
-        slotStartTime: json["slot_starttime"] == null
-            ? null
-            : DateTime.parse(json["slot_starttime"]).toLocal(),
-        slotEndTime: json["slot_endtime"] == null
-            ? null
-            : DateTime.parse(json["slot_endtime"]).toLocal(),
+        slot: Slot(
+          startTime: json["slot_starttime"] == null
+              ? null
+              : DateTime.parse(json["slot_starttime"]).toLocal(),
+          endTime: json["slot_endtime"] == null
+              ? null
+              : DateTime.parse(json["slot_endtime"]).toLocal(),
+        ),
         slotStatus: json["slot_status"] == null ? null : json["slot_status"],
         note: json["note"] == null ? null : json["note"],
+        otp: json["otp"] == null ? null : json["otp"],
       );
 
   Map<String, dynamic> toMap() => {
-        "subscriber": subscriber == null ? null : subscriber,
+        "subscriber": subscriberName == null ? null : subscriberName,
         "longitude": longitude == null ? null : longitude,
         "latitude": latitude == null ? null : latitude,
         "phone": phone == null ? null : phone,
@@ -98,10 +103,11 @@ class Appointment {
         "subscriber_id": subscriberId == null ? null : subscriberId,
         "counter_id": counterId == null ? null : counterId,
         "slot_starttime":
-            slotStartTime == null ? null : slotStartTime.toIso8601String(),
+            slot.startTime == null ? null : slot.startTime.toIso8601String(),
         "slot_endtime":
-            slotEndTime == null ? null : slotEndTime.toIso8601String(),
+            slot.endTime == null ? null : slot.endTime.toIso8601String(),
         "slot_status": slotStatus == null ? null : slotStatus,
         "note": note == null ? null : note,
+        "otp": otp == null ? null : otp,
       };
 }
