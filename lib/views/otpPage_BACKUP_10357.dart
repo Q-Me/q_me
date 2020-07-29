@@ -68,7 +68,6 @@ class _OtpPageState extends State<OtpPage> {
                                 MediaQuery.of(context).size.height * 0.15),
                         child: Column(
                           children: <Widget>[
-<<<<<<< HEAD
                             Text(
                               "OTP Verification",
                               style: TextStyle(
@@ -88,30 +87,6 @@ class _OtpPageState extends State<OtpPage> {
                               onSubmit: (String pin) {
                                 _codeController.text = pin;
                               }, // end onSubmit
-=======
-                            Card(
-                              child: new ListTile(
-                                title: TextFormField(
-                                  decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8)),
-                                          borderSide: BorderSide(
-                                              color: Colors.grey[200])),
-                                      focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8)),
-                                          borderSide: BorderSide(
-                                              color: Colors.grey[300])),
-                                      filled: true,
-                                      fillColor: Colors.grey[100],
-                                      hintText: "Enter OTP"),
-                                  controller: _codeController,
-                                  keyboardType: TextInputType.number,
-                                  textInputAction: TextInputAction.go,
-                                ),
-                              ),
->>>>>>> 2e567c13b2a35a181763a769f4485f18ec8d00de
                             ),
                             SizedBox(height: 50.0),
                             Container(
