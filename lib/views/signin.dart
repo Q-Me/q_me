@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:qme/api/signin.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/views/nearby.dart';
+import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,7 +57,7 @@ class _SignInScreenState extends State<SignInScreen>
           if (user != null) {
             var token = await user.getIdToken().then((result) async {
               idToken = result.token;
-              print(" $idToken ");
+              print("idToken: $idToken ");
               FocusScope.of(context)
                   .requestFocus(FocusNode()); // dismiss the keyboard
               Scaffold.of(context)
@@ -64,7 +65,7 @@ class _SignInScreenState extends State<SignInScreen>
               var response;
               try {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.setString('fcmToken',_fcmToken );
+                prefs.setString('fcmToken', _fcmToken);
                 response =
                     // Make LOGIN API call
                     response = await signInWithOtp(idToken);
@@ -73,12 +74,11 @@ class _SignInScreenState extends State<SignInScreen>
                   Scaffold.of(context)
                       .showSnackBar(SnackBar(content: Text('Processing Data')));
                   Navigator.pushNamed(context, NearbyScreen.id);
+                   prefs.setString('fcmToken',_fcmToken );
 
                   var responsefcm = await fcmTokenSubmit(_fcmToken);
                   print("fcm token Api: $responsefcm");
                   print("fcm token  Apiresponse: ${responsefcm['status']}");
-                  
-                  
                 } else {
                   return;
                 }
@@ -103,9 +103,15 @@ class _SignInScreenState extends State<SignInScreen>
           Scaffold.of(context).showSnackBar(
               SnackBar(content: Text(exception.message.toString())));
         },
-        codeSent: (String verificationId, [int forceResendingToken]) {
-          _authVar = _auth;
-          verificationIdVar = verificationId;
+        codeSent: (String verificationId, [int forceResendingToken]) async{
+          // _authVar = _auth;
+          // verificationIdVar = verificationId;
+           verificationIdOtp = verificationId;
+          authOtp = _auth;
+          loginPage = "SignIn";
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+
+           prefs.setString('fcmToken',_fcmToken );
 
           setState(() {
             showOtpTextfield = true;
@@ -182,15 +188,15 @@ class _SignInScreenState extends State<SignInScreen>
                                 color: Theme.of(context).primaryColor),
                             child: new TabBar(
                               controller: _controller,
-                              indicatorColor: Colors.white,
+                              indicatorColor: Colors.transparent,
                               tabs: [
-                                new Tab(
+                                Tab(
                                   icon: const Icon(Icons.message),
-                                  text: 'Login with OTP',
+                                  text: '  OTP   ',
                                 ),
-                                new Tab(
+                                Tab(
                                   icon: const Icon(Icons.visibility_off),
-                                  text: 'Login with Password',
+                                  text: 'Password',
                                 ),
                               ],
                             ),
@@ -273,52 +279,52 @@ class _SignInScreenState extends State<SignInScreen>
                                         height:
                                             MediaQuery.of(context).size.height *
                                                 0.02),
-                                    showOtpTextfield
-                                        ? Card(
-                                            child: new ListTile(
-                                              title: TextFormField(
-                                                decoration: InputDecoration(
-                                                    enabledBorder: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    8)),
-                                                        borderSide: BorderSide(
-                                                            color: Colors
-                                                                .grey[200])),
-                                                    focusedBorder: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    8)),
-                                                        borderSide: BorderSide(
-                                                            color: Colors.grey[300])),
-                                                    filled: true,
-                                                    fillColor: Colors.grey[100],
-                                                    hintText: "Enter OTP"),
-                                                controller: _codeController,
-                                              ),
-                                            ),
-                                          )
-                                        : Container(),
-                                    !showOtpTextfield
-                                        ? RaisedButton(
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                            onPressed: () {
-                                              final phone =
-                                                  _phoneController.text.trim();
-                                              print("phone number: $phone");
-                                              loginUser(countryCodeVal + phone,
-                                                  context);
-                                            },
-                                            child: const Text(
-                                              'GET OTP',
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          )
-                                        : Container(),
+                                    // showOtpTextfield
+                                    //     ? Card(
+                                    //         child: new ListTile(
+                                    //           title: TextFormField(
+                                    //             decoration: InputDecoration(
+                                    //                 enabledBorder: OutlineInputBorder(
+                                    //                     borderRadius:
+                                    //                         BorderRadius.all(
+                                    //                             Radius.circular(
+                                    //                                 8)),
+                                    //                     borderSide: BorderSide(
+                                    //                         color: Colors
+                                    //                             .grey[200])),
+                                    //                 focusedBorder: OutlineInputBorder(
+                                    //                     borderRadius:
+                                    //                         BorderRadius.all(
+                                    //                             Radius.circular(
+                                    //                                 8)),
+                                    //                     borderSide: BorderSide(
+                                    //                         color: Colors.grey[300])),
+                                    //                 filled: true,
+                                    //                 fillColor: Colors.grey[100],
+                                    //                 hintText: "Enter OTP"),
+                                    //             controller: _codeController,
+                                    //           ),
+                                    //         ),
+                                    //       )
+                                    //     : Container(),
+                                    // !showOtpTextfield
+                                    //     ? RaisedButton(
+                                    //         color:
+                                    //             Theme.of(context).primaryColor,
+                                    //         onPressed: () {
+                                    //           final phone =
+                                    //               _phoneController.text.trim();
+                                    //           print("phone number: $phone");
+                                    //           loginUser(countryCodeVal + phone,
+                                    //               context);
+                                    //         },
+                                    //         child: const Text(
+                                    //           'GET OTP',
+                                    //           style: const TextStyle(
+                                    //               color: Colors.white),
+                                    //         ),
+                                    //       )
+                                    //     : Container(),
                                     SizedBox(
                                         height:
                                             MediaQuery.of(context).size.height *
@@ -343,110 +349,120 @@ class _SignInScreenState extends State<SignInScreen>
                                                   SnackBar(
                                                       content: Text(
                                                           'Processing Data')));
-                                              final code =
-                                                  _codeController.text.trim();
-                                              try {
-                                                AuthCredential credential =
-                                                    PhoneAuthProvider
-                                                        .getCredential(
-                                                            verificationId:
-                                                                verificationIdVar,
-                                                            smsCode: code);
+                                                           final phone =
+                                                  _phoneController.text.trim();
+                                              print("phone number: $phone");
+                                              loginUser(countryCodeVal + phone,
+                                                  context);
+                                                  
+                                                  Navigator.pushNamed(context, OtpPage.id);
+                                              // final code =
+                                              //     _codeController.text.trim();
+                                              // try {
+                                              //   AuthCredential credential =
+                                              //       PhoneAuthProvider
+                                              //           .getCredential(
+                                              //               verificationId:
+                                              //                   verificationIdVar,
+                                              //               smsCode: code);
 
-                                                AuthResult result =
-                                                    await _authVar
-                                                        .signInWithCredential(
-                                                            credential);
+                                              //   AuthResult result =
+                                              //       await _authVar
+                                              //           .signInWithCredential(
+                                              //               credential);
 
-                                                FirebaseUser user = result.user;
+                                              //   FirebaseUser user = result.user;
 
-                                                if (user != null) {
-                                                  var token = await user
-                                                      .getIdToken()
-                                                      .then((result) {
-                                                    idToken = result.token;
-                                                    print("@@ $idToken @@");
-                                                  });
-                                                } else {
-                                                  print("Error");
-                                                }
-                                              } on PlatformException catch (e) {
-                                                print("Looking for Error code");
-                                                print(e.message);
-                                                Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(e.code
-                                                            .toString())));
-                                                print(e.code);
-                                                setState(() {
-                                                  showOtpTextfield = false;
-                                                });
-                                              } on Exception catch (e) {
-                                                print(
-                                                    "Looking for Error message");
-                                                Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(
-                                                            e.toString())));
-                                                setState(() {
-                                                  showOtpTextfield = false;
-                                                });
-                                                print(e);
-                                              }
+                                              //   if (user != null) {
+                                              //     var token = await user
+                                              //         .getIdToken()
+                                              //         .then((result) {
+                                              //       idToken = result.token;
+                                              //       print("@@ $idToken @@");
+                                              //     });
+                                              //   } else {
+                                              //     print("Error");
+                                              //   }
+                                              // } on PlatformException catch (e) {
+                                              //   print("Looking for Error code");
+                                              //   print(e.message);
+                                              //   Scaffold.of(context)
+                                              //       .showSnackBar(SnackBar(
+                                              //           content: Text(e.code
+                                              //               .toString())));
+                                              //   print(e.code);
+                                              //   setState(() {
+                                              //     showOtpTextfield = false;
+                                              //   });
+                                              // } on Exception catch (e) {
+                                              //   print(
+                                              //       "Looking for Error message");
+                                              //   Scaffold.of(context)
+                                              //       .showSnackBar(SnackBar(
+                                              //           content: Text(
+                                              //               e.toString())));
+                                              //   setState(() {
+                                              //     showOtpTextfield = false;
+                                              //   });
+                                              //   print(e);
+                                              // }
 
-                                              // email and password both are available here
-                                              Map response;
-                                              try {
-                                                response =
-                                                    // Make LOGIN API call
-                                                    response =
-                                                        await signInWithOtp(
-                                                            idToken);
+                                              // // email and password both are available here
+                                              // Map response;
+                                              // try {
+                                              //   response =
+                                              //       // Make LOGIN API call
+                                              //       response =
+                                              //           await signInWithOtp(
+                                              //               idToken);
 
-                                                if (response['status'] == 200) {
-                                                  print(
-                                                      "respose of ${response['status']}");
-                                                  print(response);
-                                                  Scaffold.of(context)
-                                                      .showSnackBar(SnackBar(
-                                                          content: Text(
-                                                              'Processing Data')));
-                                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                                              //   if (response['status'] == 200) {
+                                              //     print(
+                                              //         "respose of ${response['status']}");
+                                              //     print(response);
+                                              //     Scaffold.of(context)
+                                              //         .showSnackBar(SnackBar(
+                                              //             content: Text(
+                                              //                 'Processing Data')));
+                                              //     SharedPreferences prefs =
+                                              //         await SharedPreferences
+                                              //             .getInstance();
 
-                                                  var responsefcm =
-                                                      await fcmTokenSubmit(
-                                                          _fcmToken);
-                                                  print(
-                                                      "fcm token Api: $responsefcm");
-                                                  print(
-                                                      "fcm token Api status: ${responsefcm['status']}");
-              prefs.setString('fcmToken',_fcmToken );
-                                                  Navigator.pushNamed(
-                                                      context, NearbyScreen.id);
-                                                } else {
-                                                  print(response['status']);
-                                                  print(response);
-                                                  Scaffold.of(context)
-                                                      .showSnackBar(SnackBar(
-                                                          content: Text(response[
-                                                                      'status']
-                                                                  .toString() +
-                                                              " " +
-                                                              response['error']
-                                                                  .toString())));
-                                                  return print(
-                                                      "error in api hit");
-                                                }
-                                              } catch (e) {
-                                                Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(
-                                                            e.toString())));
-                                                // _showSnackBar(e.toString());
-                                                log('Error in signIn API: ' +
-                                                    e.toString());
-                                                return;
-                                              }
+                                              //     var responsefcm =
+                                              //         await fcmTokenSubmit(
+                                              //             _fcmToken);
+                                              //     print(
+                                              //         "fcm token Api: $responsefcm");
+                                              //     print(
+                                              //         "fcm token Api status: ${responsefcm['status']}");
+                                              //     prefs.setString(
+                                              //         'fcmToken', _fcmToken);
+                                              //     Navigator.pushNamed(
+                                              //         context, NearbyScreen.id);
+                                              //   } else {
+                                              //     print(response['status']);
+                                              //     print(response);
+                                              //     Scaffold.of(context)
+                                              //         .showSnackBar(SnackBar(
+                                              //             content: Text(response[
+                                              //                         'status']
+                                              //                     .toString() +
+                                              //                 " " +
+                                              //                 response['error']
+                                              //                     .toString())));
+                                              //     return print(
+                                              //         "error in api hit");
+                                              //   }
+                                              // } catch (e) {
+                                              //   Scaffold.of(context)
+                                              //       .showSnackBar(SnackBar(
+                                              //           content: Text(
+                                              //               e.toString())));
+                                              //   // _showSnackBar(e.toString());
+                                              //   log('Error in signIn API: ' +
+                                              //       e.toString());
+                                              //   return;
+                                              // }
                                             }
                                           },
                                           child: Center(
@@ -596,7 +612,9 @@ class _SignInScreenState extends State<SignInScreen>
                                               // email and password both are available here
                                               Map response;
                                               try {
-                                                SharedPreferences prefs = await SharedPreferences.getInstance();
+                                                SharedPreferences prefs =
+                                                    await SharedPreferences
+                                                        .getInstance();
                                                 print(
                                                     "signInWithPassword api is called");
                                                 print(
@@ -627,11 +645,14 @@ class _SignInScreenState extends State<SignInScreen>
                                                       "fcm token api: $responsefcm");
                                                   print(
                                                       "fcm token status: ${responsefcm['status']}");
-              prefs.setString('fcmToken',_fcmToken );
+                                                  prefs.setString(
+                                                      'fcmToken', _fcmToken);
                                                 } else {
                                                   print(
                                                       "respose of ${response['status']}");
-                                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                                                  SharedPreferences prefs =
+                                                      await SharedPreferences
+                                                          .getInstance();
 
                                                   print(response);
                                                   Scaffold.of(context)
