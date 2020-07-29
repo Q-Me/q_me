@@ -12,13 +12,7 @@ class Header extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
-//                  SizedBox(width: offset),
-        GestureDetector(
-          onTap: () {
-            log('App drawer clicked');
-          },
-          child: Icon(Icons.menu, size: 45),
-        ),
+        SizedBox(height: 45, width: 45),
         Spacer(),
         Container(
           height: 80,

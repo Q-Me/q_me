@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 
 import 'appointment.dart';
 
+// ignore: must_be_immutable
 class Slot extends Equatable {
   Slot({
     @required this.startTime,

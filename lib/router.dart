@@ -4,7 +4,13 @@ import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
-// import 'views/booking.dart';
+import 'package:qme/views/profile.dart';
+import 'package:qme/views/signin.dart';
+import 'package:qme/views/signup.dart';
+import 'package:qme/views/subscriber.dart';
+import 'package:qme/views/token.dart';
+import 'package:qme/views/unknown.dart';
+
 import 'views/nearby.dart';
 import 'views/profile.dart';
 import 'views/signin.dart';
@@ -12,12 +18,6 @@ import 'views/signup.dart';
 import 'views/subscriber.dart';
 import 'views/token.dart';
 import 'views/unknown.dart';
-import 'package:qme/views/profile.dart';
-import 'package:qme/views/signin.dart';
-import 'package:qme/views/signup.dart';
-import 'package:qme/views/subscriber.dart';
-import 'package:qme/views/token.dart';
-import 'package:qme/views/unknown.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
@@ -71,6 +71,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         builder: (context) => AppointmentScreen(
           subscriber: arguments["subscriber"],
           reception: arguments["reception"],
+          slot: arguments["slot"],
         ),
         settings: RouteSettings(name: AppointmentScreen.id),
       );
