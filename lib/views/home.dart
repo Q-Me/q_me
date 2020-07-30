@@ -9,6 +9,7 @@ import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
+import 'package:qme/views/appointmentHistory.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/categories.dart';
 import 'package:qme/widgets/listItem.dart';
@@ -208,13 +209,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-          ),
-          Column(
-            children: <Widget>[
-              Text('Your appointment history'),
-              Text('Hello'),
-            ],
-          ),
+          ),AppointmentsHistoryScreen()
+          // Column(
+          //   children: <Widget>[
+          //     Text('Your appointment history'),
+          //     Text('Hello'),
+          //   ],
+          // ),
         ].elementAt(_selectedIndex),
         bottomNavigationBar: CupertinoTabBar(
           currentIndex: _selectedIndex,

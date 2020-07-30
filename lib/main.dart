@@ -24,7 +24,7 @@ void main() async {
 //  setSession();
 //  clearSession();
   if (await UserRepository().isSessionReady()) {
-    initialHome = IntroScreen.id;
+    initialHome = HomeScreen.id;
   }
   runApp(MyApp());
 }
