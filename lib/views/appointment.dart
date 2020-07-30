@@ -223,6 +223,11 @@ class CustomerDetails extends StatelessWidget {
         Divider(),
         note != '' || note != null
             ? ListTile(
+                onTap: () async {
+                  print("printing booking note before");
+                  final bookingNote = await Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => BookingNotes()));
+                },
                 leading: Container(
                   height: 40,
                   width: 40,
@@ -246,6 +251,12 @@ class CustomerDetails extends StatelessWidget {
                 trailing: Icon(Icons.arrow_forward_ios),
               )
             : ListTile(
+                onTap: () async {
+                  print("printing booking note before");
+
+                  final bookingNote = await Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => BookingNotes()));
+                },
                 leading: Container(
                   height: 40,
                   width: 40,
@@ -303,6 +314,94 @@ class WishListButton extends StatelessWidget {
               : Icon(
                   Icons.favorite_border,
                 ),
+        ),
+      ),
+    );
+  }
+}
+
+class BookingNotes extends StatelessWidget {
+  const BookingNotes({
+    Key key,
+    this.note,
+  }) : super(key: key);
+  final String note;
+  @override
+  Widget build(BuildContext context) {
+    var cHeight = MediaQuery.of(context).size.height;
+    var cWidth = MediaQuery.of(context).size.width;
+    TextEditingController noteController = TextEditingController();
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(color: Colors.black),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
+      body: Center(
+        child: Container(
+          // // color: _c,
+
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  " Add Booking Note",
+                  style: TextStyle(
+                      // fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: cHeight * 0.05,
+                ),
+                Text(
+                  "It includes requests and comments about your booking",
+                ),
+                SizedBox(
+                  height: cHeight * 0.04,
+                ),
+                TextFormField(
+                  controller: noteController,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value.length == 0) {
+                      return ('Enter information');
+                    } else {
+                      return null;
+                    }
+                  },
+                ),
+                SizedBox(
+                  height: cHeight * 0.1,
+                ),
+                Container(
+                  width: cWidth * 0.8,
+                  child: RaisedButton(
+                      onPressed: () {
+                        Navigator.pop(context, noteController.text);
+                      },
+                      textColor: Colors.white,
+                      padding: const EdgeInsets.all(0.0),
+                      child: Container(
+                        child: Text(
+                          "Done",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      )),
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );
