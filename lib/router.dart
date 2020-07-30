@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/profile.dart';
@@ -80,6 +81,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => ProfileScreen(),
         settings: RouteSettings(name: ProfileScreen.id),
+      );
+    case IntroScreen.id:
+      return MaterialPageRoute(
+        builder: (context) => IntroScreen(),
+        settings: RouteSettings(name: IntroScreen.id),
       );
 
     default:
