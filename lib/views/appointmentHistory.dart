@@ -9,10 +9,8 @@ class AppointmentsHistoryScreen extends StatefulWidget {
       _AppointmentsHistoryScreenState();
 }
 
-var data;
-var dataTest;
-
 class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen> {
+var data;
   var arr = ["ALL"];
   var histotyType = [
     "ALL",
@@ -207,15 +205,11 @@ Widget listElement(
             children: <Widget>[
               Expanded(
                 child: ListTile(
-                  // trailing: Text(
-                  //   "dolar{data[index]['slot_status']}",
-                  // ),
-
                   leading: Container(
                     child: CircleAvatar(
                         child: CircleAvatar(
                       child: Text(
-                        "dollardata[index]['subscriber']"
+                        "${data[index]['subscriber']}"
                             .substring(0, 1)
                             .toUpperCase(),
                       ),
@@ -243,10 +237,10 @@ Widget listElement(
                   ),
                   isThreeLine: true,
                   title: Text(
-                    "dollar{data[index]['subscriber']}",
+                    "${data[index]['subscriber']}",
                   ),
                   subtitle: Text(
-                    " PHONE: dollar{data[index]['phone']} \n ADDRESS : dollar{data[index]['phone']} \n NOTE:{dollar{data[index]['phone']} \n STATUS:dollar{data[index]['slot_status']}",
+                    " PHONE: ${data[index]['phone']} \n ADDRESS : ${data[index]['phone']} \n NOTE:{${data[index]['phone']} \n STATUS:${data[index]['slot_status']}",
                   ),
                 ),
               ),
