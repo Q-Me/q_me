@@ -8,6 +8,7 @@ import 'package:qme/router.dart' as router;
 import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
 
@@ -23,7 +24,7 @@ void main() async {
 //  setSession();
 //  clearSession();
   if (await UserRepository().isSessionReady()) {
-    initialHome = HomeScreen.id;
+    initialHome = IntroScreen.id;
   }
   runApp(MyApp());
 }
