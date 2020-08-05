@@ -48,168 +48,168 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _auth.verifyPhoneNumber(
         phoneNumber: phone,
         timeout: Duration(seconds: 60),
-        verificationCompleted: (AuthCredential credential) async {
-          AuthResult result = await _auth.signInWithCredential(credential);
+        // verificationCompleted: (AuthCredential credential) async {
+        //   AuthResult result = await _auth.signInWithCredential(credential);
 
-          FirebaseUser user = result.user;
+        //   FirebaseUser user = result.user;
 
-          if (user != null) {
-            var token = await user.getIdToken().then((result) {
-              idToken = result.token;
-              formData['token'] = idToken;
-              print(" $idToken ");
-            });
-            final code = _codeController.text.trim();
-            try {
-              log('$formData');
-              SharedPreferences prefs = await SharedPreferences.getInstance();
+        //   if (user != null) {
+        //     var token = await user.getIdToken().then((result) {
+        //       idToken = result.token;
+        //       formData['token'] = idToken;
+        //       print(" $idToken ");
+        //     });
+        //     final code = _codeController.text.trim();
+        //     try {
+        //       log('$formData');
+        //       SharedPreferences prefs = await SharedPreferences.getInstance();
 
-              formData['firstName'] = prefs.getString('userFirstNameSignup');
-              formData['lastName'] = prefs.getString('userLastNameSignup');
-              formData['phone'] = prefs.getString('userPhoneSignup');
-              formData['password'] = prefs.getString('userPasswordSignup');
-              formData['cpassword'] = prefs.getString('userCpasswordSignup');
-              formData['email'] = prefs.getString(
-                'userEmailSignup',
-              );
-              formData['name'] =
-                  formData['firstName'] + " " + formData['lastName'];
+        //       formData['firstName'] = prefs.getString('userFirstNameSignup');
+        //       formData['lastName'] = prefs.getString('userLastNameSignup');
+        //       formData['phone'] = prefs.getString('userPhoneSignup');
+        //       formData['password'] = prefs.getString('userPasswordSignup');
+        //       formData['cpassword'] = prefs.getString('userCpasswordSignup');
+        //       formData['email'] = prefs.getString(
+        //         'userEmailSignup',
+        //       );
+        //       formData['name'] =
+        //           formData['firstName'] + " " + formData['lastName'];
 
-              Scaffold.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Processing Data'),
-                ),
-              );
+        //       Scaffold.of(context).showSnackBar(
+        //         SnackBar(
+        //           content: Text('Processing Data'),
+        //         ),
+        //       );
 
-              UserRepository user = UserRepository();
-              formData['name'] =
-                  '${formData['firstName']}|${formData['lastName']}';
-              // Make SignUp API call
-              Map response;
-              try {
-                print("signUpData");
-                print(formData['phone']);
-                print(formData['name']);
-                print(formData);
-                response = await user.signUp(formData);
-                print(response['status']);
-                print(response);
-              } on BadRequestException catch (e) {
-                log('BadRequestException on SignUp:' + e.toString());
-                Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text(
-                    e.toString(),
-                  ),
-                ));
-              } catch (e) {
-                log('SignUp failed:' + e.toString());
-                Scaffold.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString()),
-                  ),
-                );
-              }
-              log('SignUp response:${response.toString()}');
+        //       UserRepository user = UserRepository();
+        //       formData['name'] =
+        //           '${formData['firstName']}|${formData['lastName']}';
+        //       // Make SignUp API call
+        //       Map response;
+        //       try {
+        //         print("signUpData");
+        //         print(formData['phone']);
+        //         print(formData['name']);
+        //         print(formData);
+        //         response = await user.signUp(formData);
+        //         print(response['status']);
+        //         print(response);
+        //       } on BadRequestException catch (e) {
+        //         log('BadRequestException on SignUp:' + e.toString());
+        //         Scaffold.of(context).showSnackBar(SnackBar(
+        //           content: Text(
+        //             e.toString(),
+        //           ),
+        //         ));
+        //       } catch (e) {
+        //         log('SignUp failed:' + e.toString());
+        //         Scaffold.of(context).showSnackBar(
+        //           SnackBar(
+        //             content: Text(e.toString()),
+        //           ),
+        //         );
+        //       }
+        //       log('SignUp response:${response.toString()}');
 
-              if (response != null &&
-                  response['msg'] == 'Registation successful') {
-                // Make SignIn call
-                try {
-                  response =
-                      // Make LOGIN API call
-                      response = await signInWithOtp(idToken);
-                  print("reponse Status ");
+        //       if (response != null &&
+        //           response['msg'] == 'Registation successful') {
+        //         // Make SignIn call
+        //         try {
+        //           response =
+        //               // Make LOGIN API call
+        //               response = await signInWithOtp(idToken);
+        //           print("reponse Status ");
 
-                  if (response['status'] == 200) {
-                    print("respose of ${response['status']}");
-                    print(response);
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    Scaffold.of(context).showSnackBar(
-                        SnackBar(content: Text('Processing Data')));
+        //           if (response['status'] == 200) {
+        //             print("respose of ${response['status']}");
+        //             print(response);
+        //             SharedPreferences prefs =
+        //                 await SharedPreferences.getInstance();
+        //             Scaffold.of(context).showSnackBar(
+        //                 SnackBar(content: Text('Processing Data')));
 
-                    Navigator.pushNamed(context, NearbyScreen.id);
+        //             Navigator.pushNamed(context, NearbyScreen.id);
 
-                    var responsefcm = await fcmTokenSubmit(_fcmToken);
-                    print("fcm token Api: $responsefcm");
-                    print("fcm token api status: ${responsefcm['status']}");
-                    prefs.setString('fcmToken', _fcmToken);
-                    Navigator.pushNamed(context, NearbyScreen.id);
-                  } else {
-                    return print("error in api hit");
-                  }
-                } catch (e) {
-                  Scaffold.of(context)
-                      .showSnackBar(SnackBar(content: Text(e.toString())));
-                  // _showSnackBar(e.toString());
-                  log('Error in signIn API: ' + e.toString());
-                  return;
-                }
-                // if (response['name'] != null) {
-                //   // SignIn successful
-                //   Navigator.pushNamed(
-                //       context, NearbyScreen.id);
-                // }
-              } else {
-                print("SignUp failed");
-                return;
-              }
-            } on PlatformException catch (e) {
-              print("Looking for Error code");
-              print(e.message);
-              Navigator.of(context).pop();
+        //             var responsefcm = await fcmTokenSubmit(_fcmToken);
+        //             print("fcm token Api: $responsefcm");
+        //             print("fcm token api status: ${responsefcm['status']}");
+        //             prefs.setString('fcmToken', _fcmToken);
+        //             Navigator.pushNamed(context, NearbyScreen.id);
+        //           } else {
+        //             return print("error in api hit");
+        //           }
+        //         } catch (e) {
+        //           Scaffold.of(context)
+        //               .showSnackBar(SnackBar(content: Text(e.toString())));
+        //           // _showSnackBar(e.toString());
+        //           log('Error in signIn API: ' + e.toString());
+        //           return;
+        //         }
+        //         // if (response['name'] != null) {
+        //         //   // SignIn successful
+        //         //   Navigator.pushNamed(
+        //         //       context, NearbyScreen.id);
+        //         // }
+        //       } else {
+        //         print("SignUp failed");
+        //         return;
+        //       }
+        //     } on PlatformException catch (e) {
+        //       print("Looking for Error code");
+        //       print(e.message);
+        //       Navigator.of(context).pop();
 
-              showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text("Verification Failed"),
-                      content: Text(e.code.toString()),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text("OK"),
-                          textColor: Colors.white,
-                          color: Theme.of(context).primaryColor,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        )
-                      ],
-                    );
-                  });
-              print(e.code);
-            } on Exception catch (e) {
-              Navigator.of(context).pop();
+        //       showDialog(
+        //           context: context,
+        //           barrierDismissible: false,
+        //           builder: (context) {
+        //             return AlertDialog(
+        //               title: Text("Verification Failed"),
+        //               content: Text(e.code.toString()),
+        //               actions: <Widget>[
+        //                 FlatButton(
+        //                   child: Text("OK"),
+        //                   textColor: Colors.white,
+        //                   color: Theme.of(context).primaryColor,
+        //                   onPressed: () {
+        //                     Navigator.of(context).pop();
+        //                   },
+        //                 )
+        //               ],
+        //             );
+        //           });
+        //       print(e.code);
+        //     } on Exception catch (e) {
+        //       Navigator.of(context).pop();
 
-              showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text("Verification Failed"),
-                      content: Text(e.toString()),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text("OK"),
-                          textColor: Colors.white,
-                          color: Theme.of(context).primaryColor,
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                          },
-                        )
-                      ],
-                    );
-                  });
-              print("Looking for Error message");
-              print(e);
-            }
-          } else {
-            print("Error");
-          }
+        //       showDialog(
+        //           context: context,
+        //           barrierDismissible: false,
+        //           builder: (context) {
+        //             return AlertDialog(
+        //               title: Text("Verification Failed"),
+        //               content: Text(e.toString()),
+        //               actions: <Widget>[
+        //                 FlatButton(
+        //                   child: Text("OK"),
+        //                   textColor: Colors.white,
+        //                   color: Theme.of(context).primaryColor,
+        //                   onPressed: () async {
+        //                     Navigator.of(context).pop();
+        //                   },
+        //                 )
+        //               ],
+        //             );
+        //           });
+        //       print("Looking for Error message");
+        //       print(e);
+        //     }
+        //   } else {
+        //     print("Error");
+        //   }
 
-          //This callback would gets called when verification is done auto maticlly
-        },
+        //   //This callback would gets called when verification is done auto maticlly
+        // },
         verificationFailed: (AuthException exception) {
           print(exception.message);
           Scaffold.of(context).showSnackBar(
@@ -335,7 +335,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             MyFormField(
                               keyboardType: TextInputType.emailAddress,
                               name: 'EMAIL',
-                              required: true,
+                              required: false,
                               callback: (value) {
                                 formData['email'] = value;
                                 print(formData['email']);
@@ -347,8 +347,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               autofocus: true,
                               obscureText: !passwordVisible,
                               validator: (value) {
-                                if (value.length < 6)
+                                Pattern pattern =
+        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])';
+    RegExp regex = new RegExp(pattern);
+                                if (value.length < 6 || value.length > 20)
                                   return 'Password should be not be less than 6 characters';
+                                  else if (!regex.hasMatch(value)){
+                                     return 'Password must contain one numeric ,one upper and one lower case letter';
+                                  }
                                 else {
                                   formData['password'] = value;
                                   return null;
@@ -430,8 +436,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               height: 50.0,
                               child: Material(
                                 borderRadius: BorderRadius.circular(20.0),
-                                shadowColor: Colors.greenAccent,
-                                color: Colors.green,
+                                shadowColor: Colors.blueAccent,
+                                color: Theme.of(context).primaryColor,
                                 elevation: 7.0,
                                 child: InkWell(
                                   onTap: () async {
@@ -545,7 +551,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   },
                                   child: Center(
                                     child: Text(
-                                      'Verify Phone Number By OTP',
+                                      'Verify',
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.0,
