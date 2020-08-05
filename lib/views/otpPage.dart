@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:pin_entry_text_field/pin_entry_text_field.dart';
 import 'package:qme/api/signin.dart';
+import 'package:qme/views/home.dart';
 import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,7 +56,7 @@ class _OtpPageState extends State<OtpPage> {
                             child: new CircleAvatar(
                               backgroundColor: Colors.transparent,
                               radius: 60.0,
-                              child: SvgPicture.asset("assets/temp/user.svg"),
+                              child: SvgPicture.asset("assets/temp/users.svg"),
                             ),
                           ),
                         ),
@@ -93,8 +94,8 @@ class _OtpPageState extends State<OtpPage> {
                               height: 50.0,
                               child: Material(
                                 borderRadius: BorderRadius.circular(20.0),
-                                shadowColor: Colors.greenAccent,
-                                color: Colors.green,
+                                shadowColor: Colors.blueAccent,
+                                color: Theme.of(context).primaryColor,
                                 elevation: 7.0,
                                 child: InkWell(
                                   onTap: () async {
@@ -217,7 +218,7 @@ class _OtpPageState extends State<OtpPage> {
                                                 print(response);
 
                                                 Navigator.pushNamed(
-                                                    context, NearbyScreen.id);
+                                                    context, HomeScreen.id);
                                                 var responsefcm =
                                                     await fcmTokenSubmit(
                                                         _fcmToken);
@@ -280,7 +281,7 @@ class _OtpPageState extends State<OtpPage> {
                                               prefs.setString(
                                                   'fcmToken', _fcmToken);
                                               Navigator.pushNamed(
-                                                  context, NearbyScreen.id);
+                                                  context, HomeScreen.id);
                                             } else {
                                               print(response['status']);
                                               print(response);
