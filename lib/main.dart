@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
       theme: myTheme,
       debugShowCheckedModeBanner: false,
       onGenerateRoute: router.generateRoute,
-      initialRoute: initialHome,
+      initialRoute: SignInScreen.id,
       navigatorObservers: <NavigatorObserver>[
         AnalyticsService().getAnalyticsObserver(),
       ],
