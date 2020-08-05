@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/appointment.dart';
 import 'package:qme/bloc/booking_bloc.dart';
-import 'package:qme/bloc/cancel_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
@@ -74,10 +73,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
         providers: [
           BlocProvider<BookingBloc>(
               create: (context) =>
-                  BookingBloc(appointmentRepository: appointmentRepository)),
-          BlocProvider<CancelBloc>(
-              create: (context) =>
-                  CancelBloc(appointmentRepository: appointmentRepository))
+                  BookingBloc(appointmentRepository: appointmentRepository))
         ],
         child: Scaffold(
           appBar: AppBar(
@@ -189,6 +185,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                     }, builder: (context, state) {
                       if (state is BookingInitial) {
                         {
+                          logger.i("Reception: " + reception.id,
+                              "Subscriber: " + subscriber.id);
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
@@ -233,13 +231,13 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                   text: 'Retry Appointment',
                                   buttonFunction: () async {
                                     logger.i('Button clicked');
-                                    BlocProvider.of<CancelBloc>(context)
-                                        .add(CancelRequestedEvent(
-                                            // subscriber.id,
-                                            // notes,
+                                    BlocProvider.of<BookingBloc>(context).add(
+                                        BookingRequested(
+                                            subscriber.id,
+                                            notes,
                                             reception.id,
-                                            // slot.startTime,
-                                            // slot.endTime,
+                                            slot.startTime,
+                                            slot.endTime,
                                             await getAccessTokenFromStorage()));
                                   }),
                             ),
@@ -250,8 +248,6 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                         );
                       } else if (state is BookingLoadSuccess) {
                         int otp = state.details.otp;
-                        var box = Hive.box("appointment");
-                        box.put("otp", otp);
                         return Column(
                           children: <Widget>[
                             SizedBox(height: 20),
@@ -286,12 +282,9 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                       text: 'Cancel Appointment',
                                       buttonFunction: () async {
                                         logger.i('Button clicked');
-                                        BlocProvider.of<CancelBloc>(context)
-                                            .add(CancelRequestedEvent(
-                                                reception.id,
-                                                await getAccessTokenFromStorage()));
                                         BlocProvider.of<BookingBloc>(context)
-                                            .add(BookingRefreshRequested());
+                                            .add(CancelRequested(reception.id,
+                                                await getAccessTokenFromStorage()));
                                       }),
                                 ),
                                 SizedBox(width: 10),
@@ -303,8 +296,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                           ],
                         );
                       } else if (state is BookingDone) {
-                        var box = Hive.box("appointment");
-                        otp = box.get("otp");
+                        int otp = state.detail.otp;
                         return Column(
                           children: <Widget>[
                             SizedBox(height: 20),
@@ -339,8 +331,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                       text: 'Cancel Appointment',
                                       buttonFunction: () async {
                                         logger.i('Button clicked');
-                                        BlocProvider.of<CancelBloc>(context)
-                                            .add(CancelRequestedEvent(
+                                        BlocProvider.of<BookingBloc>(context)
+                                            .add(CancelRequested(
                                                 reception.id,
                                                 await getAccessTokenFromStorage()));
                                         BlocProvider.of<BookingBloc>(context)
