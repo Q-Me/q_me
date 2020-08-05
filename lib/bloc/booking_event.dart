@@ -29,9 +29,9 @@ class BookingRefreshRequested extends BookingEvent {
   @override
   List<Object> get props => [];
 }
- class BookingExists extends BookingEvent {
+
+class BookingExists extends BookingEvent {
   @override
   // TODO: implement props
   List<Object> get props => [];
-
- }
+}
