@@ -23,4 +23,18 @@ class BookingLoadSuccess extends BookingState {
 
 class BookingLoadFailure extends BookingState {}
 
-class BookingDone extends BookingState {}
+class BookingDone extends BookingState {
+  final detail;
+
+  BookingDone(this.detail) : assert(detail != null);
+
+  @override
+  List<Object> get props => [detail];
+}
+class CancelSuccess extends BookingState {
+  final String msg;
+  CancelSuccess(this.msg) : assert(msg != null);
+
+  @override
+  List<Object> get props => [msg];
+}

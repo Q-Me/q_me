@@ -63,6 +63,20 @@ class AppointmentRepository {
     return response;
   }
 
+  Future checkSlot({
+    @required String counterId,
+    @required String status,
+    @required accessToken
+    }) async {
+    final response = await _helper.post('/user/slot/counterslots',
+        req: {
+          "counter_id": counterId,
+          "status": status,
+        },
+        authToken: accessToken);
+    return response;
+  }
+
   Future<List<Appointment>> fetchAppointments(
       {@required List<String> status, @required String accessToken}) async {
     final response = await _helper.post(
