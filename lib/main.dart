@@ -1,21 +1,30 @@
+import 'package:bloc/bloc.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:qme/api/kAPI.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/router.dart' as router;
 import 'package:qme/services/analytics.dart';
+import 'package:qme/simple_bloc_observer.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-String initialHome = SignInScreen.id;
+import 'views/home.dart';
+
+String initialHome = HomeScreen.id;
 
 void main() async {
+  Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox("appointment");
 
   // Logger.level = Level.warning;
   // TODO show splash screen

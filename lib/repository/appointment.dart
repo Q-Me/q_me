@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 import 'package:ordered_set/comparing.dart';
 import 'package:qme/api/base_helper.dart';
+import 'package:qme/api/endpoints.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
@@ -52,6 +53,13 @@ class AppointmentRepository {
       },
       authToken: accessToken,
     );
+    return response;
+  }
+
+  Future cancel(
+      {@required String counterId, @required String accessToken}) async {
+    final response = await _helper.post('/user/slot/cancelslot',
+        req: {"counter_id": counterId}, authToken: accessToken);
     return response;
   }
 
