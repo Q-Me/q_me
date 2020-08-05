@@ -2,7 +2,6 @@
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:developer';
-
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -47,56 +46,56 @@ class _SignInScreenState extends State<SignInScreen>
     _auth.verifyPhoneNumber(
         phoneNumber: phone,
         timeout: Duration(seconds: 60),
-        verificationCompleted: (AuthCredential credential) async {
-          AuthResult result = await _auth.signInWithCredential(credential);
-          print("printing the credential");
-          print(credential);
+        // verificationCompleted: (AuthCredential credential) async {
+        //   AuthResult result = await _auth.signInWithCredential(credential);
+        //   print("printing the credential");
+        //   print(credential);
 
-          FirebaseUser user = result.user;
+        //   FirebaseUser user = result.user;
 
-          if (user != null) {
-            var token = await user.getIdToken().then((result) async {
-              idToken = result.token;
-              print("idToken: $idToken ");
-              FocusScope.of(context)
-                  .requestFocus(FocusNode()); // dismiss the keyboard
-              Scaffold.of(context)
-                  .showSnackBar(SnackBar(content: Text('Processing Data')));
-              var response;
-              try {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setString('fcmToken', _fcmToken);
-                response =
-                    // Make LOGIN API call
-                    response = await signInWithOtp(idToken);
+        //   if (user != null) {
+        //     var token = await user.getIdToken().then((result) async {
+        //       idToken = result.token;
+        //       print("idToken: $idToken ");
+        //       FocusScope.of(context)
+        //           .requestFocus(FocusNode()); // dismiss the keyboard
+        //       Scaffold.of(context)
+        //           .showSnackBar(SnackBar(content: Text('Processing Data')));
+        //       var response;
+        //       try {
+        //         SharedPreferences prefs = await SharedPreferences.getInstance();
+        //         prefs.setString('fcmToken', _fcmToken);
+        //         response =
+        //             // Make LOGIN API call
+        //             response = await signInWithOtp(idToken);
 
-                if (response['status'] == 200) {
-                  Scaffold.of(context)
-                      .showSnackBar(SnackBar(content: Text('Processing Data')));
-                  Navigator.pushNamed(context, NearbyScreen.id);
-                   prefs.setString('fcmToken',_fcmToken );
+        //         if (response['status'] == 200) {
+        //           Scaffold.of(context)
+        //               .showSnackBar(SnackBar(content: Text('Processing Data')));
+        //           Navigator.pushNamed(context, NearbyScreen.id);
+        //            prefs.setString('fcmToken',_fcmToken );
 
-                  var responsefcm = await fcmTokenSubmit(_fcmToken);
-                  print("fcm token Api: $responsefcm");
-                  print("fcm token  Apiresponse: ${responsefcm['status']}");
-                } else {
-                  return;
-                }
-              } catch (e) {
-                print(" !!$e !!");
-                Scaffold.of(context)
-                    .showSnackBar(SnackBar(content: Text(e.toString())));
-                // _showSnackBar(e.toString());
-                log('Error in signIn API: ' + e.toString());
-                return;
-              }
-            });
-          } else {
-            print("Error");
-          }
+        //           var responsefcm = await fcmTokenSubmit(_fcmToken);
+        //           print("fcm token Api: $responsefcm");
+        //           print("fcm token  Apiresponse: ${responsefcm['status']}");
+        //         } else {
+        //           return;
+        //         }
+        //       } catch (e) {
+        //         print(" !!$e !!");
+        //         Scaffold.of(context)
+        //             .showSnackBar(SnackBar(content: Text(e.toString())));
+        //         // _showSnackBar(e.toString());
+        //         log('Error in signIn API: ' + e.toString());
+        //         return;
+        //       }
+        //     });
+        //   } else {
+        //     print("Error");
+        //   }
 
-          //This callback would gets called when verification is done auto maticlly
-        },
+        //   //This callback would gets called when verification is done auto maticlly
+        // },
         verificationFailed: (AuthException exception) {
           print("here is exception error");
           print(exception.message);
@@ -336,8 +335,8 @@ class _SignInScreenState extends State<SignInScreen>
                                       child: Material(
                                         borderRadius:
                                             BorderRadius.circular(20.0),
-                                        shadowColor: Colors.greenAccent,
-                                        color: Colors.green,
+                                        // shadowColor: Colors.greenAccent,
+                                        color: Theme.of(context).primaryColor,
                                         elevation: 7.0,
                                         child: InkWell(
                                           onTap: () async {
@@ -596,8 +595,8 @@ class _SignInScreenState extends State<SignInScreen>
                                       child: Material(
                                         borderRadius:
                                             BorderRadius.circular(20.0),
-                                        shadowColor: Colors.greenAccent,
-                                        color: Colors.green,
+                                        shadowColor: Colors.blueAccent,
+                                        color:Theme.of(context).primaryColor,
                                         elevation: 7.0,
                                         child: InkWell(
                                           onTap: () async {
