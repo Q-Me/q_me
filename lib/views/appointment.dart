@@ -1,18 +1,25 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/appointment.dart';
+import 'package:qme/bloc/booking_bloc.dart';
+import 'package:qme/bloc/cancel_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/model/user.dart';
+import 'package:qme/repository/appointment.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/error.dart';
 import 'package:qme/widgets/loader.dart';
+
+var notes;
 
 class AppointmentScreen extends StatefulWidget {
   static const String id = '/appointment';
@@ -33,8 +40,9 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   double get h => MediaQuery.of(context).size.height;
   double get w => MediaQuery.of(context).size.width;
   String note = 'Add notes like requirements';
-
+  int otp;
   AppointmentBloc _appointmentBloc;
+  AppointmentRepository appointmentRepository;
 
   @override
   void initState() {
@@ -43,6 +51,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       subscriber: subscriber,
       reception: reception,
     );
+    appointmentRepository = AppointmentRepository();
     super.initState();
   }
 
@@ -61,128 +70,295 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: GestureDetector(
-            child: Icon(Icons.arrow_back),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(48.0),
-            child: Text(
-              'Review and Confirm',
-              textAlign: TextAlign.left,
-              style: Theme.of(context)
-                  .textTheme
-                  .headline4
-                  .copyWith(color: Colors.white),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<BookingBloc>(
+              create: (context) =>
+                  BookingBloc(appointmentRepository: appointmentRepository)),
+          BlocProvider<CancelBloc>(
+              create: (context) =>
+                  CancelBloc(appointmentRepository: appointmentRepository))
+        ],
+        child: Scaffold(
+          appBar: AppBar(
+            leading: GestureDetector(
+              child: Icon(Icons.arrow_back),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(48.0),
+              child: Text(
+                'Review and Confirm',
+                textAlign: TextAlign.left,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline4
+                    .copyWith(color: Colors.white),
+              ),
             ),
           ),
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ChangeNotifierProvider.value(
-              value: _appointmentBloc,
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      '${DateFormat('d MMMM y').format(slot.startTime)} at ${DateFormat.jm().format(slot.startTime)}',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-                    ),
-                    subtitle: Text(
-                      '${slot.endTime.difference(slot.startTime).inMinutes} min, ends at ${DateFormat.jm().format(slot.endTime)}',
-                    ),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text(
-                      subscriber.name,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-                    ),
-                    subtitle: Text(subscriber.address),
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      child: CachedNetworkImage(
-                        imageUrl: 'https://picsum.photos/200',
-                      ),
-                    ),
-                  ),
-                  Divider(height: 20),
-                  StreamBuilder<ApiResponse<UserData>>(
-                    stream: _appointmentBloc.userStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && !snapshot.hasError) {
-                        switch (snapshot.data.status) {
-                          case Status.ERROR:
-                            return Error(
-                              errorMessage: snapshot.data.message,
-                              onRetryPressed:
-                                  _appointmentBloc.fetchUserProfile(),
-                            );
-                            break;
-                          case Status.LOADING:
-                            return Loading(
-                              loadingMessage: snapshot.data.message,
-                            );
-                            break;
-                          case Status.COMPLETED:
-                            return CustomerDetails(
-                              name: snapshot.data.data.name,
-                              phone: snapshot.data.data.phone,
-                              note: note,
-                            );
-                            break;
-                        }
-                      } else {
-                        return Text('No data error');
-                      }
-                      return Text('No appointment data');
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  Column(
-                    children: <Widget>[
-                      Text(
-                        'You OTP for the appointment is',
-                        style: Theme.of(context).textTheme.bodyText1.copyWith(
-                              fontSize: 20,
-                            ),
-                      ),
-                      Text(
-                        '1234',
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ChangeNotifierProvider.value(
+                value: _appointmentBloc,
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        '${DateFormat('d MMMM y').format(slot.startTime)} at ${DateFormat.jm().format(slot.startTime)}',
                         style: TextStyle(
-                          fontSize: 42,
-                          letterSpacing: 12,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: ThemedSolidButton(
-                            text: 'Confirm Appointment',
-                            buttonFunction: () {
-                              logger.i('Button clicked');
-                            }),
+                            fontWeight: FontWeight.bold, fontSize: 24),
                       ),
-                      SizedBox(width: 10),
-                      // TODO button to add slot to wish list
+                      subtitle: Text(
+                        '${slot.endTime.difference(slot.startTime).inMinutes} min, ends at ${DateFormat.jm().format(slot.endTime)}',
+                      ),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text(
+                        subscriber.name,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 24),
+                      ),
+                      subtitle: Text(subscriber.address),
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        child: CachedNetworkImage(
+                          imageUrl: 'https://picsum.photos/200',
+                        ),
+                      ),
+                    ),
+                    Divider(height: 20),
+                    StreamBuilder<ApiResponse<UserData>>(
+                      stream: _appointmentBloc.userStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && !snapshot.hasError) {
+                          switch (snapshot.data.status) {
+                            case Status.ERROR:
+                              return Error(
+                                errorMessage: snapshot.data.message,
+                                onRetryPressed:
+                                    _appointmentBloc.fetchUserProfile(),
+                              );
+                              break;
+                            case Status.LOADING:
+                              return Loading(
+                                loadingMessage: snapshot.data.message,
+                              );
+                              break;
+                            case Status.COMPLETED:
+                              return CustomerDetails(
+                                name: snapshot.data.data.name,
+                                phone: snapshot.data.data.phone,
+                                note: note,
+                              );
+                              break;
+                          }
+                        } else {
+                          return Text('No data error');
+                        }
+                        return Text('No appointment data');
+                      },
+                    ),
+                    BlocConsumer<BookingBloc, BookingState>(
+                        listener: (context, state) {
+                      if (state is BookingLoadFailure) {
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                          content: Text("An unexpected error occured"),
+                          action: SnackBarAction(
+                              label: "Retry",
+                              onPressed: () async {
+                                BlocProvider.of<BookingBloc>(context).add(
+                                    BookingRequested(
+                                        subscriber.id,
+                                        note,
+                                        reception.id,
+                                        slot.startTime,
+                                        slot.endTime,
+                                        await getAccessTokenFromStorage()));
+                              }),
+                        ));
+                      } else if (state is BookingInitial) {
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                          content: Text("Booking Successfully Cancelled"),
+                        ));
+                      }
+                    }, builder: (context, state) {
+                      if (state is BookingInitial) {
+                        {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              SizedBox(height: 50),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: ThemedSolidButton(
+                                    text: 'Book Appointment',
+                                    buttonFunction: () async {
+                                      logger.i('Button clicked');
+                                      // box.put("appointment", "true");
+                                      BlocProvider.of<BookingBloc>(context).add(
+                                          BookingRequested(
+                                              subscriber.id,
+                                              notes,
+                                              reception.id,
+                                              slot.startTime,
+                                              slot.endTime,
+                                              await getAccessTokenFromStorage()));
+                                    }),
+                              ),
+                              SizedBox(width: 10),
+                              // TODO button to add slot to wish list
 //                    WishListButton(added: false),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                ],
+                            ],
+                          );
+                        }
+                      } else if (state is BookingLoadInProgress) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.blue[800],
+                          ),
+                        );
+                      } else if (state is BookingLoadFailure) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            SizedBox(height: 50),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: ThemedSolidButton(
+                                  text: 'Retry Appointment',
+                                  buttonFunction: () async {
+                                    logger.i('Button clicked');
+                                    BlocProvider.of<CancelBloc>(context)
+                                        .add(CancelRequestedEvent(
+                                            // subscriber.id,
+                                            // notes,
+                                            reception.id,
+                                            // slot.startTime,
+                                            // slot.endTime,
+                                            await getAccessTokenFromStorage()));
+                                  }),
+                            ),
+                            SizedBox(width: 10),
+                            // TODO button to add slot to wish list
+//                    WishListButton(added: false),
+                          ],
+                        );
+                      } else if (state is BookingLoadSuccess) {
+                        int otp = state.details.otp;
+                        var box = Hive.box("appointment");
+                        box.put("otp", otp);
+                        return Column(
+                          children: <Widget>[
+                            SizedBox(height: 20),
+                            Column(
+                              children: <Widget>[
+                                Text(
+                                  'You OTP for the appointment is',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText1
+                                      .copyWith(
+                                        fontSize: 20,
+                                      ),
+                                ),
+                                Text(
+                                  '$otp',
+                                  style: TextStyle(
+                                    fontSize: 42,
+                                    letterSpacing: 12,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                )
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: ThemedSolidButton(
+                                      text: 'Cancel Appointment',
+                                      buttonFunction: () async {
+                                        logger.i('Button clicked');
+                                        BlocProvider.of<CancelBloc>(context)
+                                            .add(CancelRequestedEvent(
+                                                reception.id,
+                                                await getAccessTokenFromStorage()));
+                                        BlocProvider.of<BookingBloc>(context)
+                                            .add(BookingRefreshRequested());
+                                      }),
+                                ),
+                                SizedBox(width: 10),
+                                // TODO button to add slot to wish list
+//                    WishListButton(added: false),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                        );
+                      } else if (state is BookingDone) {
+                        var box = Hive.box("appointment");
+                        otp = box.get("otp");
+                        return Column(
+                          children: <Widget>[
+                            SizedBox(height: 20),
+                            Column(
+                              children: <Widget>[
+                                Text(
+                                  'You OTP for the appointment is',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText1
+                                      .copyWith(
+                                        fontSize: 20,
+                                      ),
+                                ),
+                                Text(
+                                  '$otp',
+                                  style: TextStyle(
+                                    fontSize: 42,
+                                    letterSpacing: 12,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                )
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: ThemedSolidButton(
+                                      text: 'Cancel Appointment',
+                                      buttonFunction: () async {
+                                        logger.i('Button clicked');
+                                        BlocProvider.of<CancelBloc>(context)
+                                            .add(CancelRequestedEvent(
+                                                reception.id,
+                                                await getAccessTokenFromStorage()));
+                                        BlocProvider.of<BookingBloc>(context)
+                                            .add(BookingRefreshRequested());
+                                      }),
+                                ),
+                                SizedBox(width: 10),
+                                // TODO button to add slot to wish list
+//                    WishListButton(added: false),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                        );
+                      }
+                    })
+                  ],
+                ),
               ),
             ),
           ),
@@ -227,6 +403,7 @@ class CustomerDetails extends StatelessWidget {
                   print("printing booking note before");
                   final bookingNote = await Navigator.push(context,
                       MaterialPageRoute(builder: (context) => BookingNotes()));
+                  notes = bookingNote;
                 },
                 leading: Container(
                   height: 40,
@@ -256,6 +433,7 @@ class CustomerDetails extends StatelessWidget {
 
                   final bookingNote = await Navigator.push(context,
                       MaterialPageRoute(builder: (context) => BookingNotes()));
+                  notes = bookingNote;
                 },
                 leading: Container(
                   height: 40,
