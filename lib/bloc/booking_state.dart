@@ -7,7 +7,13 @@ abstract class BookingState extends Equatable {
   List<Object> get props => [];
 }
 
-class BookingInitial extends BookingState {}
+class BookingInitial extends BookingState {
+  final bool error;
+
+  BookingInitial(this.error) : assert(error != null);
+  @override
+  List<Object> get props => [error];
+}
 
 class BookingLoadInProgress extends BookingState {}
 
@@ -31,6 +37,7 @@ class BookingDone extends BookingState {
   @override
   List<Object> get props => [detail];
 }
+
 class CancelSuccess extends BookingState {
   final String msg;
   CancelSuccess(this.msg) : assert(msg != null);

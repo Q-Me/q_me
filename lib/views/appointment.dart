@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
@@ -46,6 +45,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   int otp;
   AppointmentBloc _appointmentBloc;
   AppointmentRepository appointmentRepository;
+  bool cancel = false;
 
   @override
   void initState() {
@@ -192,11 +192,19 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                               }),
                         ));
                       } else if (state is BookingInitial) {
-                        Scaffold.of(context).showSnackBar(SnackBar(
-                          content: Text("Booking Successfully Cancelled"),
-                        ));
+                        if (state.error == false) {
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text("Booking Successfully Cancelled"),
+                          ));
+                        } else if (state.error == true) {
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                                "An unexpected error occurred while cancelling.\nTry booking the appointment and cancelling again"),
+                          ));
+                        }
                       }
                     }, builder: (context, state) {
+                      final bloccontext = context;
                       if (state is BookingInitial) {
                         {
                           logger.i("Reception: " + reception.id,
@@ -296,23 +304,41 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                       text: 'Cancel Appointment',
                                       buttonFunction: () async {
                                         logger.i('Button clicked');
-                                        // showCupertinoDialog(
-                                        //     context: context,
-                                        //     builder: (BuildContext context) {
-                                        //       return AlertDialog(
-                                        //         title: Text("Whoa, Hold On..."),
-                                        //         content: Text(
-                                        //             "Do you really want to cancel your appointment?"),
-                                        //         actions: <Widget>[
-                                        //           new FlatButton(
-                                        //               onPressed: null,
-                                        //               child: null)
-                                        //         ],
-                                        //       );
-                                        //     });
-                                        BlocProvider.of<BookingBloc>(context)
-                                            .add(CancelRequested(reception.id,
-                                                await getAccessTokenFromStorage()));
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text("Whoa, Hold On..."),
+                                                content: Text(
+                                                    "Do you really want to cancel your appointment?"),
+                                                actions: <Widget>[
+                                                  new RaisedButton(
+                                                    onPressed: () async {
+                                                      cancel = true;
+                                                      BlocProvider.of<
+                                                                  BookingBloc>(
+                                                              bloccontext)
+                                                          .add(CancelRequested(
+                                                              reception.id,
+                                                              await getAccessTokenFromStorage()));
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child:
+                                                        Text("Yep, I'm sure"),
+                                                    color: Colors.red[600],
+                                                  ),
+                                                  new RaisedButton(
+                                                    onPressed: () {
+                                                      cancel = false;
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text(
+                                                        "No, I want my appointment"),
+                                                    color: Colors.green[600],
+                                                  )
+                                                ],
+                                              );
+                                            });
                                       }),
                                 ),
                                 SizedBox(width: 10),
@@ -359,11 +385,41 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                       text: 'Cancel Appointment',
                                       buttonFunction: () async {
                                         logger.i('Button clicked');
-                                        BlocProvider.of<BookingBloc>(context)
-                                            .add(CancelRequested(reception.id,
-                                                await getAccessTokenFromStorage()));
-                                        BlocProvider.of<BookingBloc>(context)
-                                            .add(BookingRefreshRequested());
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text("Whoa, Hold On..."),
+                                                content: Text(
+                                                    "Do you really want to cancel your appointment?"),
+                                                actions: <Widget>[
+                                                  new RaisedButton(
+                                                    onPressed: () async {
+                                                      cancel = true;
+                                                      BlocProvider.of<
+                                                                  BookingBloc>(
+                                                              bloccontext)
+                                                          .add(CancelRequested(
+                                                              reception.id,
+                                                              await getAccessTokenFromStorage()));
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child:
+                                                        Text("Yep, I'm sure"),
+                                                    color: Colors.red[600],
+                                                  ),
+                                                  new RaisedButton(
+                                                    onPressed: () {
+                                                      cancel = false;
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text(
+                                                        "No, I want my appointment"),
+                                                    color: Colors.green[600],
+                                                  )
+                                                ],
+                                              );
+                                            });
                                       }),
                                 ),
                                 SizedBox(width: 10),
@@ -554,7 +610,7 @@ class BookingNotes extends StatelessWidget {
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
-              child: Center(
+        child: Center(
           child: Container(
             // // color: _c,
 
