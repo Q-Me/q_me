@@ -19,7 +19,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
   final AppointmentRepository appointmentRepository;
   BookingBloc({@required this.appointmentRepository})
       : assert(appointmentRepository != null),
-        super(BookingInitial());
+        super(BookingInitial(false));
   var message;
   Appointment detail;
   @override
@@ -86,7 +86,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
 
   Stream<BookingState> _mapBookingRefreshRequested(
       BookingRefreshRequested event) async* {
-    yield BookingInitial();
+    yield BookingInitial(false);
   }
 
   Stream<BookingState> _mapCancelRequestEventToState(
@@ -97,16 +97,10 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           counterId: event.counterId, accessToken: event.accessToken);
       final msg = bookingResponse["msg"];
       logger.i(msg);
-      var booking = await appointmentRepository.checkSlot(
-          counterId: event.counterId,
-          accessToken: event.accessToken,
-          status: "ALL");
-      final Appointment detail =
-          Appointment.fromMap(booking["slots"][(booking["slots"].length) - 1]);
-      yield BookingDone(detail);
+      yield BookingInitial(false);
     } catch (error) {
       logger.e(error);
-      yield BookingInitial();
+      yield BookingInitial(true);
     }
   }
 }
