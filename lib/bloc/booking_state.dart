@@ -12,7 +12,7 @@ class BookingInitial extends BookingState {}
 class BookingLoadInProgress extends BookingState {}
 
 class BookingLoadSuccess extends BookingState {
-  final msg;
+  final String msg;
   final Appointment details;
   BookingLoadSuccess(this.msg, this.details)
       : assert(details != null && msg != null);
@@ -24,7 +24,7 @@ class BookingLoadSuccess extends BookingState {
 class BookingLoadFailure extends BookingState {}
 
 class BookingDone extends BookingState {
-  final detail;
+  final Appointment detail;
 
   BookingDone(this.detail) : assert(detail != null);
 

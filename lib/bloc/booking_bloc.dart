@@ -49,10 +49,12 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       if (detail.slotStatus == "UPCOMING") {
         slotAvailable = false;
       }
-    } catch (e) {
+    } on RangeError catch (e) {
       logger.i(e);
+      slotAvailable = true;
+    } catch (e) {
+      logger.e(e);
       yield BookingLoadFailure();
-      slotAvailable = false;
     }
 
     if (slotAvailable == true) {
@@ -99,7 +101,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           counterId: event.counterId,
           accessToken: event.accessToken,
           status: "ALL");
-      final detail =
+      final Appointment detail =
           Appointment.fromMap(booking["slots"][(booking["slots"].length) - 1]);
       yield BookingDone(detail);
     } catch (error) {
