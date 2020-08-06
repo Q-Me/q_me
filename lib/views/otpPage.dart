@@ -7,6 +7,7 @@ import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:pin_entry_text_field/pin_entry_text_field.dart';
 import 'package:qme/api/signin.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -329,7 +330,17 @@ class _OtpPageState extends State<OtpPage> {
                                                   color: Theme.of(context)
                                                       .primaryColor,
                                                   onPressed: () {
-                                                    Navigator.of(context).pop();
+                                                    // Navigator.of(context).pop();
+                                                      Navigator
+                                                                .pushAndRemoveUntil(
+                                                                    context,
+                                                                    MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              SignInScreen(),
+                                                                    ),
+                                                                    (route) =>
+                                                                        false);
                                                   },
                                                 )
                                               ],
@@ -354,7 +365,18 @@ class _OtpPageState extends State<OtpPage> {
                                                   color: Theme.of(context)
                                                       .primaryColor,
                                                   onPressed: () async {
-                                                    Navigator.of(context).pop();
+                                                      Navigator
+                                                                .pushAndRemoveUntil(
+                                                                    context,
+                                                                    MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              SignInScreen(),
+                                                                    ),
+                                                                    (route) =>
+                                                                        false);
+                                                    // Navigator.of(context).pop();
+
                                                   },
                                                 )
                                               ],
