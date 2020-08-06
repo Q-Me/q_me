@@ -540,69 +540,71 @@ class BookingNotes extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      body: Center(
-        child: Container(
-          // // color: _c,
+      body: SingleChildScrollView(
+              child: Center(
+          child: Container(
+            // // color: _c,
 
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  " Add Booking Note",
-                  style: TextStyle(
-                      // fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: cHeight * 0.05,
-                ),
-                Text(
-                  "It includes requests and comments about your booking",
-                ),
-                SizedBox(
-                  height: cHeight * 0.04,
-                ),
-                TextFormField(
-                  controller: noteController,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    " Add Booking Note",
+                    style: TextStyle(
+                        // fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold),
                   ),
-                  validator: (value) {
-                    if (value.length == 0) {
-                      return ('Enter information');
-                    } else {
-                      return null;
-                    }
-                  },
-                ),
-                SizedBox(
-                  height: cHeight * 0.1,
-                ),
-                Container(
-                  width: cWidth * 0.8,
-                  child: RaisedButton(
-                      onPressed: () {
-                        Navigator.pop(context, noteController.text);
-                      },
-                      textColor: Colors.white,
-                      padding: const EdgeInsets.all(0.0),
-                      child: Container(
-                        child: Text(
-                          "Done",
-                          style: TextStyle(
-                            color: Colors.white,
+                  SizedBox(
+                    height: cHeight * 0.05,
+                  ),
+                  Text(
+                    "It includes requests and comments about your booking",
+                  ),
+                  SizedBox(
+                    height: cHeight * 0.04,
+                  ),
+                  TextFormField(
+                    controller: noteController,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value.length == 0) {
+                        return ('Enter information');
+                      } else {
+                        return null;
+                      }
+                    },
+                  ),
+                  SizedBox(
+                    height: cHeight * 0.1,
+                  ),
+                  Container(
+                    width: cWidth * 0.8,
+                    child: RaisedButton(
+                        onPressed: () {
+                          Navigator.pop(context, noteController.text);
+                        },
+                        textColor: Colors.white,
+                        padding: const EdgeInsets.all(0.0),
+                        child: Container(
+                          child: Text(
+                            "Done",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      )),
-                )
-              ],
+                        )),
+                  )
+                ],
+              ),
             ),
           ),
         ),
