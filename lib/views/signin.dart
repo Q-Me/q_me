@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qme/api/signin.dart';
 import 'package:qme/constants.dart';
+import 'package:qme/views/home.dart';
 import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signup.dart';
@@ -632,7 +633,7 @@ class _SignInScreenState extends State<SignInScreen>
                                                   print(response);
 
                                                   Navigator.pushNamed(
-                                                      context, NearbyScreen.id);
+                                                      context, HomeScreen.id);
                                                   Scaffold.of(context)
                                                       .showSnackBar(SnackBar(
                                                           content: Text(
