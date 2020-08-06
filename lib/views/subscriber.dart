@@ -214,10 +214,14 @@ class ReceptionsDisplay extends StatelessWidget {
                 );
                 break;
               case Status.COMPLETED:
-                return Column(
-                    children: List<ReceptionCard>.from(snapshot.data.data
-                        .map((item) => ReceptionCard(item))
-                        .toList()));
+                List<Reception> receptions = snapshot.data.data;
+                if (receptions.length == 0) {
+                  return Text('No Receptions available.');
+                } else
+                  return Column(
+                      children: List<ReceptionCard>.from(receptions
+                          .map((item) => ReceptionCard(item))
+                          .toList()));
                 break;
             }
           } else {

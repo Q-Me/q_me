@@ -71,7 +71,7 @@ class Subscriber extends ChangeNotifier {
       email: json["email"],
       phone: json["phone"],
       address: json["address"],
-      imgURL: json["imgURL"],
+      imgURL: json["profileImage"],
       latitude: json["latitude"] != null
           ? double.parse(json["latitude"].toString())
           : null,
@@ -95,7 +95,7 @@ class Subscriber extends ChangeNotifier {
         "email": email,
         "phone": phone,
         "address": address,
-        "imgURL": imgURL,
+        "profileImage": imgURL,
         "latitude": latitude,
         "longitude": longitude,
         "verified": verified == true ? 1 : 0,

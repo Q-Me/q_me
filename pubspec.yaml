@@ -51,12 +51,6 @@ dependencies:
   hive_flutter: ^0.3.1
   url_launcher: ^5.5.0
   checkbox_formfield: ^0.1.0+3
-
-
-
-  
-
-
   logger: ^0.9.1
   google_fonts: ^1.1.0
 

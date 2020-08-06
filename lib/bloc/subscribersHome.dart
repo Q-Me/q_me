@@ -43,6 +43,8 @@ class SubscribersBloc extends ChangeNotifier {
     try {
       List<Subscriber> subscribers =
           await _subscribersRepository.fetchSubscriberList();
+      _accessToken = await getAccessTokenFromStorage();
+
       subscriberList = subscribers;
       subscribersListSink.add(ApiResponse.completed(subscribers));
     } catch (e) {
