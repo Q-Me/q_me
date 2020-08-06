@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
+import 'package:qme/api/kAPI.dart';
 import 'package:qme/bloc/appointment.dart';
 import 'package:qme/bloc/booking_bloc.dart';
 import 'package:qme/bloc/cancel_bloc.dart';
@@ -89,13 +92,16 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
             ),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(48.0),
-              child: Text(
-                'Review and Confirm',
-                textAlign: TextAlign.left,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline4
-                    .copyWith(color: Colors.white),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                child: Text(
+                  'Review and Confirm',
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4
+                      .copyWith(color: Colors.white),
+                ),
               ),
             ),
           ),
@@ -119,7 +125,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                     Divider(),
                     ListTile(
                       title: Text(
-                        subscriber.name,
+                        subscriber.name.split("|").join(" "),
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 24),
                       ),
@@ -127,7 +133,14 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                       leading: ClipRRect(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                         child: CachedNetworkImage(
-                          imageUrl: 'https://picsum.photos/200',
+                          imageUrl: subscriber.imgURL != null
+                              ? '$baseURL/user/profileimage/${subscriber.imgURL}'
+                              : 'https://dontwaitapp.co/img/bank1080.png',
+                          fit: BoxFit.cover,
+                          httpHeaders: {
+                            HttpHeaders.authorizationHeader:
+                                'Bearer <Put access token here>}'
+                          },
                         ),
                       ),
                     ),

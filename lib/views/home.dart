@@ -180,9 +180,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 NeverScrollableScrollPhysics(),
                                             shrinkWrap: true,
                                             itemBuilder: (context, index) {
-                                              return SubscriberListItem(
-                                                subscriber:
-                                                    _bloc.subscriberList[index],
+                                              return Provider.value(
+                                                value: _bloc.accessToken,
+                                                child: SubscriberListItem(
+                                                  subscriber: _bloc
+                                                      .subscriberList[index],
+                                                ),
                                               );
                                             },
                                           );
@@ -209,7 +212,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-          ),AppointmentsHistoryScreen()
+          ),
+          AppointmentsHistoryScreen()
           // Column(
           //   children: <Widget>[
           //     Text('Your appointment history'),
