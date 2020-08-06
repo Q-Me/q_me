@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qme/api/signin.dart';
 import 'package:qme/constants.dart';
+import 'package:qme/views/home.dart';
 import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signup.dart';
@@ -102,15 +103,15 @@ class _SignInScreenState extends State<SignInScreen>
           Scaffold.of(context).showSnackBar(
               SnackBar(content: Text(exception.message.toString())));
         },
-        codeSent: (String verificationId, [int forceResendingToken]) async{
+        codeSent: (String verificationId, [int forceResendingToken]) async {
           // _authVar = _auth;
           // verificationIdVar = verificationId;
-           verificationIdOtp = verificationId;
+          verificationIdOtp = verificationId;
           authOtp = _auth;
           loginPage = "SignIn";
-                SharedPreferences prefs = await SharedPreferences.getInstance();
+          SharedPreferences prefs = await SharedPreferences.getInstance();
 
-           prefs.setString('fcmToken',_fcmToken );
+          prefs.setString('fcmToken', _fcmToken);
 
           setState(() {
             showOtpTextfield = true;
@@ -164,7 +165,7 @@ class _SignInScreenState extends State<SignInScreen>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomPadding: true,
         body: Builder(
           builder: (context) => SingleChildScrollView(
             child: Column(
@@ -348,13 +349,64 @@ class _SignInScreenState extends State<SignInScreen>
                                                   SnackBar(
                                                       content: Text(
                                                           'Processing Data')));
-                                                           final phone =
+                                              final phone =
                                                   _phoneController.text.trim();
                                               print("phone number: $phone");
-                                              loginUser(countryCodeVal + phone,
-                                                  context);
-                                                  
-                                                  Navigator.pushNamed(context, OtpPage.id);
+                                              showDialog(
+                                                  context: context,
+                                                  barrierDismissible: false,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      title: Text("Alert!"),
+                                                      content: Text(
+                                                          "You might receive an SMS message for verification and standard rates apply."),
+                                                      actions: <Widget>[
+                                                        FlatButton(
+                                                          child:
+                                                              Text("Disagree"),
+                                                          textColor:
+                                                              Colors.white,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .primaryColor,
+                                                          onPressed: () {
+                                                            Navigator
+                                                                .pushAndRemoveUntil(
+                                                                    context,
+                                                                    MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              SignInScreen(),
+                                                                    ),
+                                                                    (route) =>
+                                                                        false);
+                                                          },
+                                                        ),
+                                                        FlatButton(
+                                                          child: Text("Agree"),
+                                                          textColor:
+                                                              Colors.white,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .primaryColor,
+                                                          onPressed: () async {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            loginUser(
+                                                                countryCodeVal +
+                                                                    phone,
+                                                                context);
+
+                                                            Navigator.pushNamed(
+                                                                context,
+                                                                OtpPage.id);
+                                                          },
+                                                        ),
+                                                      ],
+                                                    );
+                                                  });
+
                                               // final code =
                                               //     _codeController.text.trim();
                                               // try {
@@ -596,7 +648,7 @@ class _SignInScreenState extends State<SignInScreen>
                                         borderRadius:
                                             BorderRadius.circular(20.0),
                                         shadowColor: Colors.blueAccent,
-                                        color:Theme.of(context).primaryColor,
+                                        color: Theme.of(context).primaryColor,
                                         elevation: 7.0,
                                         child: InkWell(
                                           onTap: () async {
@@ -632,7 +684,7 @@ class _SignInScreenState extends State<SignInScreen>
                                                   print(response);
 
                                                   Navigator.pushNamed(
-                                                      context, NearbyScreen.id);
+                                                      context, HomeScreen.id);
                                                   Scaffold.of(context)
                                                       .showSnackBar(SnackBar(
                                                           content: Text(
@@ -654,13 +706,18 @@ class _SignInScreenState extends State<SignInScreen>
                                                           .getInstance();
 
                                                   print(response);
-                                                  Scaffold.of(context)
-                                                      .showSnackBar(SnackBar(
-                                                          content: Text(
-                                                              "statusCode : " +
-                                                                  response[
-                                                                          'status']
-                                                                      .toString())));
+                                                  if (response['status'] ==
+                                                      401) {
+                                                    Scaffold.of(context)
+                                                        .showSnackBar(SnackBar(
+                                                            content: Text(
+                                                                "Invalid Credential")));
+                                                  } else
+                                                    Scaffold.of(context)
+                                                        .showSnackBar(SnackBar(
+                                                            content: Text(
+                                                                response['msg']
+                                                                    .toString())));
                                                   return print(
                                                       "error in Api hit");
                                                 }
