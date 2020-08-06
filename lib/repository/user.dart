@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,10 +79,20 @@ class UserRepository {
     } else {
       // invalid accessToken
       if (refreshToken != null) {
-        // Get new accessToken from refreshToken
-        final result = await accessTokenFromApi();
-        logger.i('new accessToken set to:$result');
-        return result != '-1' ? true : false;
+        try {
+          // Get new accessToken from refreshToken
+          final result = await accessTokenFromApi();
+          logger.i('new accessToken set to:$result');
+          return result != '-1' ? true : false;
+        } on BadRequestException catch (e) {
+          if (e.toMap()["error"] == "Invalid refresh token") {
+            logger.e(e.toMap()["error"]);
+          }
+          return false;
+        } catch (e) {
+          logger.e('Getting new accessToken from API failed\n' + e.toString());
+          return false;
+        }
       } else {
         return false;
       }
