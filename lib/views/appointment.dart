@@ -11,6 +11,7 @@ import 'package:qme/api/base_helper.dart';
 import 'package:qme/api/kAPI.dart';
 import 'package:qme/bloc/appointment.dart';
 import 'package:qme/bloc/booking_bloc.dart';
+import 'package:qme/bloc/note_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
@@ -21,7 +22,7 @@ import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/error.dart';
 import 'package:qme/widgets/loader.dart';
 
-var notes;
+String notes;
 
 class AppointmentScreen extends StatefulWidget {
   static const String id = '/appointment';
@@ -295,6 +296,20 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                       text: 'Cancel Appointment',
                                       buttonFunction: () async {
                                         logger.i('Button clicked');
+                                        // showCupertinoDialog(
+                                        //     context: context,
+                                        //     builder: (BuildContext context) {
+                                        //       return AlertDialog(
+                                        //         title: Text("Whoa, Hold On..."),
+                                        //         content: Text(
+                                        //             "Do you really want to cancel your appointment?"),
+                                        //         actions: <Widget>[
+                                        //           new FlatButton(
+                                        //               onPressed: null,
+                                        //               child: null)
+                                        //         ],
+                                        //       );
+                                        //     });
                                         BlocProvider.of<BookingBloc>(context)
                                             .add(CancelRequested(reception.id,
                                                 await getAccessTokenFromStorage()));
@@ -345,8 +360,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                       buttonFunction: () async {
                                         logger.i('Button clicked');
                                         BlocProvider.of<BookingBloc>(context)
-                                            .add(CancelRequested(
-                                                reception.id,
+                                            .add(CancelRequested(reception.id,
                                                 await getAccessTokenFromStorage()));
                                         BlocProvider.of<BookingBloc>(context)
                                             .add(BookingRefreshRequested());
@@ -380,7 +394,7 @@ class BookedAppointmentDetails extends StatelessWidget {
   }
 }
 
-class CustomerDetails extends StatelessWidget {
+class CustomerDetails extends StatefulWidget {
   const CustomerDetails({
     Key key,
     @required this.name,
@@ -388,27 +402,39 @@ class CustomerDetails extends StatelessWidget {
     this.note = '',
   });
   final String name, phone, note;
+
+  @override
+  _CustomerDetailsState createState() => _CustomerDetailsState();
+}
+
+class _CustomerDetailsState extends State<CustomerDetails> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        ListTile(
-          subtitle: Text('Customer Name'),
-          title: Text(name),
-        ),
-        ListTile(
-          subtitle: Text('Customer Phone'),
-          title: Text(phone),
-        ),
-        Divider(),
-        note != '' || note != null
-            ? ListTile(
+    return BlocProvider<NoteBloc>(
+      create: (context) => NoteBloc(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          ListTile(
+            subtitle: Text('Customer Name'),
+            title: Text(widget.name),
+          ),
+          ListTile(
+            subtitle: Text('Customer Phone'),
+            title: Text(widget.phone),
+          ),
+          Divider(),
+          BlocBuilder<NoteBloc, NoteState>(builder: (context, state) {
+            if (state is NoteAbsent) {
+              return ListTile(
                 onTap: () async {
                   print("printing booking note before");
                   final bookingNote = await Navigator.push(context,
                       MaterialPageRoute(builder: (context) => BookingNotes()));
                   notes = bookingNote;
+                  if (bookingNote != '') {
+                    BlocProvider.of<NoteBloc>(context).add(NoteAdded(notes));
+                  }
                 },
                 leading: Container(
                   height: 40,
@@ -427,18 +453,22 @@ class CustomerDetails extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
                 subtitle: Text(
-                  note,
+                  widget.note,
                   textAlign: TextAlign.left,
                 ),
                 trailing: Icon(Icons.arrow_forward_ios),
-              )
-            : ListTile(
+              );
+            } else if (state is NotePresent) {
+              return ListTile(
                 onTap: () async {
                   print("printing booking note before");
 
                   final bookingNote = await Navigator.push(context,
                       MaterialPageRoute(builder: (context) => BookingNotes()));
                   notes = bookingNote;
+                  if (bookingNote != '') {
+                    BlocProvider.of<NoteBloc>(context).add(NoteAdded(notes));
+                  }
                 },
                 leading: Container(
                   height: 40,
@@ -457,12 +487,15 @@ class CustomerDetails extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
                 subtitle: Text(
-                  'Add requirements',
+                  state.notes,
                   textAlign: TextAlign.left,
                 ),
                 trailing: Icon(Icons.arrow_forward_ios),
-              ),
-      ],
+              );
+            }
+          })
+        ],
+      ),
     );
   }
 }
@@ -520,69 +553,71 @@ class BookingNotes extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      body: Center(
-        child: Container(
-          // // color: _c,
+      body: SingleChildScrollView(
+              child: Center(
+          child: Container(
+            // // color: _c,
 
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  " Add Booking Note",
-                  style: TextStyle(
-                      // fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: cHeight * 0.05,
-                ),
-                Text(
-                  "It includes requests and comments about your booking",
-                ),
-                SizedBox(
-                  height: cHeight * 0.04,
-                ),
-                TextFormField(
-                  controller: noteController,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    " Add Booking Note",
+                    style: TextStyle(
+                        // fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold),
                   ),
-                  validator: (value) {
-                    if (value.length == 0) {
-                      return ('Enter information');
-                    } else {
-                      return null;
-                    }
-                  },
-                ),
-                SizedBox(
-                  height: cHeight * 0.1,
-                ),
-                Container(
-                  width: cWidth * 0.8,
-                  child: RaisedButton(
-                      onPressed: () {
-                        Navigator.pop(context, noteController.text);
-                      },
-                      textColor: Colors.white,
-                      padding: const EdgeInsets.all(0.0),
-                      child: Container(
-                        child: Text(
-                          "Done",
-                          style: TextStyle(
-                            color: Colors.white,
+                  SizedBox(
+                    height: cHeight * 0.05,
+                  ),
+                  Text(
+                    "It includes requests and comments about your booking",
+                  ),
+                  SizedBox(
+                    height: cHeight * 0.04,
+                  ),
+                  TextFormField(
+                    controller: noteController,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value.length == 0) {
+                        return ('Enter information');
+                      } else {
+                        return null;
+                      }
+                    },
+                  ),
+                  SizedBox(
+                    height: cHeight * 0.1,
+                  ),
+                  Container(
+                    width: cWidth * 0.8,
+                    child: RaisedButton(
+                        onPressed: () {
+                          Navigator.pop(context, noteController.text);
+                        },
+                        textColor: Colors.white,
+                        padding: const EdgeInsets.all(0.0),
+                        child: Container(
+                          child: Text(
+                            "Done",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      )),
-                )
-              ],
+                        )),
+                  )
+                ],
+              ),
             ),
           ),
         ),
