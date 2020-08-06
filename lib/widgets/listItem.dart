@@ -1,7 +1,11 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:qme/api/kAPI.dart';
+import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/views/subscriber.dart';
 import 'package:shimmer/shimmer.dart';
@@ -26,10 +30,16 @@ class SubscriberListItem extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   child: CachedNetworkImage(
-                    imageUrl: subscriber.imgURL ??
-                        'https://dontwaitapp.co/img/bank1080.png',
+                    imageUrl: subscriber.imgURL != null
+                        ? '$baseURL/user/profileimage/${subscriber.imgURL}'
+                        : 'https://dontwaitapp.co/img/bank1080.png',
+                    httpHeaders: {
+                      HttpHeaders.authorizationHeader:
+                          'Bearer ${Provider.of<SubscribersBloc>(context).accessToken}'
+                    },
                     height: SubscriberListItem.imgHeight,
                     width: SubscriberListItem.imgWidth,
+                    fit: BoxFit.cover,
                     placeholder: (context, url) => Shimmer.fromColors(
                         baseColor: Colors.grey[300],
                         highlightColor: Colors.grey[100],
@@ -41,8 +51,11 @@ class SubscriberListItem extends StatelessWidget {
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
                         )),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                    useOldImageOnUrlChange: true,
+                    errorWidget: (context, url, error) => Container(
+                      width: SubscriberListItem.imgWidth,
+                      height: SubscriberListItem.imgHeight,
+                      child: Icon(Icons.error),
+                    ),
                   ),
                 ),
                 Positioned(
