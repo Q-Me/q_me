@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:qme/utilities/logger.dart';
 
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
@@ -23,7 +24,7 @@ class SubscriberRepository {
       response = await _helper.post(kGetAllSubscribers,
           headers: {'Authorization': 'Bearer $accessToken'});
     }
-//    log('fetchSubscriberList repository: ${response.toString()}');
+    logger.d('fetchSubscriberList repository: ${response.toString()}');
 //    log("${Subscribers.fromJson(response).list[0].toJson()}");
     return Subscribers.fromJson(response).list;
   }
