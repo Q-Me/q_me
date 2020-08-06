@@ -12,11 +12,12 @@ import 'package:qme/services/analytics.dart';
 import 'package:qme/simple_bloc_observer.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/introSlider.dart';
 import 'package:qme/widgets/theme.dart';
 
 import 'views/home.dart';
 
-String initialHome = HomeScreen.id;
+String initialHome = IntroScreen.id;
 
 void main() async {
   Bloc.observer = SimpleBlocObserver();
