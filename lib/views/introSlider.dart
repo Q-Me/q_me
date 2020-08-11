@@ -40,13 +40,10 @@ class IntroScreenState extends State<IntroScreen> {
   }
 
   void onDonePress() {
-    // Back to the first tab
-    // this.goToTab(0);
     Navigator.pushNamed(context, SignInScreen.id);
   }
 
   void onTabChangeCompleted(index) {
-    // Index of current tab is focused
   }
 
   Widget renderNextBtn() {
@@ -79,7 +76,6 @@ class IntroScreenState extends State<IntroScreen> {
         width: double.infinity,
         height: double.infinity,
         child: Container(
-          //margin: EdgeInsets.only(bottom: 60.0, top: 60.0),
           child: ListView(
             children: <Widget>[
               GestureDetector(
@@ -97,41 +93,40 @@ class IntroScreenState extends State<IntroScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return new IntroSlider(
-      // List slides
-      slides: this.slides,
+    return Scaffold(
+      body: IntroSlider(
+          // List slides
+          slides: this.slides,
 
-      // Skip button
-      renderSkipBtn: this.renderSkipBtn(),
-      colorSkipBtn: Colors.blue[100],
-      highlightColorSkipBtn: Colors.blue[800],
+          // Skip button
+          renderSkipBtn: this.renderSkipBtn(),
+          colorSkipBtn: Colors.blue[100],
+          highlightColorSkipBtn: Colors.blue[800],
 
-      // Next button
-      renderNextBtn: this.renderNextBtn(),
+          // Next button
+          renderNextBtn: this.renderNextBtn(),
 
-      // Done button
-      renderDoneBtn: this.renderDoneBtn(),
-      onDonePress: this.onDonePress,
-      colorDoneBtn: Colors.blue[100],
-      highlightColorDoneBtn: Colors.blue[800],
+          // Done button
+          renderDoneBtn: this.renderDoneBtn(),
+          onDonePress: this.onDonePress,
+          colorDoneBtn: Colors.blue[100],
+          highlightColorDoneBtn: Colors.blue[800],
 
-      // Dot indicator
-      colorDot: Colors.blue[800],
-      sizeDot: 13.0,
-      typeDotAnimation: dotSliderAnimation.SIZE_TRANSITION,
+          // Dot indicator
+          colorDot: Colors.blue[800],
+          sizeDot: 13.0,
+          typeDotAnimation: dotSliderAnimation.SIZE_TRANSITION,
 
-      // Tabs
-      listCustomTabs: this.renderListCustomTabs(),
-      backgroundColorAllSlides: Colors.white,
-      refFuncGoToTab: (refFunc) {
-        this.goToTab = refFunc;
-      },
+          // Tabs
+          listCustomTabs: this.renderListCustomTabs(),
+         backgroundColorAllSlides: Colors.black12,
+          refFuncGoToTab: (refFunc) {
+            this.goToTab = refFunc;
+          },
 
-      // Show or hide status bar
-      shouldHideStatusBar: true,
-
-      // On tab change completed
-      onTabChangeCompleted: this.onTabChangeCompleted,
+          // On tab change completed
+          onTabChangeCompleted: this.onTabChangeCompleted,
+      ),
     );
   }
 }
