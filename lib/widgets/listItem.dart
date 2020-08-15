@@ -1,19 +1,27 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:qme/api/kAPI.dart';
+import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
-import 'package:qme/views/booking.dart';
+import 'package:qme/views/subscriber.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SubscriberListItem extends StatelessWidget {
   final Subscriber subscriber;
   SubscriberListItem({@required this.subscriber});
-
+  static const double imgHeight = 150.0, imgWidth = 150.0;
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7.0),
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, BookingScreen.id, arguments: subscriber);
+          Navigator.pushNamed(context, SubscriberScreen.id,
+              arguments: subscriber);
         },
         child: Row(
           children: <Widget>[
@@ -22,28 +30,51 @@ class SubscriberListItem extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   child: CachedNetworkImage(
-                    imageUrl: subscriber.imgURL ??
-                        'https://dontwaitapp.co/img/bank1080.png',
-                    height: 150,
-                    width: 150,
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    imageUrl: subscriber.imgURL != null
+                        ? '$baseURL/user/profileimage/${subscriber.imgURL}'
+                        : 'https://dontwaitapp.co/img/bank1080.png',
+                    httpHeaders: {
+                      HttpHeaders.authorizationHeader:
+                          'Bearer ${Provider.of<SubscribersBloc>(context).accessToken}'
+                    },
+                    height: SubscriberListItem.imgHeight,
+                    width: SubscriberListItem.imgWidth,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300],
+                        highlightColor: Colors.grey[100],
+                        child: Container(
+                          width: SubscriberListItem.imgWidth,
+                          height: SubscriberListItem.imgHeight,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        )),
+                    errorWidget: (context, url, error) => Container(
+                      width: SubscriberListItem.imgWidth,
+                      height: SubscriberListItem.imgHeight,
+                      child: Icon(Icons.error),
+                    ),
                   ),
                 ),
                 Positioned(
                   right: 0,
                   top: 0,
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black26,
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                      ),
-                      margin: EdgeInsets.all(5),
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        'New',
-                        style: TextStyle(color: Colors.white),
-                      )),
+                  child: subscriber.verified
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black26.withOpacity(0.5),
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+                          margin: EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            subscriber.verified ? 'Verified' : 'Unverified',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : Container(),
                 ),
               ],
             ),

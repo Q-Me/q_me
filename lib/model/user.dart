@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:developer';
 
+import 'package:qme/utilities/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserData {
@@ -51,7 +51,7 @@ Future<void> storeUserData(UserData userData) async {
   if (userData.email != null) prefs.setString('isUser', userData.email);
   if (userData.phone != null) prefs.setString('isUser', userData.phone);
 
-  log('Storing user data success');
+  logger.d('Storing user data success');
 
   return;
 }

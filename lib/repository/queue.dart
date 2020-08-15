@@ -1,21 +1,20 @@
 import 'dart:collection';
-import 'dart:developer';
 
-import '../api/base_helper.dart';
-import '../api/endpoints.dart';
-import '../model/queue.dart';
-import '../model/user.dart';
+import 'package:qme/api/base_helper.dart';
+import 'package:qme/api/endpoints.dart';
+import 'package:qme/model/queue.dart';
+import 'package:qme/model/user.dart';
 
 class QueuesListRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
 
   Future<List<Queue>> fetchQueueList(String subscriberId, String status) async {
-    final UserData userData = await getUserDataFromStorage();
-    log('User token is ${userData.accessToken}\nSubscriber ID is $subscriberId\nStatus is $status');
+    final String accessToken = await getAccessTokenFromStorage();
+//    log('User token is ${accessToken}\nSubscriber ID is $subscriberId\nStatus is $status');
 
     final response = await _helper.post(
       getAllSubscriberQueues,
-      headers: {'Authorization': 'Bearer ${userData.accessToken}'},
+      headers: {'Authorization': 'Bearer $accessToken'},
       req: {'subscriber_id': subscriberId, 'status': status},
     );
 
@@ -33,10 +32,10 @@ class QueueRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
 
   Future<Queue> fetchQueue(String queueId) async {
-    final UserData userData = await getUserDataFromStorage();
+    final String accessToken = await getAccessTokenFromStorage();
     final response = await _helper.post(
       getQueue,
-      headers: {'Authorization': 'Bearer ${userData.accessToken}'},
+      headers: {'Authorization': 'Bearer $accessToken'},
       req: {'queue_id': queueId},
     );
 //    log('Queue Repo($queueId): $response');

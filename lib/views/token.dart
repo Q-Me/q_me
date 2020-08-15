@@ -1,20 +1,20 @@
-import 'dart:ui';
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../api/base_helper.dart';
-import '../bloc/queue.dart';
-import '../model/token.dart';
-
-import '../model/queue.dart';
-import '../constants.dart';
-import '../widgets/dash.dart';
-import '../widgets/loader.dart';
-import '../widgets/customStreamBuilder.dart';
-import '../widgets/error.dart';
-import '../utilities/time.dart';
+import 'package:qme/api/base_helper.dart';
+import 'package:qme/bloc/queue.dart';
+import 'package:qme/constants.dart';
+import 'package:qme/model/queue.dart';
+import 'package:qme/model/token.dart';
+import 'package:qme/utilities/logger.dart';
+import 'package:qme/utilities/time.dart';
+import 'package:qme/widgets/customStreamBuilder.dart';
+import 'package:qme/widgets/dash.dart';
+import 'package:qme/widgets/error.dart';
+import 'package:qme/widgets/loader.dart';
 
 /*
 Display the token number, ETA, Distance
@@ -38,7 +38,7 @@ class _TokenScreenState extends State<TokenScreen> {
     ),
   );
 
-  QueueBloc _queueDetailsBloc; //TODO Provide this
+  QueueBloc _queueDetailsBloc;
 
   @override
   void initState() {
@@ -268,7 +268,6 @@ class GetTokenButton extends StatelessWidget {
         elevation: 7.0,
         child: InkWell(
           onTap: () {
-            // TODO Call api to get token
             _queueDetailsBloc.joinQueue();
           },
           child: Padding(
@@ -311,8 +310,7 @@ class CancelTokenButton extends StatelessWidget {
         color: Colors.white,
         child: InkWell(
           onTap: () {
-            // TODO Call api to join queue
-            log('Calling cancel token on ${_queueDetailsBloc.queueId}');
+            logger.i('Calling cancel token on ${_queueDetailsBloc.queueId}');
             _queueDetailsBloc.cancelToken();
           },
           child: Padding(
@@ -411,14 +409,14 @@ class Grid2x2 extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
                 child: Grid2x2Item(
                   'Starts at',
-                  '${getTime(queue.startDateTime)}',
+                  '${getTimeAmPm(queue.startDateTime)}',
                   '${getDate(queue.startDateTime)}',
                 )),
             Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 8.0),
                 child: Grid2x2Item(
                   'Ends at',
-                  '${getTime(queue.endDateTime)}',
+                  '${getTimeAmPm(queue.endDateTime)}',
                   '${getDate(queue.endDateTime)}',
                 )),
           ]),
@@ -434,7 +432,7 @@ class Grid2x2 extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 0.0),
                 child: Grid2x2Item(
                   'Your turn may come at',
-                  getTime(DateTime.now().add(queue.eta)).toString(),
+                  getTimeAmPm(DateTime.now().add(queue.eta)).toString(),
                   getDate(DateTime.now().add(queue.eta)).toString(),
                 )),
           ])

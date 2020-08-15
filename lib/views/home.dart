@@ -1,12 +1,20 @@
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
-import 'package:qme/bloc/subscriber.dart';
+import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/utilities/logger.dart';
+import 'package:qme/views/appointmentHistory.dart';
+import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/categories.dart';
 import 'package:qme/widgets/listItem.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/error.dart';
 import '../widgets/headerHome.dart';
@@ -20,112 +28,211 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   SubscribersBloc _bloc;
+  bool _enabled;
+  int _selectedIndex = 0;
+  // var box = Hive.box('user');
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      logger.d('Navigation bar index: $_selectedIndex');
+    });
+  }
+
+  final FirebaseMessaging _messaging = FirebaseMessaging();
+  var _fcmToken;
   @override
   void initState() {
     _bloc = SubscribersBloc();
+    _enabled = true;
     super.initState();
+    firebaseCloudMessagingListeners();
+    _messaging.getToken().then((token) {
+      logger.i("fcmToken: $token");
+      _fcmToken = token;
+      verifyFcmTokenChange(_fcmToken);
+    });
+  }
+
+  void verifyFcmTokenChange(String _fcmToken) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var fcmToken = prefs.getString('fcmToken');
+    logger.i("verify fcm: $fcmToken\nverify _fcm: $_fcmToken");
+    if (fcmToken != _fcmToken) {
+      Navigator.pushNamed(context, SignInScreen.id);
+    }
+  }
+
+  void firebaseCloudMessagingListeners() {
+    if (Platform.isIOS) iosPermission();
+
+    _messaging.getToken().then((token) {
+      logger.i(token);
+    });
+
+    _messaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        //showNotification(message['notification']);
+        logger.i('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        logger.i('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        logger.i('on launch $message');
+      },
+    );
+  }
+
+  void iosPermission() {
+    _messaging.requestNotificationPermissions(
+      IosNotificationSettings(sound: true, badge: true, alert: true),
+    );
+    _messaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      logger.i("Settings registered: $settings");
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final offset = MediaQuery.of(context).size.width / 20;
+    // String name = box.get('name');
     return SafeArea(
       child: Scaffold(
-        body: SingleChildScrollView(
-          physics: ScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: offset),
-            child: ChangeNotifierProvider.value(
-              value: _bloc,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Header(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Hello!',
-                            style: TextStyle(
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text('Let\'s save some of your time and effort.'),
-                          SizedBox(height: 10),
-                          /*SearchBox(),*/
-                          /*
+        body: [
+          SingleChildScrollView(
+            physics: ScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: offset),
+              child: ChangeNotifierProvider.value(
+                value: _bloc,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Header(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            // const Text(
+                            //   'Hi name...',
+                            //   style: TextStyle(
+                            //     fontSize: 40,
+                            //     fontWeight: FontWeight.bold,
+                            //   ),
+                            // ),
+                           
+                            const Text(
+                                'Let\'s save some of your time and effort.'),
+                            const SizedBox(height: 10),
+                            /*SearchBox(),*/
+                            /*
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 15),
                         child: Badges(),
                       ),
                       */
-                        ],
-                      ),
-                      Container(
-                        child: Text(
-                          'Saloons in Patna',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w800),
+                          ],
                         ),
-                      ),
-                      StreamBuilder<ApiResponse<List<Subscriber>>>(
-                          stream: _bloc.subscribersListStream,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              switch (snapshot.data.status) {
-                                case Status.LOADING:
-                                  return Loading(
-                                      loadingMessage: snapshot.data.message);
-                                  break;
-                                case Status.COMPLETED:
-                                  if (_bloc.subscriberList.length == 0) {
-                                    return Text(
-                                      'Sorry. We found nothing as per your search.',
-                                      maxLines: 3,
-                                      overflow: TextOverflow.clip,
-                                      style: TextStyle(fontSize: 18),
-                                    );
-                                  } else {
-                                    return ListView.builder(
-                                      itemCount: _bloc.subscriberList.length,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) {
-                                        return SubscriberListItem(
-                                          subscriber:
-                                              _bloc.subscriberList[index],
+                         SizedBox(height: 30,),
+                        Container(
+                          child: const Text(
+                            'Saloons in Patna',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        _bloc.subscriberList != null &&
+                                _bloc.subscriberList.length != 0
+                            ? ListView.builder(
+                                itemCount: _bloc.subscriberList.length,
+                                physics: NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  return SubscriberListItem(
+                                      subscriber: _bloc.subscriberList[index]);
+                                },
+                              )
+                            : StreamBuilder<ApiResponse<List<Subscriber>>>(
+                                stream: _bloc.subscribersListStream,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    switch (snapshot.data.status) {
+                                      case Status.LOADING:
+                                        return ShimmerListLoader(_enabled);
+                                        break;
+                                      case Status.COMPLETED:
+                                        _enabled = false;
+                                        if (_bloc.subscriberList.length == 0) {
+                                          return Text(
+                                            'Sorry. We found nothing as per your search.',
+                                            maxLines: 3,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(fontSize: 18),
+                                          );
+                                        } else {
+                                          return ListView.builder(
+                                            itemCount:
+                                                _bloc.subscriberList.length,
+                                            physics:
+                                                NeverScrollableScrollPhysics(),
+                                            shrinkWrap: true,
+                                            itemBuilder: (context, index) {
+                                              return Provider.value(
+                                                value: _bloc.accessToken,
+                                                child: SubscriberListItem(
+                                                  subscriber: _bloc
+                                                      .subscriberList[index],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                        break;
+                                      case Status.ERROR:
+                                        return Error(
+                                          errorMessage: snapshot.data.message,
+                                          onRetryPressed: () =>
+                                              _bloc.fetchSubscribersList(),
                                         );
-                                      },
-                                    );
+                                        break;
+                                      default:
+                                        return Text(
+                                            'Has data but it is invalid');
+                                    }
+                                  } else {
+                                    return Text('No snapshot data');
                                   }
-                                  break;
-                                case Status.ERROR:
-                                  return Error(
-                                    errorMessage: snapshot.data.message,
-                                    onRetryPressed: () =>
-                                        _bloc.fetchSubscribersList(),
-                                  );
-                                  break;
-                                default:
-                                  return Text('Has data but it is invalid');
-                              }
-                            } else {
-                              return Text('No snapshot data');
-                            }
-                          }),
-                    ],
-                  ),
-                ],
+                                }),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
+          AppointmentsHistoryScreen()
+          // Column(
+          //   children: <Widget>[
+          //     Text('Your appointment history'),
+          //     Text('Hello'),
+          //   ],
+          // ),
+        ].elementAt(_selectedIndex),
+        bottomNavigationBar: CupertinoTabBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(icon: Icon(Icons.home)),
+            BottomNavigationBarItem(icon: Icon(Icons.person)),
+          ],
         ),
       ),
     );

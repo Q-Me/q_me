@@ -13,4 +13,6 @@ const String kSignUp = '/user/signupfirebase';
 const String kSignIn = '/user/login';
 const String signInPasswordUrl = '/user/login';
 const String signInOtpUrl = '/user/loginfirebase';
+const String fcmUrl = '/user/fcm';
+const String appHistory = '/user/slot/slots';
 

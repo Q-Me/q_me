@@ -1,6 +1,9 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:io';
 
+import 'package:qme/api/app_exceptions.dart';
+import 'package:qme/model/appointment.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/base_helper.dart';
@@ -10,18 +13,25 @@ import '../model/user.dart';
 class UserRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
 
-  Future<UserData> fetchProfile() async {
-    final UserData userData = await getUserDataFromStorage();
-    dynamic response = await _helper.post(kProfile,
-        headers: {'Authorization': 'Bearer ${userData.accessToken}'});
-    return UserData.fromJson(response);
+  Future<UserData> fetchProfile(String accessToken) async {
+    final response = await _helper.post(kProfile,
+        headers: {HttpHeaders.authorizationHeader: bearerToken(accessToken)});
+    return UserData(
+      name: response["name"],
+      phone: response["phone"],
+      email: response["email"],
+    );
   }
 
   Future<String> accessTokenFromApi() async {
     final UserData userData = await getUserDataFromStorage();
-    final response = await _helper.post(kAccessToken,
-        headers: {'Authorization': 'Bearer ${userData.refreshToken}'});
-    storeUserData(UserData.fromJson(response));
+    final response = await _helper.post(
+      kAccessToken,
+      headers: {
+        HttpHeaders.authorizationHeader: bearerToken(userData.refreshToken)
+      },
+    );
+    await storeUserData(UserData.fromJson(response));
     return response['accessToken'];
   }
 
@@ -37,12 +47,29 @@ class UserRepository {
     return response;
   }
 
+  Future<List<Appointment>> fetchAppointments(List<String> status) async {
+    final String accessToken = await getAccessTokenFromStorage();
+    final response = await _helper.post(
+      '/user/slot/slots',
+      req: {"status": status.length != 4 ? status : "ALL"},
+      headers: {HttpHeaders.authorizationHeader: bearerToken(accessToken)},
+    );
+    List<Appointment> appointments = [];
+    for (var map in response["slots"]) {
+      appointments.add(Appointment.fromMap(Map.from(map)));
+    }
+    return appointments;
+  }
+
   Future<bool> isSessionReady() async {
+    // If the session is not ready then try to set the session and after
+    // successful session set return true else return false
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final expiry = prefs.getString('expiry');
     final refreshToken = prefs.getString('refreshToken');
     final accessToken = prefs.getString('accessToken');
-//    log('In storage:\nexpiry:$expiry\nrefreshToken:$refreshToken\naccessToken:$accessToken');
+    logger.d(
+        'In storage:\nexpiry:$expiry\nrefreshToken:$refreshToken\naccessToken:$accessToken');
     if (expiry != null &&
         DateTime.now().isBefore(DateTime.parse(expiry)) &&
         accessToken != null) {
@@ -52,10 +79,20 @@ class UserRepository {
     } else {
       // invalid accessToken
       if (refreshToken != null) {
-        // Get new accessToken from refreshToken
-        final result = await accessTokenFromApi();
-        log('new accessToken:$result');
-        return result != '-1' ? true : false;
+        try {
+          // Get new accessToken from refreshToken
+          final result = await accessTokenFromApi();
+          logger.i('new accessToken set to:$result');
+          return result != '-1' ? true : false;
+        } on BadRequestException catch (e) {
+          if (e.toMap()["error"] == "Invalid refresh token") {
+            logger.e(e.toMap()["error"]);
+          }
+          return false;
+        } catch (e) {
+          logger.e('Getting new accessToken from API failed\n' + e.toString());
+          return false;
+        }
       } else {
         return false;
       }

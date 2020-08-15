@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
+import 'package:qme/utilities/logger.dart';
+
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
 import '../model/subscriber.dart';
 import '../model/user.dart';
 import '../repository/user.dart';
 
-class SubscribersRepository {
+class SubscriberRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
 
   Future<List<Subscriber>> fetchSubscriberList({String accessToken}) async {
@@ -21,9 +24,21 @@ class SubscribersRepository {
       response = await _helper.post(kGetAllSubscribers,
           headers: {'Authorization': 'Bearer $accessToken'});
     }
-//    log('fetchSubscriberList repository: ${response.toString()}');
+    logger.d('fetchSubscriberList repository: ${response.toString()}');
 //    log("${Subscribers.fromJson(response).list[0].toJson()}");
     return Subscribers.fromJson(response).list;
+  }
+
+  Future<Subscriber> fetchSubscriberDetails(
+      {@required String subscriberId}) async {
+    final String accessToken = await getAccessTokenFromStorage();
+    final response = await _helper.post(
+      '/user/getsubscriber',
+      req: {"subscriber_id": subscriberId},
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    return Subscriber.fromJson(response);
   }
 
   Future<List<Subscriber>> subscriberListByLocation({
@@ -56,17 +71,5 @@ class SubscribersRepository {
       headers: {'Authorization': 'Bearer $accessToken'},
     );
     return Subscribers.fromJson(response).list;
-  }
-}
-
-class SingleSubscriberRepository {
-  ApiBaseHelper _helper = ApiBaseHelper();
-
-  Future<Subscriber> fetchSubscriber(String subscriberId) async {
-    final UserData userData = await getUserDataFromStorage();
-    final response = await _helper.post(kGetSubscriberFromId,
-        headers: {'Authorization': 'Bearer ${userData.accessToken}'},
-        req: {'subscriber_id': subscriberId});
-    return Subscriber.fromJson(response);
   }
 }

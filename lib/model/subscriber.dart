@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 Subscribers subscribersFromJson(String str) =>
     Subscribers.fromJson(json.decode(str));
 
@@ -23,7 +25,7 @@ class Subscribers {
       };
 }
 
-class Subscriber {
+class Subscriber extends ChangeNotifier {
   String id,
       name,
       description,
@@ -36,6 +38,7 @@ class Subscriber {
       category;
   double latitude, longitude;
   bool verified;
+  List<String> displayImages;
 
   Subscriber({
     this.id,
@@ -45,12 +48,13 @@ class Subscriber {
     this.email,
     this.phone,
     this.address,
-    this.imgURL,
-    this.latitude,
     this.longitude,
-    this.verified,
+    this.latitude,
     this.category,
+    this.imgURL,
+    this.verified,
     this.distance,
+    this.displayImages,
   });
 
   factory Subscriber.fromJson(Map<String, dynamic> json) {
@@ -67,7 +71,7 @@ class Subscriber {
       email: json["email"],
       phone: json["phone"],
       address: json["address"],
-      imgURL: json["imgURL"],
+      imgURL: json["profileImage"],
       latitude: json["latitude"] != null
           ? double.parse(json["latitude"].toString())
           : null,
@@ -78,6 +82,9 @@ class Subscriber {
       description: json["description"],
       category: json["category"],
       distance: distance,
+      displayImages: json["displayImages"] != null
+          ? List<String>.from(json["displayImages"])
+          : null,
     );
   }
 
@@ -88,12 +95,13 @@ class Subscriber {
         "email": email,
         "phone": phone,
         "address": address,
-        "imgURL": imgURL,
+        "profileImage": imgURL,
         "latitude": latitude,
         "longitude": longitude,
         "verified": verified == true ? 1 : 0,
         "distance": distance,
         "description": description,
         "category": category,
+        "displayImages": displayImages,
       };
 }
