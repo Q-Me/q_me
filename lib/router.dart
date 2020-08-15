@@ -6,6 +6,7 @@ import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/profile.dart';
+import 'package:qme/views/review.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/views/subscriber.dart';
@@ -87,7 +88,15 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         builder: (context) => IntroScreen(),
         settings: RouteSettings(name: IntroScreen.id),
       );
-
+    case ReviewScreen.id:
+          Map<String, dynamic> arguments = settings.arguments;
+      return MaterialPageRoute(builder: (context) => ReviewScreen(
+        subscriberId: arguments['subscriberId'],
+        receptionId: arguments['receptionId'],
+        name: arguments['name'],
+        subscriberName: arguments['subscriberName'],
+      ),
+      settings: RouteSettings(name: ReviewScreen.id));
     default:
       return MaterialPageRoute(
         builder: (context) => UndefinedView(name: settings.name),

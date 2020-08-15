@@ -3,6 +3,7 @@ import 'package:qme/repository/appointment.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 class ReviewScreen extends StatefulWidget {
+  static const String id = "/reviewScreen";
   const ReviewScreen(
       {Key key,
       this.slotTiming,
