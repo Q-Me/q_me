@@ -63,11 +63,10 @@ class AppointmentRepository {
     return response;
   }
 
-  Future checkSlot({
-    @required String counterId,
-    @required String status,
-    @required accessToken
-    }) async {
+  Future checkSlot(
+      {@required String counterId,
+      @required String status,
+      @required accessToken}) async {
     final response = await _helper.post('/user/slot/counterslots',
         req: {
           "counter_id": counterId,
@@ -127,6 +126,25 @@ class AppointmentRepository {
       headers: {'Authorization': 'Bearer $_accessToken'},
     );
     return response;
+  }
+
+  Future review(
+      {@required String counterId,
+      @required String subscriberId,
+      @required String rate,
+      @required String slotStartTime,
+      String review}) async {
+    final String _accessToken = await getAccessTokenFromStorage();
+    final response = await _helper.post(
+      '/user/rating/rate',
+      req: {
+        "counter_id": counterId,
+        "subscriber_id": subscriberId,
+        "review": review,
+        "rating": rate
+      },
+      headers: {'Authorization': 'Bearer $_accessToken'},
+    );
   }
 }
 

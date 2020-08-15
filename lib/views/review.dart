@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qme/repository/appointment.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -88,7 +89,19 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   height: cHeight * 0.07,
                   width: double.infinity,
                   child: RaisedButton(
-                    onPressed: null,
+                    onPressed: () async {
+                      try {
+                        var response = await AppointmentRepository().review(
+                            counterId: receptionId,
+                            subscriberId: subscriberId,
+                            rate: stars.toString(),
+                            slotStartTime: slotTiming,
+                            review: controller.text);
+                        Scaffold.of(context).showSnackBar(SnackBar(content: response));
+                      } catch (e) {
+                        Scaffold.of(context).showSnackBar(SnackBar(content: e));
+                      }
+                    },
                     child: Text("Submit"),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20)),
