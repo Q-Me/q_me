@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/subscribersHome.dart';
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   SubscribersBloc _bloc;
   bool _enabled;
   int _selectedIndex = 0;
+  // var box = Hive.box('user');
 
   void _onItemTapped(int index) {
     setState(() {
@@ -95,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final offset = MediaQuery.of(context).size.width / 20;
+    // String name = box.get('name');
     return SafeArea(
       child: Scaffold(
         body: [
@@ -116,13 +119,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            const Text(
-                              'Hello!',
-                              style: TextStyle(
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            // const Text(
+                            //   'Hi name...',
+                            //   style: TextStyle(
+                            //     fontSize: 40,
+                            //     fontWeight: FontWeight.bold,
+                            //   ),
+                            // ),
+                           
                             const Text(
                                 'Let\'s save some of your time and effort.'),
                             const SizedBox(height: 10),
@@ -135,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       */
                           ],
                         ),
+                         SizedBox(height: 30,),
                         Container(
                           child: const Text(
                             'Saloons in Patna',
