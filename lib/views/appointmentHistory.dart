@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/api/endpoints.dart';
 import 'package:qme/model/user.dart';
+import 'package:qme/views/review.dart';
 
 class AppointmentsHistoryScreen extends StatefulWidget {
   @override
@@ -194,7 +195,12 @@ Widget listElement(
       vertical: cHeight * 0.005,
     ),
     child: InkWell(
-      onTap: null,
+      onTap: () {
+        Navigator.pushNamed(context, ReviewScreen.id,
+        //arguments: 
+        //TODO Arguments for route
+        );
+      },
       child: Card(
         child: Padding(
           padding: EdgeInsets.symmetric(
