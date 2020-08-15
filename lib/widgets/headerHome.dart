@@ -3,15 +3,21 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 class Header extends StatelessWidget {
-  const Header({
-    Key key,
-  }) : super(key: key);
+  final String name;
+  const Header({Key key, this.name}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
+        Text(
+          'Hi $name...',
+          style: TextStyle(
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         SizedBox(height: 45, width: 45),
         Spacer(),
         Container(
