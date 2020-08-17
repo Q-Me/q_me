@@ -41,7 +41,6 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     try {
       booking = await appointmentRepository.checkSlot(
           counterId: event.counterId,
-          accessToken: event.accessToken,
           status: "ALL");
       final detail =
           Appointment.fromMap(booking["slots"][(booking["slots"].length) - 1]);
@@ -64,8 +63,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
             subscriberId: event.subscriberId,
             startTime: event.startTime,
             endTime: event.endTime,
-            note: event.note,
-            accessToken: event.accessToken);
+            note: event.note,);
         logger.i(bookingResponse);
         final msg = bookingResponse["msg"];
         final details = Appointment.fromMap(bookingResponse["slot"]);

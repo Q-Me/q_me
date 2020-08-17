@@ -53,7 +53,9 @@ dependencies:
   checkbox_formfield: ^0.1.0+3
   logger: ^0.9.1
   google_fonts: ^1.1.0
-  smooth_star_rating: ^1.1.1
+  font_awesome_flutter: ^8.8.1
+  flutter_rating_bar: ^3.0.1+1
+  flare_flutter: ^2.0.6
 
 dev_dependencies:
   flutter_test:
@@ -66,7 +68,13 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
+  fonts:
+    - family: Avenir
+      fonts:
+        - asset: fonts/Avenir-85-Heavy.ttf
+    - family: AvenirLight
+      fonts:
+        - asset: fonts/Avenir-35-Light.ttf
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -80,6 +88,7 @@ flutter:
    - assets/temp/introSlider1.png
    - assets/temp/introSlider2.png
    - assets/temp/introSlider3.png
+   - assets/blue-tick.flr
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

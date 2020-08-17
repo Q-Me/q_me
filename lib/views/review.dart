@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qme/repository/appointment.dart';
-import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 class ReviewScreen extends StatefulWidget {
   static const String id = "/reviewScreen";
@@ -32,112 +33,156 @@ class _ReviewScreenState extends State<ReviewScreen> {
   final TextEditingController controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    var cHeight = MediaQuery.of(context).size.height;
-    var cWidth = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.transparent,
           elevation: 0,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: FaIcon(
+                FontAwesomeIcons.angleLeft,
+                color: Colors.black,
+                size: 40,
+              ),
+            ),
+          ),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Hi $name, rate your experience with $subscriberName",
-                  style: TextStyle(fontSize: ((cHeight + cWidth) / 2) * 0.05),
-                ),
-              ),
-              Container(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SmoothStarRating(
-                    size: 40,
-                    allowHalfRating: true,
-                    color: Colors.blue,
-                    borderColor: Colors.blue,
-                    onRated: (rating) {
-                      setState(() {
-                        stars = rating;
-                      });
-                    },
+        body: ScrollConfiguration(
+          behavior: ScrollingEffectsDisabled(),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: width,
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      Text(
+                        "$subscriberName",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "Patna, Bihar",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold),
+                      )
+                    ],
                   ),
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.all(10),
-                child: TextField(
-                  controller: controller,
-                  decoration: InputDecoration(
+                SizedBox(
+                  height: 30,
+                ),
+                listItem(FontAwesomeIcons.solidCalendarAlt, "24 July 2020"),
+                listItem(FontAwesomeIcons.clock, "11:30 AM"),
+                SizedBox(
+                  height: 30,
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Text(
+                      "Would you like to rate them?",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+                RatingBar(
+                  onRatingUpdate: (rating) {
+                    print(rating);
+                    stars = rating;
+                  },
+                  ratingWidget: RatingWidget(
+                      full: FaIcon(
+                        FontAwesomeIcons.solidStar,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      half: FaIcon(
+                        FontAwesomeIcons.solidStarHalf,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      empty: FaIcon(
+                        FontAwesomeIcons.star,
+                      )),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: TextField(
+                    controller: controller,
+                    minLines: 5,
+                    maxLines: 6,
+                    decoration: InputDecoration(
+                      hintText: "Write your review here. It will help others.",
                       border: new OutlineInputBorder(
-                          borderSide: new BorderSide(color: Colors.blue)),
-                      hintText:
-                          "Enter your review here. Your review will help others..."),
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 10,
-                  minLines: 5,
-                ),
-              ),
-              Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: SizedBox(
-                  height: cHeight * 0.07,
-                  width: double.infinity,
-                  child: RaisedButton(
-                    onPressed: () async {
-                      try {
-                        var response = await AppointmentRepository().review(
-                            counterId: receptionId,
-                            subscriberId: subscriberId,
-                            rate: stars.toString(),
-                            slotStartTime: slotTiming,
-                            review: controller.text);
-                        Scaffold.of(context).showSnackBar(SnackBar(content: response));
-                      } catch (e) {
-                        Scaffold.of(context).showSnackBar(SnackBar(content: e));
-                      }
-                    },
-                    child: Text("Submit"),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                          borderSide:
+                              BorderSide(color: Theme.of(context).primaryColor),
+                          borderRadius: BorderRadius.circular(8)),
+                    ),
                   ),
                 ),
-              ),
-              Spacer(
-                flex: 1,
-              ),
-              Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  "Found this app convenient?",
-                  style: TextStyle(fontSize: ((cHeight + cWidth) / 2) * 0.03),
-                ),
-              ),
-              Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: cHeight * 0.07,
-                  child: RaisedButton(
-                    onPressed: null,
-                    child: Text("Refer a friend"),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                RaisedButton(
+                  onPressed: () {},
+                  color: Theme.of(context).primaryColor,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 35, vertical: 20),
+                    child: Text(
+                      "Submit",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ),
-                ),
-              )
-            ],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                )
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget listItem(IconData icon, String description) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.fromLTRB(60, 20, 20, 0),
+      child: Row(
+        children: [
+          FaIcon(
+            icon,
+            size: 40,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+            child: Text(description, style: TextStyle(fontSize: 16)),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ScrollingEffectsDisabled extends ScrollBehavior {
+  @override
+  Widget buildViewportChrome(
+      BuildContext context, Widget child, AxisDirection axisDirection) {
+    return child;
   }
 }

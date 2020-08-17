@@ -10,6 +10,7 @@ import 'package:qme/views/review.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/views/subscriber.dart';
+import 'package:qme/views/success.dart';
 import 'package:qme/views/token.dart';
 import 'package:qme/views/unknown.dart';
 
@@ -89,14 +90,21 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: IntroScreen.id),
       );
     case ReviewScreen.id:
-          Map<String, dynamic> arguments = settings.arguments;
-      return MaterialPageRoute(builder: (context) => ReviewScreen(
-        subscriberId: arguments['subscriberId'],
-        receptionId: arguments['receptionId'],
-        name: arguments['name'],
-        subscriberName: arguments['subscriberName'],
-      ),
-      settings: RouteSettings(name: ReviewScreen.id));
+      Map<String, dynamic> arguments = settings.arguments;
+      return MaterialPageRoute(
+          builder: (context) => ReviewScreen(
+                subscriberId: arguments['subscriberId'],
+                receptionId: arguments['receptionId'],
+                name: arguments['name'],
+                subscriberName: arguments['subscriberName'],
+              ),
+          settings: RouteSettings(name: ReviewScreen.id));
+    case BookingSuccess.id:
+      Map<String, dynamic> arguments = settings.arguments;
+      return MaterialPageRoute(
+          builder: (context) => BookingSuccess(otp: arguments['otp']),
+          settings: RouteSettings(name: BookingSuccess.id));
+
     default:
       return MaterialPageRoute(
         builder: (context) => UndefinedView(name: settings.name),

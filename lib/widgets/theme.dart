@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 final myTheme = ThemeData(
 // Define the default brightness and colors.
   brightness: Brightness.light,
-  primaryColor: Colors.lightBlue[800],
+  primaryColor: Color.fromRGBO(9, 79, 239, 1),
   accentColor: Colors.cyan[600],
   textTheme: TextTheme(bodyText1: GoogleFonts.openSans()),
   buttonTheme: ButtonThemeData(
@@ -13,7 +13,7 @@ final myTheme = ThemeData(
   ),
 
 // Define the default font family.
-  fontFamily: 'Montserrat',
+  fontFamily: 'Avenir',
 
 // Define the default TextTheme. Use this to specify the default
 // text styling for headlines, titles, bodies of text, and more.

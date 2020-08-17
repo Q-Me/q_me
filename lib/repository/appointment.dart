@@ -40,8 +40,9 @@ class AppointmentRepository {
     @required DateTime startTime,
     @required DateTime endTime,
     @required String note,
-    @required String accessToken,
+    String accessToken,
   }) async {
+    accessToken = await getAccessTokenFromStorage();
     final response = await _helper.post(
       '/user/slot/book',
       req: {
@@ -66,7 +67,8 @@ class AppointmentRepository {
   Future checkSlot(
       {@required String counterId,
       @required String status,
-      @required accessToken}) async {
+      accessToken}) async {
+    accessToken = await getAccessTokenFromStorage();
     final response = await _helper.post('/user/slot/counterslots',
         req: {
           "counter_id": counterId,
