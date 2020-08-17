@@ -129,25 +129,6 @@ class AppointmentRepository {
     );
     return response;
   }
-
-  Future review(
-      {@required String counterId,
-      @required String subscriberId,
-      @required String rate,
-      @required String slotStartTime,
-      String review}) async {
-    final String _accessToken = await getAccessTokenFromStorage();
-    final response = await _helper.post(
-      '/user/rating/rate',
-      req: {
-        "counter_id": counterId,
-        "subscriber_id": subscriberId,
-        "review": review,
-        "rating": rate
-      },
-      headers: {'Authorization': 'Bearer $_accessToken'},
-    );
-  }
 }
 
 void main() async {

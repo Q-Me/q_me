@@ -10,7 +10,7 @@ class AppointmentsHistoryScreen extends StatefulWidget {
 }
 
 class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen> {
-var data;
+  var data;
   var arr = ["ALL"];
   var histotyType = [
     "ALL",
