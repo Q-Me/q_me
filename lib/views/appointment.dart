@@ -66,6 +66,17 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
             BookingBloc(appointmentRepository: appointmentRepository),
         child: Scaffold(
           appBar: AppBar(
+            leading: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Align(
+                  child: FaIcon(
+                FontAwesomeIcons.arrowLeft,
+                color: Colors.black,
+              ),
+              alignment: Alignment.center,),
+            ),
             backgroundColor: Colors.transparent,
             elevation: 0,
             title: Text(
@@ -273,7 +284,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
         ],
       )));
     } else if (state == "success") {
-      Navigator.pushNamed(
+      Navigator.pushReplacementNamed(
         context,
         BookingSuccess.id,
         arguments: value,
@@ -286,7 +297,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
           SizedBox(
             width: 15,
           ),
-          Text("Oops..., that wasn't supposed to happen")
+          Text("Oops, that wasn't supposed to happen...")
         ],
       )));
     }
