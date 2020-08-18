@@ -35,50 +35,26 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
 
   Stream<BookingState> _mapBookingRequested(BookingRequested event) async* {
     yield BookingLoadInProgress();
-    bool slotAvailable = true;
-    var booking;
     logger.i("counter: ${event.counterId}, startTime: ${event.startTime}");
-    try {
-      booking = await appointmentRepository.checkSlot(
-          counterId: event.counterId,
-          status: "ALL");
-      final detail =
-          Appointment.fromMap(booking["slots"][(booking["slots"].length) - 1]);
-      // if (detail.slot)
-      if (detail.slotStatus == "UPCOMING") {
-        slotAvailable = false;
-      }
-    } on RangeError catch (e) {
-      logger.i(e);
-      slotAvailable = true;
-    } catch (e) {
-      logger.e(e);
-      yield BookingLoadFailure();
-    }
 
-    if (slotAvailable == true) {
-      try {
-        final bookingResponse = await appointmentRepository.book(
-            counterId: event.counterId,
-            subscriberId: event.subscriberId,
-            startTime: event.startTime,
-            endTime: event.endTime,
-            note: event.note,);
-        logger.i(bookingResponse);
-        final msg = bookingResponse["msg"];
-        final details = Appointment.fromMap(bookingResponse["slot"]);
-        message = msg;
-        detail = details;
-        logger.i(msg, details);
-        yield BookingLoadSuccess(msg, details);
-      } catch (error) {
-        logger.e(error);
-        yield BookingLoadFailure();
-      }
-    } else {
-      final detail =
-          Appointment.fromMap(booking["slots"][(booking["slots"].length) - 1]);
-      yield BookingDone(detail);
+    try {
+      final bookingResponse = await appointmentRepository.book(
+        counterId: event.counterId,
+        subscriberId: event.subscriberId,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        note: event.note,
+      );
+      logger.i(bookingResponse);
+      final msg = bookingResponse["msg"];
+      final details = Appointment.fromMap(bookingResponse["slot"]);
+      message = msg;
+      detail = details;
+      logger.i(msg, details);
+      yield BookingLoadSuccess(msg, details);
+    } catch (error) {
+      logger.e(error.toString());
+      yield BookingLoadFailure();
     }
   }
 

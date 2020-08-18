@@ -4,6 +4,7 @@ import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/nearby.dart';
+import 'package:qme/views/noInternet.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/profile.dart';
 import 'package:qme/views/review.dart';
@@ -99,12 +100,19 @@ Route<dynamic> generateRoute(RouteSettings settings) {
                 subscriberName: arguments['subscriberName'],
               ),
           settings: RouteSettings(name: ReviewScreen.id));
+    
     case BookingSuccess.id:
       Map<String, dynamic> arguments = settings.arguments;
       return MaterialPageRoute(
           builder: (context) => BookingSuccess(otp: arguments['otp']),
           settings: RouteSettings(name: BookingSuccess.id));
 
+    case NoInternetView.id:
+      return MaterialPageRoute(
+        builder: (context) => NoInternetView(),
+        settings: RouteSettings(name: NoInternetView.id),
+      );
+      
     default:
       return MaterialPageRoute(
         builder: (context) => UndefinedView(name: settings.name),
