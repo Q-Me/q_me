@@ -7,7 +7,7 @@ import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/appointment.dart';
-import 'package:qme/views/success.dart';
+import 'package:qme/views/booking_success.dart';
 
 String notes;
 
@@ -286,7 +286,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     } else if (state == "success") {
       Navigator.pushReplacementNamed(
         context,
-        BookingSuccess.id,
+        BookingSuccessView.id,
         arguments: value,
       );
     } else if (state == "failure") {

@@ -1,17 +1,17 @@
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 
-class BookingSuccess extends StatefulWidget {
+class BookingSuccessView extends StatefulWidget {
   static const String id = "/bookingSuccess";
-  BookingSuccess({Key key, @required this.otp}) : super(key: key);
-  final String otp;
+  BookingSuccessView({Key key, @required this.otp}) : super(key: key);
+  final int otp;
 
   @override
-  _BookingSuccessState createState() => _BookingSuccessState();
+  _BookingSuccessViewState createState() => _BookingSuccessViewState();
 }
 
-class _BookingSuccessState extends State<BookingSuccess> {
-  String get otp => widget.otp;
+class _BookingSuccessViewState extends State<BookingSuccessView> {
+  int get otp => widget.otp;
   @override
   Widget build(BuildContext context) {
     return Scaffold(

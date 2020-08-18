@@ -11,7 +11,7 @@ import 'package:qme/views/review.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/views/subscriber.dart';
-import 'package:qme/views/success.dart';
+import 'package:qme/views/booking_success.dart';
 import 'package:qme/views/token.dart';
 import 'package:qme/views/unknown.dart';
 
@@ -101,11 +101,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
               ),
           settings: RouteSettings(name: ReviewScreen.id));
     
-    case BookingSuccess.id:
+    case BookingSuccessView.id:
       Map<String, dynamic> arguments = settings.arguments;
       return MaterialPageRoute(
-          builder: (context) => BookingSuccess(otp: arguments['otp']),
-          settings: RouteSettings(name: BookingSuccess.id));
+          builder: (context) => BookingSuccessView(otp: arguments['otp']),
+          settings: RouteSettings(name: BookingSuccessView.id));
 
     case NoInternetView.id:
       return MaterialPageRoute(
