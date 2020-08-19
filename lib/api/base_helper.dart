@@ -45,6 +45,7 @@ class ApiBaseHelper {
         body: jsonEncode(req),
       );
       responseJson = _returnResponse(response);
+      logger.d(responseJson.toString());
     } on SocketException {
       throw FetchDataException('No Internet connection');
     } finally {

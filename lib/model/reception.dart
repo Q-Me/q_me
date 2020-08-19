@@ -47,8 +47,8 @@ class Reception extends ChangeNotifier {
   factory Reception.fromJson(Map<String, dynamic> json) => Reception(
         id: json["id"],
         subscriberId: json["subscriber_id"],
-        startTime: DateTime.parse(json["starttime"]).toLocal(),
-        endTime: DateTime.parse(json["endtime"]).toLocal(),
+        startTime: DateTime.parse(json["starttime"]),
+        endTime: DateTime.parse(json["endtime"]),
         duration: Duration(minutes: json["slot"]),
         custPerSlot: json["cust_per_slot"],
         status: json["status"],
