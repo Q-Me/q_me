@@ -43,32 +43,32 @@ class IntroScreenState extends State<IntroScreen> {
     Navigator.pushNamed(context, SignInScreen.id);
   }
 
-  void onTabChangeCompleted(index) {
-  }
+  void onTabChangeCompleted(index) {}
 
   Widget renderNextBtn() {
-    return Icon(
-      Icons.navigate_next,
-      color: Colors.blue[800],
-      size: 35.0,
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Text(
+        'Next',
+      ),
     );
   }
 
   Widget renderDoneBtn() {
-    return Icon(
-      Icons.done,
-      color: Colors.blue[800],
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Text('Done'),
     );
   }
 
   Widget renderSkipBtn() {
-    return Icon(
-      Icons.skip_next,
-      color: Colors.blue[800],
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Text('Skip'),
     );
   }
 
-  List<Widget> renderListCustomTabs() {
+  List<Widget> _renderListCustomTabs() {
     List<Widget> tabs = new List();
     for (int i = 0; i < slides.length; i++) {
       Slide currentSlide = slides[i];
@@ -95,37 +95,37 @@ class IntroScreenState extends State<IntroScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IntroSlider(
-          // List slides
-          slides: this.slides,
+        // List slides
+        slides: this.slides,
 
-          // Skip button
-          renderSkipBtn: this.renderSkipBtn(),
-          colorSkipBtn: Colors.blue[100],
-          highlightColorSkipBtn: Colors.blue[800],
+        // Skip button
+        renderSkipBtn: this.renderSkipBtn(),
+//          colorSkipBtn: Colors.blue[100],
+//          highlightColorSkipBtn: Colors.blue[800],
 
-          // Next button
-          renderNextBtn: this.renderNextBtn(),
+        // Next button
+        renderNextBtn: this.renderNextBtn(),
 
-          // Done button
-          renderDoneBtn: this.renderDoneBtn(),
-          onDonePress: this.onDonePress,
-          colorDoneBtn: Colors.blue[100],
-          highlightColorDoneBtn: Colors.blue[800],
+        // Done button
+        renderDoneBtn: this.renderDoneBtn(),
+        onDonePress: this.onDonePress,
+//        colorDoneBtn: Colors.blue[100],
+//        highlightColorDoneBtn: Colors.blue[800],
 
-          // Dot indicator
-          colorDot: Colors.blue[800],
-          sizeDot: 13.0,
-          typeDotAnimation: dotSliderAnimation.SIZE_TRANSITION,
+        // Dot indicator
+        colorDot: Colors.blue[800],
+        sizeDot: 13.0,
+        typeDotAnimation: dotSliderAnimation.SIZE_TRANSITION,
 
-          // Tabs
-          listCustomTabs: this.renderListCustomTabs(),
-         backgroundColorAllSlides: Colors.black12,
-          refFuncGoToTab: (refFunc) {
-            this.goToTab = refFunc;
-          },
+        // Tabs
+        listCustomTabs: _renderListCustomTabs(),
+        backgroundColorAllSlides: Colors.black12,
+        refFuncGoToTab: (refFunc) {
+          this.goToTab = refFunc;
+        },
 
-          // On tab change completed
-          onTabChangeCompleted: this.onTabChangeCompleted,
+        // On tab change completed
+        onTabChangeCompleted: this.onTabChangeCompleted,
       ),
     );
   }
