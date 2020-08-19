@@ -27,7 +27,11 @@ class BookingLoadSuccess extends BookingState {
   List<Object> get props => [msg, details];
 }
 
-class BookingLoadFailure extends BookingState {}
+class BookingLoadFailure extends BookingState {
+  final String message;
+
+  BookingLoadFailure({this.message});
+}
 
 class BookingDone extends BookingState {
   final Appointment detail;
