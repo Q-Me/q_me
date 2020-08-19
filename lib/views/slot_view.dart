@@ -113,11 +113,18 @@ class _SlotSelectionBoxState extends State<SlotSelectionBox> {
             style: Theme.of(context).textTheme.subtitle1,
             textAlign: TextAlign.left,
           ),
-          TextField(
+          TextFormField(
             decoration: InputDecoration(
-              labelText: 'Full Name',
-              enabled: false,
+              labelStyle: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey),
+              focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.green)),
+              focusColor: Colors.lightBlue,
+              labelText: "PHONE*",
             ),
+            controller: TextEditingController(),
           ),
           RaisedButton(
             onPressed: () {

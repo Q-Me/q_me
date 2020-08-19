@@ -3,7 +3,7 @@ import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void setSession() async {
+Future<void> setSession() async {
   final Map<String, dynamic> signInResponse = await UserRepository().signIn({
     "phone": "+919673582517",
     "password": "P1yush.123",
