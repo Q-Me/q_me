@@ -1,16 +1,16 @@
 import 'dart:developer';
 import 'dart:io';
+
+import 'package:checkbox_formfield/checkbox_formfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
-import 'package:qme/api/app_exceptions.dart';
-import 'package:qme/api/signin.dart';
+import 'package:provider/provider.dart';
 import 'package:qme/constants.dart';
-import 'package:qme/repository/user.dart';
-import 'package:qme/views/nearby.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
@@ -18,7 +18,6 @@ import 'package:qme/widgets/formField.dart';
 import 'package:qme/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:checkbox_formfield/checkbox_formfield.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const id = '/signup';
@@ -27,8 +26,8 @@ class SignUpScreen extends StatefulWidget {
   _SignUpScreenState createState() => _SignUpScreenState();
 }
 
-var verificationIdOtp;
-var authOtp;
+String verificationIdOtp;
+FirebaseAuth authOtp;
 String loginPage;
 
 class _SignUpScreenState extends State<SignUpScreen> {
@@ -40,8 +39,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Map<String, String> formData = {};
 
   final _codeController = TextEditingController();
-  var _fcmToken;
-  var idToken;
+  String _fcmToken;
   Future<void> _launched;
   bool showOtpTextfield = false;
   final FirebaseMessaging _messaging = FirebaseMessaging();
@@ -53,170 +51,172 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _auth.verifyPhoneNumber(
         phoneNumber: phone,
         timeout: Duration(seconds: 60),
-        // verificationCompleted: (AuthCredential credential) async {
-        //   AuthResult result = await _auth.signInWithCredential(credential);
+        /*
+         verificationCompleted: (AuthCredential credential) async {
+           AuthResult result = await _auth.signInWithCredential(credential);
 
-        //   FirebaseUser user = result.user;
+           FirebaseUser user = result.user;
 
-        //   if (user != null) {
-        //     var token = await user.getIdToken().then((result) {
-        //       idToken = result.token;
-        //       formData['token'] = idToken;
-        //       print(" $idToken ");
-        //     });
-        //     final code = _codeController.text.trim();
-        //     try {
-        //       log('$formData');
-        //       SharedPreferences prefs = await SharedPreferences.getInstance();
+           if (user != null) {
+             var token = await user.getIdToken().then((result) {
+               idToken = result.token;
+               formData['token'] = idToken;
+               print(" $idToken ");
+             });
+             final code = _codeController.text.trim();
+             try {
+               log('$formData');
+               SharedPreferences prefs = await SharedPreferences.getInstance();
 
-        //       formData['firstName'] = prefs.getString('userFirstNameSignup');
-        //       formData['lastName'] = prefs.getString('userLastNameSignup');
-        //       formData['phone'] = prefs.getString('userPhoneSignup');
-        //       formData['password'] = prefs.getString('userPasswordSignup');
-        //       formData['cpassword'] = prefs.getString('userCpasswordSignup');
-        //       formData['email'] = prefs.getString(
-        //         'userEmailSignup',
-        //       );
-        //       formData['name'] =
-        //           formData['firstName'] + " " + formData['lastName'];
+               formData['firstName'] = prefs.getString('userFirstNameSignup');
+               formData['lastName'] = prefs.getString('userLastNameSignup');
+               formData['phone'] = prefs.getString('userPhoneSignup');
+               formData['password'] = prefs.getString('userPasswordSignup');
+               formData['cpassword'] = prefs.getString('userCpasswordSignup');
+               formData['email'] = prefs.getString(
+                 'userEmailSignup',
+               );
+               formData['name'] =
+                   formData['firstName'] + " " + formData['lastName'];
 
-        //       Scaffold.of(context).showSnackBar(
-        //         SnackBar(
-        //           content: Text('Processing Data'),
-        //         ),
-        //       );
+               Scaffold.of(context).showSnackBar(
+                 SnackBar(
+                   content: Text('Processing Data'),
+                 ),
+               );
 
-        //       UserRepository user = UserRepository();
-        //       formData['name'] =
-        //           '${formData['firstName']}|${formData['lastName']}';
-        //       // Make SignUp API call
-        //       Map response;
-        //       try {
-        //         print("signUpData");
-        //         print(formData['phone']);
-        //         print(formData['name']);
-        //         print(formData);
-        //         response = await user.signUp(formData);
-        //         print(response['status']);
-        //         print(response);
-        //       } on BadRequestException catch (e) {
-        //         log('BadRequestException on SignUp:' + e.toString());
-        //         Scaffold.of(context).showSnackBar(SnackBar(
-        //           content: Text(
-        //             e.toString(),
-        //           ),
-        //         ));
-        //       } catch (e) {
-        //         log('SignUp failed:' + e.toString());
-        //         Scaffold.of(context).showSnackBar(
-        //           SnackBar(
-        //             content: Text(e.toString()),
-        //           ),
-        //         );
-        //       }
-        //       log('SignUp response:${response.toString()}');
+               UserRepository user = UserRepository();
+               formData['name'] =
+                   '${formData['firstName']}|${formData['lastName']}';
+               // Make SignUp API call
+               Map response;
+               try {
+                 print("signUpData");
+                 print(formData['phone']);
+                 print(formData['name']);
+                 print(formData);
+                 response = await user.signUp(formData);
+                 print(response['status']);
+                 print(response);
+               } on BadRequestException catch (e) {
+                 log('BadRequestException on SignUp:' + e.toString());
+                 Scaffold.of(context).showSnackBar(SnackBar(
+                   content: Text(
+                     e.toString(),
+                   ),
+                 ));
+               } catch (e) {
+                 log('SignUp failed:' + e.toString());
+                 Scaffold.of(context).showSnackBar(
+                   SnackBar(
+                     content: Text(e.toString()),
+                   ),
+                 );
+               }
+               log('SignUp response:${response.toString()}');
 
-        //       if (response != null &&
-        //           response['msg'] == 'Registation successful') {
-        //         // Make SignIn call
-        //         try {
-        //           response =
-        //               // Make LOGIN API call
-        //               response = await signInWithOtp(idToken);
-        //           print("reponse Status ");
+               if (response != null &&
+                   response['msg'] == 'Registation successful') {
+                 // Make SignIn call
+                 try {
+                   response =
+                       // Make LOGIN API call
+                       response = await signInWithOtp(idToken);
+                   print("reponse Status ");
 
-        //           if (response['status'] == 200) {
-        //             print("respose of ${response['status']}");
-        //             print(response);
-        //             SharedPreferences prefs =
-        //                 await SharedPreferences.getInstance();
-        //             Scaffold.of(context).showSnackBar(
-        //                 SnackBar(content: Text('Processing Data')));
+                   if (response['status'] == 200) {
+                     print("respose of ${response['status']}");
+                     print(response);
+                     SharedPreferences prefs =
+                         await SharedPreferences.getInstance();
+                     Scaffold.of(context).showSnackBar(
+                         SnackBar(content: Text('Processing Data')));
 
-        //             Navigator.pushNamed(context, NearbyScreen.id);
+                     Navigator.pushNamed(context, NearbyScreen.id);
 
-        //             var responsefcm = await fcmTokenSubmit(_fcmToken);
-        //             print("fcm token Api: $responsefcm");
-        //             print("fcm token api status: ${responsefcm['status']}");
-        //             prefs.setString('fcmToken', _fcmToken);
-        //             Navigator.pushNamed(context, NearbyScreen.id);
-        //           } else {
-        //             return print("error in api hit");
-        //           }
-        //         } catch (e) {
-        //           Scaffold.of(context)
-        //               .showSnackBar(SnackBar(content: Text(e.toString())));
-        //           // _showSnackBar(e.toString());
-        //           log('Error in signIn API: ' + e.toString());
-        //           return;
-        //         }
-        //         // if (response['name'] != null) {
-        //         //   // SignIn successful
-        //         //   Navigator.pushNamed(
-        //         //       context, NearbyScreen.id);
-        //         // }
-        //       } else {
-        //         print("SignUp failed");
-        //         return;
-        //       }
-        //     } on PlatformException catch (e) {
-        //       print("Looking for Error code");
-        //       print(e.message);
-        //       Navigator.of(context).pop();
+                     var responsefcm = await fcmTokenSubmit(_fcmToken);
+                     print("fcm token Api: $responsefcm");
+                     print("fcm token api status: ${responsefcm['status']}");
+                     prefs.setString('fcmToken', _fcmToken);
+                     Navigator.pushNamed(context, NearbyScreen.id);
+                   } else {
+                     return print("error in api hit");
+                   }
+                 } catch (e) {
+                   Scaffold.of(context)
+                       .showSnackBar(SnackBar(content: Text(e.toString())));
+                   // _showSnackBar(e.toString());
+                   log('Error in signIn API: ' + e.toString());
+                   return;
+                 }
+                 // if (response['name'] != null) {
+                 //   // SignIn successful
+                 //   Navigator.pushNamed(
+                 //       context, NearbyScreen.id);
+                 // }
+               } else {
+                 print("SignUp failed");
+                 return;
+               }
+             } on PlatformException catch (e) {
+               print("Looking for Error code");
+               print(e.message);
+               Navigator.of(context).pop();
 
-        //       showDialog(
-        //           context: context,
-        //           barrierDismissible: false,
-        //           builder: (context) {
-        //             return AlertDialog(
-        //               title: Text("Verification Failed"),
-        //               content: Text(e.code.toString()),
-        //               actions: <Widget>[
-        //                 FlatButton(
-        //                   child: Text("OK"),
-        //                   textColor: Colors.white,
-        //                   color: Theme.of(context).primaryColor,
-        //                   onPressed: () {
-        //                     Navigator.of(context).pop();
-        //                   },
-        //                 )
-        //               ],
-        //             );
-        //           });
-        //       print(e.code);
-        //     } on Exception catch (e) {
-        //       Navigator.of(context).pop();
+               showDialog(
+                   context: context,
+                   barrierDismissible: false,
+                   builder: (context) {
+                     return AlertDialog(
+                       title: Text("Verification Failed"),
+                       content: Text(e.code.toString()),
+                       actions: <Widget>[
+                         FlatButton(
+                           child: Text("OK"),
+                           textColor: Colors.white,
+                           color: Theme.of(context).primaryColor,
+                           onPressed: () {
+                             Navigator.of(context).pop();
+                           },
+                         )
+                       ],
+                     );
+                   });
+               print(e.code);
+             } on Exception catch (e) {
+               Navigator.of(context).pop();
 
-        //       showDialog(
-        //           context: context,
-        //           barrierDismissible: false,
-        //           builder: (context) {
-        //             return AlertDialog(
-        //               title: Text("Verification Failed"),
-        //               content: Text(e.toString()),
-        //               actions: <Widget>[
-        //                 FlatButton(
-        //                   child: Text("OK"),
-        //                   textColor: Colors.white,
-        //                   color: Theme.of(context).primaryColor,
-        //                   onPressed: () async {
-        //                     Navigator.of(context).pop();
-        //                   },
-        //                 )
-        //               ],
-        //             );
-        //           });
-        //       print("Looking for Error message");
-        //       print(e);
-        //     }
-        //   } else {
-        //     print("Error");
-        //   }
+               showDialog(
+                   context: context,
+                   barrierDismissible: false,
+                   builder: (context) {
+                     return AlertDialog(
+                       title: Text("Verification Failed"),
+                       content: Text(e.toString()),
+                       actions: <Widget>[
+                         FlatButton(
+                           child: Text("OK"),
+                           textColor: Colors.white,
+                           color: Theme.of(context).primaryColor,
+                           onPressed: () async {
+                             Navigator.of(context).pop();
+                           },
+                         )
+                       ],
+                     );
+                   });
+               print("Looking for Error message");
+               print(e);
+             }
+           } else {
+             print("Error");
+           }
 
-        //   //This callback would gets called when verification is done auto maticlly
-        // },
+           //This callback would gets called when verification is done auto maticlly
+         },
+        */
         verificationFailed: (AuthException exception) {
-          print(exception.message);
+          logger.e(exception.message);
           Scaffold.of(context).showSnackBar(
               SnackBar(content: Text(exception.message.toString())));
         },
@@ -312,7 +312,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           children: <Widget>[
                             MyFormField(
                               required: true,
-                              name: 'FIRST NAME',
+                              name: 'FIRST NAME*',
                               callback: (value) {
                                 formData['firstName'] = value;
                                 print(formData['firstName']);
@@ -337,15 +337,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 validator: (value) {
                                   if (value.isEmpty) {
                                     return 'This field cannot be left blank';
+                                  } else if (value.startsWith("+91")) {
+                                    return 'Phone number must start with +91';
+                                  } else if (value.length != 13) {
+                                    return 'Phone number must be 10 digits after +91';
                                   } else {
                                     //setState(() {
                                     formData['phone'] = value;
                                     print(formData['phone']);
                                     //  });
                                   }
+                                  return null;
                                 },
                                 decoration: kTextFieldDecoration.copyWith(
-                                    labelText: "PHONE"),
+                                    labelText: "PHONE*"),
                               ),
                             ),
                             SizedBox(height: 10.0),
@@ -443,33 +448,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 ),
                               ),
                             ),
-                            CheckboxListTileFormField(
-                              title: FlatButton(
-                                color: Colors.transparent,
-                                onPressed: () => setState(() {
-                                  _launched = _launchInBrowser(
-                                      "https://q-me.flycricket.io/privacy.html");
-                                }),
-                                child: Align(
+                            Provider.value(
+                              value: checkedValue,
+                              child: CheckboxListTileFormField(
+                                title: FlatButton(
+                                  color: Colors.transparent,
+                                  onPressed: () => setState(() {
+                                    _launched = _launchInBrowser(
+                                        "https://q-me.flycricket.io/privacy.html");
+                                  }),
+                                  child: Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      'I Agree to Privacy Policy',
+                                      'I agree to Privacy Policy',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    )),
-                              ),
-                              onSaved: (newValue) {
-                                setState(() {
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                onSaved: (newValue) {
+                                  bool checkedValue =
+                                      Provider.of<bool>(context);
                                   checkedValue = newValue;
-                                });
-                              },
-                              validator: (bool value) {
-                                if (value) {
-                                  return null;
-                                } else {
-                                  return 'You need to accept terms!';
-                                }
-                              },
+                                  logger.d('Checked $checkedValue');
+                                },
+                                validator: (bool value) {
+                                  if (value) {
+                                    return null;
+                                  } else {
+                                    return 'In order to proceed you have to agree';
+                                  }
+                                },
+                              ),
                             ),
                             SizedBox(height: 50.0),
                             Container(
@@ -484,71 +495,55 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     FocusScope.of(context).requestFocus(
                                         FocusNode()); // dismiss the keyboard
                                     if (formKey.currentState.validate()) {
-                                         log('$formData');
-                                                    // check phone number length
-                                                    if (formData['phone']
-                                                            .length !=
-                                                        13) {
-                                                      Scaffold.of(context)
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                              'Phone number must have 10 digits with country code'),
-                                                        ),
-                                                      );
-                                                    }
+                                      log('$formData');
+                                      // check phone number length
+                                      if (formData['phone'].length != 13) {
+                                        Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                'Phone number must have 10 digits with country code'),
+                                          ),
+                                        );
+                                      }
 
-                                                    if (formData['password'] !=
-                                                        formData['cpassword']) {
-                                                      Scaffold.of(context)
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                            content: Text(
-                                                                'Passwords do not match')),
-                                                      );
-                                                      return null;
-                                                    }
+                                      if (formData['password'] !=
+                                          formData['cpassword']) {
+                                        Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  'Passwords do not match')),
+                                        );
+                                        return null;
+                                      }
 
-                                                    Scaffold.of(context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                            'Processing Data'),
-                                                      ),
-                                                    );
-                                                    final phone =
-                                                        _phoneController.text
-                                                            .trim();
-                                                    print(
-                                                        "phone number: $phone");
-                                                    print(formData);
-                                                    SharedPreferences prefs =
-                                                        await SharedPreferences
-                                                            .getInstance();
+                                      Scaffold.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Processing Data'),
+                                        ),
+                                      );
+                                      final phone =
+                                          _phoneController.text.trim();
+                                      print("phone number: $phone");
+                                      print(formData);
+                                      SharedPreferences prefs =
+                                          await SharedPreferences.getInstance();
 
-                                                    prefs.setString(
-                                                        'userFirstNameSignup',
-                                                        formData['firstName']);
-                                                    prefs.setString(
-                                                        'userLastNameSignup',
-                                                        formData['lastName']);
-                                                    prefs.setString(
-                                                        'userPhoneSignup',
-                                                        formData['phone']);
+                                      prefs.setString('userFirstNameSignup',
+                                          formData['firstName']);
+                                      prefs.setString('userLastNameSignup',
+                                          formData['lastName']);
+                                      prefs.setString(
+                                          'userPhoneSignup', formData['phone']);
 
-                                                    prefs.setString(
-                                                        'userPasswordSignup',
-                                                        formData['password']);
-                                                    prefs.setString(
-                                                        'userCpasswordSignup',
-                                                        formData['cpassword']);
+                                      prefs.setString('userPasswordSignup',
+                                          formData['password']);
+                                      prefs.setString('userCpasswordSignup',
+                                          formData['cpassword']);
 
-                                                    prefs.setString(
-                                                        'userEmailSignup',
-                                                        formData['email']);
+                                      prefs.setString(
+                                          'userEmailSignup', formData['email']);
 
-                                                    prefs.setString(
-                                                        'fcmToken', _fcmToken);
+                                      prefs.setString('fcmToken', _fcmToken);
                                       showDialog(
                                           context: context,
                                           barrierDismissible: false,
@@ -557,25 +552,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                               title: Text("Alert!"),
                                               content: Text(
                                                   "You might receive an SMS message for verification and standard rates apply."),
-
-                                                  
                                               actions: <Widget>[
-                                                 FlatButton(
-                                                  child: Text("Disagree"),
-                                                  textColor: Colors.white,
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  onPressed: () {
-                                                    Navigator
-                                                        .pushAndRemoveUntil(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  SignInScreen(),
-                                                            ),
-                                                            (route) => false);
-                                                  },
-                                                ),
+                                                DisagreeButton(),
                                                 FlatButton(
                                                   child: Text("Agree"),
                                                   textColor: Colors.white,
@@ -586,7 +564,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                     loginUser(phone, context);
                                                   },
                                                 ),
-                                               
                                               ],
                                             );
                                           });
@@ -616,6 +593,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         ),
       )),
+    );
+  }
+}
+
+class DisagreeButton extends StatelessWidget {
+  const DisagreeButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      child: Text("Disagree"),
+      textColor: Colors.white,
+      color: Theme.of(context).primaryColor,
+      onPressed: () {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => SignInScreen()),
+          (route) => false,
+        );
+      },
     );
   }
 }

@@ -12,9 +12,9 @@ Future<void> setSession() async {
   logger.i('SignIn session: ${signInResponse.toString()}');
 }
 
-void clearSession() async {
+Future<void> clearSession() async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.clear();
+  return await preferences.clear();
 }
 
 void setSessionFromRefreshToken() async {

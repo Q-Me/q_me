@@ -24,14 +24,16 @@ void main() async {
   Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  await Hive.openBox("appointment");
+  await Hive.openBox("user");
 
   // Logger.level = Level.warning;
   // TODO show splash screen
   // TODO setConfigs();
   // TODO fetch user related information
+
  await setSession();
 //  clearSession();
+
   if (await UserRepository().isSessionReady()) {
     initialHome = HomeScreen.id;
   }
