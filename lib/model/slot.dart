@@ -23,8 +23,8 @@ class Slot extends Equatable {
   int customersInSlot;
 
   factory Slot.fromJson(Map<String, dynamic> json) => Slot(
-        startTime: DateTime.parse(json["starttime"]).toLocal(),
-        endTime: DateTime.parse(json["endtime"]).toLocal(),
+        startTime: DateTime.parse(json["starttime"]),
+        endTime: DateTime.parse(json["endtime"]),
       );
 
   Map<String, dynamic> toJson() => {
