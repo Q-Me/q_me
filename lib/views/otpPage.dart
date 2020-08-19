@@ -3,20 +3,18 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:pin_entry_text_field/pin_entry_text_field.dart';
 import 'package:qme/api/signin.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
-import 'package:qme/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/app_exceptions.dart';
 import '../repository/user.dart';
-import '../views/nearby.dart';
 import 'signup.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class OtpPage extends StatefulWidget {
   static const id = '/otpPage';
@@ -27,10 +25,10 @@ class OtpPage extends StatefulWidget {
 
 class _OtpPageState extends State<OtpPage> {
   Map<String, String> formData = {};
-  var idToken;
+  String idToken;
   final formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
-  var _fcmToken;
+  String _fcmToken;
 
   @override
   Widget build(BuildContext context) {
@@ -104,8 +102,9 @@ class _OtpPageState extends State<OtpPage> {
                                     try {
                                       AuthCredential credential =
                                           PhoneAuthProvider.getCredential(
-                                              verificationId: verificationIdOtp,
-                                              smsCode: code);
+                                        verificationId: verificationIdOtp,
+                                        smsCode: code,
+                                      );
                                       SharedPreferences prefs =
                                           await SharedPreferences.getInstance();
 
@@ -209,8 +208,9 @@ class _OtpPageState extends State<OtpPage> {
                                               response =
                                                   // Make LOGIN API call
                                                   response =
-                                                      await signInWithOtp(
-                                                          idToken);
+                                                      await UserRepository()
+                                                          .signInWithOtp(
+                                                              idToken);
                                               print("reponse Status ");
 
                                               if (response['status'] == 200) {
@@ -258,10 +258,11 @@ class _OtpPageState extends State<OtpPage> {
                                                 SnackBar(
                                                     content: Text(
                                                         'Processing Data')));
-                                            response =
-                                                // Make LOGIN API call
-                                                response = await signInWithOtp(
-                                                    idToken);
+                                            response = response =
+                                                await UserRepository()
+                                                    .signInWithOtp(
+                                              idToken,
+                                            );
 
                                             if (response['status'] == 200) {
                                               print(
@@ -331,16 +332,14 @@ class _OtpPageState extends State<OtpPage> {
                                                       .primaryColor,
                                                   onPressed: () {
                                                     // Navigator.of(context).pop();
-                                                      Navigator
-                                                                .pushAndRemoveUntil(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                      builder:
-                                                                          (context) =>
-                                                                              SignInScreen(),
-                                                                    ),
-                                                                    (route) =>
-                                                                        false);
+                                                    Navigator
+                                                        .pushAndRemoveUntil(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  SignInScreen(),
+                                                            ),
+                                                            (route) => false);
                                                   },
                                                 )
                                               ],
@@ -365,18 +364,15 @@ class _OtpPageState extends State<OtpPage> {
                                                   color: Theme.of(context)
                                                       .primaryColor,
                                                   onPressed: () async {
-                                                      Navigator
-                                                                .pushAndRemoveUntil(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                      builder:
-                                                                          (context) =>
-                                                                              SignInScreen(),
-                                                                    ),
-                                                                    (route) =>
-                                                                        false);
+                                                    Navigator
+                                                        .pushAndRemoveUntil(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  SignInScreen(),
+                                                            ),
+                                                            (route) => false);
                                                     // Navigator.of(context).pop();
-
                                                   },
                                                 )
                                               ],
