@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:qme/bloc/appointment.dart';
 import 'package:qme/bloc/booking_bloc.dart';
 import 'package:qme/model/reception.dart';
@@ -133,12 +134,12 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              "${weekDay(slot.startTime.weekday)}",
+                              "${DateFormat('E').format(slot.startTime)}",
                               style:
                                   TextStyle(color: Colors.grey, fontSize: 20),
                             ),
                             Text(
-                              "${slot.startTime.month}, ${slot.startTime.year}",
+                              "${DateFormat("MMMMEEEEd").format(slot.startTime)}",
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 15,
@@ -162,7 +163,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                 color: Colors.grey,
                               ),
                               Text(
-                                  "${slot.startTime.hour}:${slot.startTime.minute}",
+                                  "${DateFormat("jm").format(slot.startTime)}",
                                   style: TextStyle(fontSize: 30)),
                             ],
                           ),
@@ -191,8 +192,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _listItem("Name", "${subscriber.name}"),
-                            _listItem("Phone No", "${subscriber.phone}"),
+                            ListItem(title: "Name", value: "${subscriber.name}"),
+                            ListItem(title: "Phone No", value: "${subscriber.phone}"),
                           ],
                         )),
                   ),
@@ -235,45 +236,6 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     );
   }
 
-  Widget _listItem(String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            title,
-            style: TextStyle(color: Colors.grey),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            value,
-            style: TextStyle(fontSize: 20),
-          ),
-        ),
-        Divider(
-          thickness: 3,
-        ),
-      ],
-    );
-  }
-
-  String weekDay(int weekday) {
-    dynamic dayData = {
-      "1": "Mon",
-      "2": "Tue",
-      "3": "Wed",
-      "4": "Thur",
-      "5": "Fri",
-      "6": "Sat",
-      "7": "Sun"
-    };
-    print(dayData);
-    return dayData[weekday.toString()];
-  }
-
   void showSnackbar(BuildContext context, String state, dynamic value) {
     if (state == "loading") {
       Scaffold.of(context).showSnackBar(SnackBar(
@@ -306,5 +268,42 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
         ],
       )));
     }
+  }
+}
+
+class ListItem extends StatelessWidget {
+  const ListItem({
+    Key key,
+    @required this.title,
+    @required this.value,
+  }) : super(key: key);
+
+  final String title;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            title,
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            value,
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+        Divider(
+          thickness: 3,
+        ),
+      ],
+    );
   }
 }
