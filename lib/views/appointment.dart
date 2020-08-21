@@ -71,11 +71,12 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                 Navigator.pop(context);
               },
               child: Align(
-                  child: FaIcon(
-                FontAwesomeIcons.arrowLeft,
-                color: Colors.black,
+                child: FaIcon(
+                  FontAwesomeIcons.arrowLeft,
+                  color: Colors.black,
+                ),
+                alignment: Alignment.center,
               ),
-              alignment: Alignment.center,),
             ),
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -89,9 +90,11 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
               if (state is BookingLoadInProgress) {
                 showSnackbar(context, "loading", null);
               } else if (state is BookingLoadSuccess) {
-                showSnackbar(context, "success", state.details.otp);
+                showSnackbar(context, "success", state.details.otp.toString());
               } else if (state is BookingLoadFailure) {
                 showSnackbar(context, "failure", null);
+              } else if (state is BookingDone) {
+                showSnackbar(context, "success", state.detail.otp.toString());
               }
             },
             child: Column(
@@ -287,7 +290,9 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       Navigator.pushReplacementNamed(
         context,
         BookingSuccess.id,
-        arguments: value,
+        arguments: {
+          "otp": value,
+        },
       );
     } else if (state == "failure") {
       Scaffold.of(context).showSnackBar(SnackBar(

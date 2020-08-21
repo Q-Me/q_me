@@ -10,6 +10,7 @@ import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointmentHistory.dart';
+import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/categories.dart';
 import 'package:qme/widgets/listItem.dart';
@@ -213,7 +214,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          AppointmentsHistoryScreen()
+          // AppointmentsHistoryScreen()
+          BookingsScreen()
           // Column(
           //   children: <Widget>[
           //     Text('Your appointment history'),

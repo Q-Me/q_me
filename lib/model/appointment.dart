@@ -30,6 +30,7 @@ class Appointment {
     this.slotStatus,
     this.note,
     this.otp,
+    this.rating,
   });
 
   final String subscriberName;
@@ -48,7 +49,8 @@ class Appointment {
   final Slot slot;
   final String slotStatus;
   final String note;
-  final int otp;
+  final otp;
+  final String rating;
 
   factory Appointment.fromMap(Map<String, dynamic> json) => Appointment(
         subscriberName: json["subscriber"] == null ? null : json["subscriber"],
@@ -83,6 +85,7 @@ class Appointment {
         slotStatus: json["slot_status"] == null ? null : json["slot_status"],
         note: json["note"] == null ? null : json["note"],
         otp: json["otp"] == null ? null : json["otp"],
+        rating: json["rating"] == null ? null : json["rating"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -109,5 +112,6 @@ class Appointment {
         "slot_status": slotStatus == null ? null : slotStatus,
         "note": note == null ? null : note,
         "otp": otp == null ? null : otp,
+        "rating": rating == null ? null : rating,
       };
 }
