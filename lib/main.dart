@@ -33,7 +33,7 @@ void main() async {
 //  setSession();
 //  clearSession();
   if (await UserRepository().isSessionReady()) {
-    initialHome = SignInScreen.id;
+    initialHome = HomeScreen.id;
   }
   runApp(MyApp());
 }
