@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/signin.dart';
@@ -16,7 +17,6 @@ import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/formField.dart';
 import 'package:qme/widgets/text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:checkbox_formfield/checkbox_formfield.dart';
 
@@ -484,71 +484,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     FocusScope.of(context).requestFocus(
                                         FocusNode()); // dismiss the keyboard
                                     if (formKey.currentState.validate()) {
-                                         log('$formData');
-                                                    // check phone number length
-                                                    if (formData['phone']
-                                                            .length !=
-                                                        13) {
-                                                      Scaffold.of(context)
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                              'Phone number must have 10 digits with country code'),
-                                                        ),
-                                                      );
-                                                    }
+                                      log('$formData');
+                                      // check phone number length
+                                      if (formData['phone'].length != 13) {
+                                        Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                'Phone number must have 10 digits with country code'),
+                                          ),
+                                        );
+                                      }
 
-                                                    if (formData['password'] !=
-                                                        formData['cpassword']) {
-                                                      Scaffold.of(context)
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                            content: Text(
-                                                                'Passwords do not match')),
-                                                      );
-                                                      return null;
-                                                    }
+                                      if (formData['password'] !=
+                                          formData['cpassword']) {
+                                        Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  'Passwords do not match')),
+                                        );
+                                        return null;
+                                      }
 
-                                                    Scaffold.of(context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                            'Processing Data'),
-                                                      ),
-                                                    );
-                                                    final phone =
-                                                        _phoneController.text
-                                                            .trim();
-                                                    print(
-                                                        "phone number: $phone");
-                                                    print(formData);
-                                                    SharedPreferences prefs =
-                                                        await SharedPreferences
-                                                            .getInstance();
+                                      Scaffold.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Processing Data'),
+                                        ),
+                                      );
+                                      final phone =
+                                          _phoneController.text.trim();
+                                      print("phone number: $phone");
+                                      print(formData);
+                                      Box box = await Hive.openBox("user");
 
-                                                    prefs.setString(
-                                                        'userFirstNameSignup',
-                                                        formData['firstName']);
-                                                    prefs.setString(
-                                                        'userLastNameSignup',
-                                                        formData['lastName']);
-                                                    prefs.setString(
-                                                        'userPhoneSignup',
-                                                        formData['phone']);
+                                      await box.put('userFirstNameSignup',
+                                          formData['firstName']);
+                                      await box.put('userLastNameSignup',
+                                          formData['lastName']);
+                                      await box.put(
+                                          'userPhoneSignup', formData['phone']);
 
-                                                    prefs.setString(
-                                                        'userPasswordSignup',
-                                                        formData['password']);
-                                                    prefs.setString(
-                                                        'userCpasswordSignup',
-                                                        formData['cpassword']);
+                                      await box.put('userPasswordSignup',
+                                          formData['password']);
+                                      await box.put('userCpasswordSignup',
+                                          formData['cpassword']);
 
-                                                    prefs.setString(
-                                                        'userEmailSignup',
-                                                        formData['email']);
+                                      await box.put(
+                                          'userEmailSignup', formData['email']);
 
-                                                    prefs.setString(
-                                                        'fcmToken', _fcmToken);
+                                      await box.put('fcmToken', _fcmToken);
                                       showDialog(
                                           context: context,
                                           barrierDismissible: false,
@@ -557,10 +540,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                               title: Text("Alert!"),
                                               content: Text(
                                                   "You might receive an SMS message for verification and standard rates apply."),
-
-                                                  
                                               actions: <Widget>[
-                                                 FlatButton(
+                                                FlatButton(
                                                   child: Text("Disagree"),
                                                   textColor: Colors.white,
                                                   color: Theme.of(context)
@@ -586,7 +567,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                     loginUser(phone, context);
                                                   },
                                                 ),
-                                               
                                               ],
                                             );
                                           });
