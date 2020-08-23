@@ -113,7 +113,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       ),
                     );
                   } else if (state is BookingsListSuccess) {
-                    list = state.appointment;
+                    list = state.appointmentsList;
                     if (list.length == 0) {
                       return SliverFillRemaining(
                         hasScrollBody: false,
@@ -151,7 +151,6 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         delegate: SliverChildBuilderDelegate((context, index) {
                       if (list[index].slotStatus == "UPCOMING") {
                         return ListItemBooked(
-                            context: context,
                             name: list[index].subscriberName,
                             location: list[index].address,
                             slot: list[index].slot.startTime,
@@ -164,7 +163,6 @@ class _BookingsScreenState extends State<BookingsScreen> {
                             rating: double.parse(list[index].rating));
                       } else {
                         return ListItemCancelled(
-                          context: context,
                           name: list[index].subscriberName,
                           location: list[index].address,
                           slot: list[index].slot.startTime,

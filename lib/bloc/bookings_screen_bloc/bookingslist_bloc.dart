@@ -25,15 +25,26 @@ class BookingslistBloc extends Bloc<BookingslistEvent, BookingslistState> {
   Stream<BookingslistState> _mapBookingsRequestedEventToState(
       BookingsListRequested event) async* {
     yield BookingsListLoading();
+    List<String> statusList = [];
+    if (event.statusRequired != null) {
+      statusList.add(event.statusRequired);
+    } else {
+      statusList = [
+        "CANCELLED ",
+        "UPCOMING",
+        "CANCELLED BY SUBSCRIBER",
+        "DONE"
+      ];
+    }
     try {
-      final List<Appointment> response = await UserRepository().fetchAppointments(
-          ["CANCELLED ", "UPCOMING", "CANCELLED BY SUBSCRIBER", "DONE"]);
+      final List<Appointment> response =
+          await UserRepository().fetchAppointments(statusList);
 
       logger.i(response[response.length - 1].counterId);
       yield BookingsListSuccess(response);
     } catch (e) {
       logger.e(e);
-      yield BookingsListFailure();
+      yield BookingsListFailure(e.toString());
     }
   }
 }

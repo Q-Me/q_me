@@ -6,14 +6,12 @@ import 'package:intl/intl.dart';
 class ListItemBooked extends StatelessWidget {
   const ListItemBooked({
     Key key,
-    @required this.context,
     @required this.name,
     @required this.location,
     @required this.slot,
     @required this.otp,
   }) : super(key: key);
 
-  final BuildContext context;
   final String name;
   final String location;
   final DateTime slot;
@@ -211,13 +209,11 @@ class ListItemFinished extends StatelessWidget {
 class ListItemCancelled extends StatelessWidget {
   const ListItemCancelled({
     Key key,
-    @required this.context,
     @required this.name,
     @required this.location,
     @required this.slot,
   }) : super(key: key);
 
-  final BuildContext context;
   final String name;
   final String location;
   final DateTime slot;
@@ -255,20 +251,13 @@ class ListItemCancelled extends StatelessWidget {
           height: 20,
         ),
         Center(
-          child: Material(
-            child: InkWell(
-              onTap: () {
-                //TODO: navigate to cancelling the appointment
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: Text(
-                  "Cancelled",
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.grey,
-                  ),
-                ),
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Text(
+              "Cancelled",
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.grey,
               ),
             ),
           ),
