@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:pin_entry_text_field/pin_entry_text_field.dart';
 import 'package:qme/api/signin.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
@@ -31,6 +32,113 @@ class _OtpPageState extends State<OtpPage> {
   final formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
   var _fcmToken;
+  fcmTokenApiCall() async{
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+                                      _fcmToken = prefs.getString('fcmToken');
+        var responsefcm = await fcmTokenSubmit(_fcmToken);
+        print("fcm token Api: $responsefcm");
+        print("fcm token Api status: ${responsefcm['status']}");
+        prefs.setString('fcmToken', _fcmToken);
+        print(_fcmToken);
+  }
+
+  signInUser(BuildContext context) async {
+    Map response;
+    try {
+      Scaffold.of(context)
+          .showSnackBar(SnackBar(content: Text('Processing Data')));
+      response =
+          // Make LOGIN API call
+          response = await signInWithOtp(idToken);
+
+      if (response['status'] == 200) {
+        logger.d(response);
+        fcmTokenApiCall();
+      
+        Navigator.pushNamed(context, HomeScreen.id);
+      } else {
+        logger.d(response);
+        Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text(response['eror'].toString())));
+        return logger.d("error in api hit");
+      }
+    } catch (e) {
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      log('Error in signIn API: ' + e.toString());
+      return;
+    }
+  }
+
+  signUpUser(BuildContext context) async {
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Processing Data'),
+      ),
+    );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    formData['firstName'] = prefs.getString('userFirstNameSignup');
+    formData['lastName'] = prefs.getString('userLastNameSignup');
+    formData['phone'] = prefs.getString('userPhoneSignup');
+    formData['password'] = prefs.getString('userPasswordSignup');
+    formData['cpassword'] = prefs.getString('userCpasswordSignup');
+    formData['email'] = prefs.getString('userEmailSignup');
+
+    log('$formData');
+    formData['name'] = formData['firstName'] + " " + formData['lastName'];
+
+    UserRepository user = UserRepository();
+    formData['name'] = '${formData['firstName']}|${formData['lastName']}';
+    // Make SignUp API call
+    Map response;
+    try {
+      logger.d(formData);
+      response = await user.signUp(formData);
+    } on BadRequestException catch (e) {
+      log('BadRequestException on SignUp:' + e.toString());
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(
+          e.toString(),
+        ),
+      ));
+    } catch (e) {
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+        ),
+      );
+    }
+    log('SignUp response:${response.toString()}');
+
+    if (response != null && response['msg'] == 'Registation successful') {
+      // Make SignIn call
+      try {
+        Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text('Processing Data')));
+        response =
+            // Make LOGIN API call
+            response = await signInWithOtp(idToken);
+
+        if (response['status'] == 200) {
+          logger.d("respose of ${response['status']}");
+          logger.d(response);
+
+          Navigator.pushNamed(context, HomeScreen.id);
+          fcmTokenApiCall();
+        } else {
+          return logger.d("error in api hit");
+        }
+      } catch (e) {
+        Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+        log('Error in signIn API: ' + e.toString());
+        return;
+      }
+    } else {
+      logger.d("SignUp failed");
+      //Navigator.pushNamed(context, SignInScreen.id);
+      return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,10 +214,7 @@ class _OtpPageState extends State<OtpPage> {
                                           PhoneAuthProvider.getCredential(
                                               verificationId: verificationIdOtp,
                                               smsCode: code);
-                                      SharedPreferences prefs =
-                                          await SharedPreferences.getInstance();
 
-                                      _fcmToken = prefs.getString('fcmToken');
 
                                       AuthResult result = await authOtp
                                           .signInWithCredential(credential);
@@ -122,197 +227,17 @@ class _OtpPageState extends State<OtpPage> {
                                             .then((result) {
                                           idToken = result.token;
                                           formData['token'] = idToken;
-                                          print("@@ $idToken @@");
+                                          logger.d("@@ $idToken @@");
                                         });
                                         if (loginPage == "SignUp") {
-                                          Scaffold.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text('Processing Data'),
-                                            ),
-                                          );
-                                          SharedPreferences prefs =
-                                              await SharedPreferences
-                                                  .getInstance();
-                                          print("Signup page redirected");
-                                          formData['firstName'] = prefs
-                                              .getString('userFirstNameSignup');
-                                          formData['lastName'] = prefs
-                                              .getString('userLastNameSignup');
-                                          formData['phone'] = prefs
-                                              .getString('userPhoneSignup');
-                                          formData['password'] = prefs
-                                              .getString('userPasswordSignup');
-                                          formData['cpassword'] = prefs
-                                              .getString('userCpasswordSignup');
-                                          formData['email'] = prefs
-                                              .getString('userEmailSignup');
-
-                                          log('$formData');
-
-                                          _fcmToken = prefs.getString(
-                                            'fcmToken',
-                                          );
-                                          formData['name'] =
-                                              formData['firstName'] +
-                                                  " " +
-                                                  formData['lastName'];
-
-                                          UserRepository user =
-                                              UserRepository();
-                                          formData['name'] =
-                                              '${formData['firstName']}|${formData['lastName']}';
-                                          // Make SignUp API call
-                                          Map response;
-                                          try {
-                                            print("signUpData");
-                                            print(formData['phone']);
-                                            print(formData['name']);
-                                            print(formData);
-                                            response =
-                                                await user.signUp(formData);
-                                            print(response['status']);
-                                            print(response);
-                                          } on BadRequestException catch (e) {
-                                            log('BadRequestException on SignUp:' +
-                                                e.toString());
-                                            Scaffold.of(context)
-                                                .showSnackBar(SnackBar(
-                                              content: Text(
-                                                e.toString(),
-                                              ),
-                                            ));
-                                          } catch (e) {
-                                            log('SignUp failed:' +
-                                                e.toString());
-                                            Scaffold.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text(e.toString()),
-                                              ),
-                                            );
-                                          }
-                                          log('SignUp response:${response.toString()}');
-
-                                          if (response != null &&
-                                              response['msg'] ==
-                                                  'Registation successful') {
-                                            // Make SignIn call
-                                            try {
-                                              SharedPreferences prefs =
-                                                  await SharedPreferences
-                                                      .getInstance();
-                                              prefs.setString(
-                                                  'fcmToken', _fcmToken);
-                                              Scaffold.of(context).showSnackBar(
-                                                  SnackBar(
-                                                      content: Text(
-                                                          'Processing Data')));
-                                              response =
-                                                  // Make LOGIN API call
-                                                  response =
-                                                      await signInWithOtp(
-                                                          idToken);
-                                              print("reponse Status ");
-
-                                              if (response['status'] == 200) {
-                                                print(
-                                                    "respose of ${response['status']}");
-                                                print(response);
-
-                                                Navigator.pushNamed(
-                                                    context, HomeScreen.id);
-                                                var responsefcm =
-                                                    await fcmTokenSubmit(
-                                                        _fcmToken);
-                                                print(
-                                                    "fcm token Api: $responsefcm");
-                                                print(
-                                                    "fcm token Api response: ${responsefcm['status']}");
-                                              } else {
-                                                return print(
-                                                    "error in api hit");
-                                              }
-                                            } catch (e) {
-                                              Scaffold.of(context).showSnackBar(
-                                                  SnackBar(
-                                                      content:
-                                                          Text(e.toString())));
-                                              // _showSnackBar(e.toString());
-                                              log('Error in signIn API: ' +
-                                                  e.toString());
-                                              return;
-                                            }
-                                            // if (response['name'] != null) {
-                                            //   // SignIn successful
-                                            //   Navigator.pushNamed(
-                                            //       context, NearbyScreen.id);
-                                            // }
-                                          } else {
-                                            print("SignUp failed");
-                                            return;
-                                          }
+                                          signUpUser(context);
                                         } else {
-                                          print("Else is called");
-                                          Map response;
-                                          try {
-                                            Scaffold.of(context).showSnackBar(
-                                                SnackBar(
-                                                    content: Text(
-                                                        'Processing Data')));
-                                            response =
-                                                // Make LOGIN API call
-                                                response = await signInWithOtp(
-                                                    idToken);
-
-                                            if (response['status'] == 200) {
-                                              print(
-                                                  "respose of ${response['status']}");
-                                              print(response);
-
-                                              SharedPreferences prefs =
-                                                  await SharedPreferences
-                                                      .getInstance();
-
-                                              var responsefcm =
-                                                  await fcmTokenSubmit(
-                                                      _fcmToken);
-                                              print(
-                                                  "fcm token Api: $responsefcm");
-                                              print(
-                                                  "fcm token Api status: ${responsefcm['status']}");
-                                              prefs.setString(
-                                                  'fcmToken', _fcmToken);
-                                              Navigator.pushNamed(
-                                                  context, HomeScreen.id);
-                                            } else {
-                                              print(response['status']);
-                                              print(response);
-                                              Scaffold.of(context).showSnackBar(
-                                                  SnackBar(
-                                                      content: Text(response[
-                                                                  'status']
-                                                              .toString() +
-                                                          " " +
-                                                          response['error']
-                                                              .toString())));
-                                              return print("error in api hit");
-                                            }
-                                          } catch (e) {
-                                            Scaffold.of(context).showSnackBar(
-                                                SnackBar(
-                                                    content:
-                                                        Text(e.toString())));
-                                            // _showSnackBar(e.toString());
-                                            log('Error in signIn API: ' +
-                                                e.toString());
-                                            return;
-                                          }
+                                          signInUser(context);
                                         }
                                       } else {
-                                        print("Error");
+                                        logger.d("Some Error occured");
                                       }
                                     } on PlatformException catch (e) {
-                                      print("Looking for Error code");
-                                      print(e.message);
                                       Navigator.of(context).pop();
 
                                       showDialog(
@@ -331,22 +256,20 @@ class _OtpPageState extends State<OtpPage> {
                                                       .primaryColor,
                                                   onPressed: () {
                                                     // Navigator.of(context).pop();
-                                                      Navigator
-                                                                .pushAndRemoveUntil(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                      builder:
-                                                                          (context) =>
-                                                                              SignInScreen(),
-                                                                    ),
-                                                                    (route) =>
-                                                                        false);
+                                                    Navigator
+                                                        .pushAndRemoveUntil(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  SignInScreen(),
+                                                            ),
+                                                            (route) => false);
                                                   },
                                                 )
                                               ],
                                             );
                                           });
-                                      print(e.code);
+                                      logger.d(e.code);
                                     } on Exception catch (e) {
                                       Navigator.of(context).pop();
 
@@ -365,25 +288,21 @@ class _OtpPageState extends State<OtpPage> {
                                                   color: Theme.of(context)
                                                       .primaryColor,
                                                   onPressed: () async {
-                                                      Navigator
-                                                                .pushAndRemoveUntil(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                      builder:
-                                                                          (context) =>
-                                                                              SignInScreen(),
-                                                                    ),
-                                                                    (route) =>
-                                                                        false);
+                                                    Navigator
+                                                        .pushAndRemoveUntil(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  SignInScreen(),
+                                                            ),
+                                                            (route) => false);
                                                     // Navigator.of(context).pop();
-
                                                   },
                                                 )
                                               ],
                                             );
                                           });
-                                      print("Looking for Error message");
-                                      print(e);
+                                      logger.d(e);
                                     }
                                   },
                                   child: Center(
