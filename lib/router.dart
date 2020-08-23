@@ -99,10 +99,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
                 subscriberName: arguments['subscriberName'],
               ),
           settings: RouteSettings(name: ReviewScreen.id));
+
     case BookingSuccess.id:
-      Map<String, dynamic> arguments = settings.arguments;
+      final SuccessScreenArguments arguments =
+          settings.arguments ?? SuccessScreenArguments(otp: settings.arguments);
       return MaterialPageRoute(
-          builder: (context) => BookingSuccess(otp: arguments['otp']),
+          builder: (context) => BookingSuccess(arguments),
           settings: RouteSettings(name: BookingSuccess.id));
 
     default:

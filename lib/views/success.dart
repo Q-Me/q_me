@@ -1,17 +1,24 @@
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 
+class SuccessScreenArguments {
+  final String otp;
+
+  SuccessScreenArguments({@required this.otp});
+}
+
 class BookingSuccess extends StatefulWidget {
   static const String id = "/bookingSuccess";
-  BookingSuccess({Key key, @required this.otp}) : super(key: key);
-  final String otp;
+  BookingSuccess(this.args, {Key key}) : super(key: key);
+
+  final SuccessScreenArguments args;
 
   @override
   _BookingSuccessState createState() => _BookingSuccessState();
 }
 
 class _BookingSuccessState extends State<BookingSuccess> {
-  String get otp => widget.otp;
+  String get otp => widget.args.otp;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
