@@ -24,17 +24,23 @@ class IntroScreenState extends State<IntroScreen> {
 
     slides.add(
       new Slide(
-        pathImage: "assets/temp/introSlider1.png",
+        title: "Convenience", marginTitle: EdgeInsets.only(top: 400.0), styleTitle: TextStyle(color: Colors.brown[900] ,fontWeight: FontWeight.bold, fontSize: 25.0,),
+        description: "Book in the comfort of your home or in your office by choosing your own time for your required service seamlessly.", marginDescription: EdgeInsets.all( 16.0),styleDescription: TextStyle(color: Colors.brown[900] ,fontWeight: FontWeight.bold ,height: 1.5, fontSize: 16.0),
+        backgroundImage: "assets/temp/introSlider1.png",backgroundOpacity: 0.0
       ),
     );
     slides.add(
       new Slide(
-        pathImage: "assets/temp/introSlider2.png",
+        title: "Precation & Time Saving!",marginTitle: EdgeInsets.only(top: 400.0), styleTitle: TextStyle(color: Colors.brown[900] ,fontWeight: FontWeight.bold, fontSize: 25.0,),
+        description: "Avoid the risk of getting infected and safe your precious time by never having to bear the hassle of a queue in this all-in-one App.",marginDescription: EdgeInsets.all( 16.0),styleDescription: TextStyle(color: Colors.brown[900] ,fontWeight: FontWeight.bold ,height: 1.5, fontSize: 16.0),
+        backgroundImage: "assets/temp/introSlider2.png",backgroundOpacity: 0.0
       ),
     );
     slides.add(
       new Slide(
-        pathImage: "assets/temp/introSlider3.png",
+        title: "Best User Experince",marginTitle: EdgeInsets.only(top: 400.0), styleTitle: TextStyle(color: Colors.brown[900] ,fontWeight: FontWeight.bold, fontSize: 25.0,),
+        description: "User interface enabling great product-user communication and also ensures user's security Simple and easy to use.",marginDescription: EdgeInsets.all( 16.0),styleDescription: TextStyle(color: Colors.brown[900] ,fontWeight: FontWeight.bold ,height: 1.5, fontSize: 16.0),
+        backgroundImage: "assets/temp/introSlider3.png",backgroundOpacity: 0.0
       ),
     );
   }
@@ -68,28 +74,28 @@ class IntroScreenState extends State<IntroScreen> {
     );
   }
 
-  List<Widget> renderListCustomTabs() {
-    List<Widget> tabs = new List();
-    for (int i = 0; i < slides.length; i++) {
-      Slide currentSlide = slides[i];
-      tabs.add(Container(
-        width: double.infinity,
-        height: double.infinity,
-        child: Container(
-          child: ListView(
-            children: <Widget>[
-              GestureDetector(
-                  child: Image.asset(
-                currentSlide.pathImage,
-                fit: BoxFit.fill,
-              )),
-            ],
-          ),
-        ),
-      ));
-    }
-    return tabs;
-  }
+  // List<Widget> renderListCustomTabs() {
+  //   List<Widget> tabs = new List();
+  //   for (int i = 0; i < slides.length; i++) {
+  //     Slide currentSlide = slides[i];
+  //     tabs.add(Container(
+  //       width: double.infinity,
+  //       height: double.infinity,
+  //       child: Container(
+  //         child: ListView(
+  //           children: <Widget>[
+  //             GestureDetector(
+  //                 child: Image.asset(
+  //               currentSlide.pathImage,
+  //               fit: BoxFit.fill,
+  //             )),
+  //           ],
+  //         ),
+  //       ),
+  //     ));
+  //   }
+  //   return tabs;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +124,7 @@ class IntroScreenState extends State<IntroScreen> {
           typeDotAnimation: dotSliderAnimation.SIZE_TRANSITION,
 
           // Tabs
-          listCustomTabs: this.renderListCustomTabs(),
+         // listCustomTabs: this.renderListCustomTabs(),
          backgroundColorAllSlides: Colors.black12,
           refFuncGoToTab: (refFunc) {
             this.goToTab = refFunc;
