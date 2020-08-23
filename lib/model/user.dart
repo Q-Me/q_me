@@ -67,7 +67,7 @@ Future<UserData> getUserDataFromStorage() async {
   // See if user id, and other details are stored in local storage of the app
   Box box = await Hive.openBox("user");
 
-  String id = await await box.get('id') ?? null;
+  String id = await box.get('id') ?? null;
   String name = await box.get('name') ?? null;
   String accessToken = await box.get('accessToken') ?? null;
   String refreshToken = await box.get('refreshToken') ?? null;

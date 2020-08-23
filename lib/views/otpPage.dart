@@ -108,7 +108,7 @@ class _OtpPageState extends State<OtpPage> {
 
                                       Box box = await Hive.openBox("user");
 
-                                      _fcmToken = box.get('fcmToken');
+                                      _fcmToken = await box.get('fcmToken');
 
                                       AuthResult result = await authOtp
                                           .signInWithCredential(credential);
@@ -203,7 +203,8 @@ class _OtpPageState extends State<OtpPage> {
                                               Box box =
                                                   await Hive.openBox("user");
 
-                                              box.put('fcmToken', _fcmToken);
+                                              await box.put(
+                                                  'fcmToken', _fcmToken);
                                               Scaffold.of(context).showSnackBar(
                                                   SnackBar(
                                                       content: Text(
@@ -279,7 +280,8 @@ class _OtpPageState extends State<OtpPage> {
                                                   "fcm token Api: $responsefcm");
                                               print(
                                                   "fcm token Api status: ${responsefcm['status']}");
-                                              box.put('fcmToken', _fcmToken);
+                                              await box.put(
+                                                  'fcmToken', _fcmToken);
                                               Navigator.pushNamed(
                                                   context, HomeScreen.id);
                                             } else {

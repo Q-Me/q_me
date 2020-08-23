@@ -23,7 +23,6 @@ void main() async {
   Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  // await Hive.openBox("appointment");
   await Hive.openBox("user");
 
   // Logger.level = Level.warning;

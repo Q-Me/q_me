@@ -111,7 +111,7 @@ class _SignInScreenState extends State<SignInScreen>
           loginPage = "SignIn";
           Box box = await Hive.openBox("user");
 
-          box.put('fcmToken', _fcmToken);
+          await box.put('fcmToken', _fcmToken);
 
           setState(() {
             showOtpTextfield = true;
@@ -696,7 +696,7 @@ class _SignInScreenState extends State<SignInScreen>
                                                       "fcm token api: $responsefcm");
                                                   print(
                                                       "fcm token status: ${responsefcm['status']}");
-                                                  box.put(
+                                                  await box.put(
                                                       'fcmToken', _fcmToken);
                                                 } else {
                                                   print(
