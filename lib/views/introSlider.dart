@@ -74,28 +74,28 @@ class IntroScreenState extends State<IntroScreen> {
     );
   }
 
-  // List<Widget> renderListCustomTabs() {
-  //   List<Widget> tabs = new List();
-  //   for (int i = 0; i < slides.length; i++) {
-  //     Slide currentSlide = slides[i];
-  //     tabs.add(Container(
-  //       width: double.infinity,
-  //       height: double.infinity,
-  //       child: Container(
-  //         child: ListView(
-  //           children: <Widget>[
-  //             GestureDetector(
-  //                 child: Image.asset(
-  //               currentSlide.pathImage,
-  //               fit: BoxFit.fill,
-  //             )),
-  //           ],
-  //         ),
-  //       ),
-  //     ));
-  //   }
-  //   return tabs;
-  // }
+ /* List<Widget> renderListCustomTabs() {
+    List<Widget> tabs = new List();
+    for (int i = 0; i < slides.length; i++) {
+      Slide currentSlide = slides[i];
+      tabs.add(Container(
+        width: double.infinity,
+        height: double.infinity,
+        child: Container(
+          child: ListView(
+            children: <Widget>[
+              GestureDetector(
+                  child: Image.asset(
+                currentSlide.pathImage,
+                fit: BoxFit.fill,
+              )),
+            ],
+          ),
+        ),
+      ));
+    }
+    return tabs;
+  }*/
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/api/endpoints.dart';
 import 'package:qme/model/user.dart';
@@ -46,7 +45,7 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Center(child: Text("My Appointments")),
+          title: Center(child: Text("Appointments History")),
         ),
         body: FutureBuilder(
           future: getData(),
@@ -129,7 +128,7 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen> {
                             //labelStyle: textStyle,
                             errorStyle: TextStyle(
                                 color: Colors.redAccent, fontSize: 16.0),
-                            hintText: 'History Type',
+                            hintText: 'Please History Type',
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(5.0))),
                         isEmpty: currentSelectedValue == '',
@@ -188,12 +187,6 @@ Widget listElement(
 ) {
   var cHeight = MediaQuery.of(context).size.height;
   var cWidth = MediaQuery.of(context).size.width;
-String startDate =
-      DateFormat.yMMMd().format(DateTime.parse(data[index]['slot_starttime'])) +
-          " " +
-          DateFormat.jm().format(DateTime.parse(data[index]['slot_starttime']));
-  String endTime =
-      DateFormat.jm().format(DateTime.parse(data[index]['slot_endtime']));
 
   return Padding(
     padding: EdgeInsets.symmetric(
@@ -221,21 +214,34 @@ String startDate =
                             .toUpperCase(),
                       ),
                     )
+                        // : GestureDetector(
+                        //     child: ClipOval(
+                        //         child: FadeInImage(
+                        //             placeholder: const AssetImage(
+                        //                 'assets/img/customerIcon2.png'),
+                        //             image: NetworkImage(
+                        //               data[index]['profileImage'],
+                        //             ),
+                        //             width: cWidth * 0.15,
+                        //             height: cWidth * 0.15,
+                        //             fit: BoxFit.cover)),
+                        //   ),
                         ),
-                    width: 40.0,
-                    height: 40.0,
-                    padding: EdgeInsets.all(2),
+                    width: 32.0,
+                    height: 32.0,
+                    padding: EdgeInsets.all(2), // borde width
                     decoration: BoxDecoration(
+                      // color: color, // border color
                       shape: BoxShape.circle,
                     ),
                   ),
-                 isThreeLine: true,
-                    title: Text(
-                      "${data[index]['subscriber']}",
-                    ),
-                    subtitle: Text(
-                     "$startDate - $endTime\nStatus: ${data[index]['slot_status']}\nPhone: ${data[index]['phone']}\nNote: ${data[index]['note']}",
-                    ),
+                  isThreeLine: true,
+                  title: Text(
+                    "${data[index]['subscriber']}",
+                  ),
+                  subtitle: Text(
+                    " PHONE: ${data[index]['phone']} \n ADDRESS : ${data[index]['phone']} \n NOTE:{${data[index]['phone']} \n STATUS:${data[index]['slot_status']}",
+                  ),
                 ),
               ),
               Padding(
