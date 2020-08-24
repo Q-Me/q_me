@@ -1,4 +1,3 @@
-//import 'dart:html';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:developer';
