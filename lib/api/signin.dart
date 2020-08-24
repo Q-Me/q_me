@@ -55,15 +55,11 @@ Future<Map> fcmTokenSubmit(String fcmToken) async {
 
   ApiBaseHelper _helper = ApiBaseHelper();
   final UserData userData = await getUserDataFromStorage();
-  print("userData.accessToken ${userData.accessToken}");
-  print("fcm $fcmToken");
   var response = await http.post(
     baseURL + fcmUrl,
     body: {"token": fcmToken},
     headers: {'Authorization': 'Bearer ${userData.accessToken}'},
   );
-  print("response: ${response.statusCode} and ${response.body}");
-
   final decodedJSON = jsonDecode(response.body);
   if (response.statusCode == 200) {
     return {'status': 200};
