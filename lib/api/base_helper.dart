@@ -45,7 +45,6 @@ class ApiBaseHelper {
         body: jsonEncode(req),
       );
       responseJson = _returnResponse(response);
-      logger.d(responseJson.toString());
     } on SocketException {
       throw FetchDataException('No Internet connection');
     } finally {
@@ -55,10 +54,11 @@ class ApiBaseHelper {
   }
 
   dynamic _returnResponse(http.Response response) {
+    logger.d('Response:${json.decode(response.body.toString())}');
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body.toString());
-//        logger.d('Response:$responseJson');
+       
         return responseJson;
       case 400:
         throw BadRequestException(response.body.toString());

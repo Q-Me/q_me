@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:calendar_strip/calendar_strip.dart';
 import 'package:flutter/material.dart';
 
 dateTileBuilder(
@@ -85,28 +84,4 @@ monthNameWidget(monthName) {
 
 onSelect(data) {
   log("Selected Date -> $data");
-}
-
-class CalStrip extends StatelessWidget {
-  final DateTime startDate;
-  final DateTime endDate;
-  final List<DateTime> markedDates;
-  Function onSelect;
-
-  CalStrip({Key key, this.startDate, this.endDate, this.markedDates})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return CalendarStrip(
-      startDate: startDate,
-      endDate: endDate,
-      onDateSelected: onSelect,
-      dateTileBuilder: dateTileBuilder,
-      iconColor: Colors.black87,
-      monthNameWidget: monthNameWidget,
-      markedDates: markedDates,
-//      containerDecoration: BoxDecoration(color: Colors.black12),
-    );
-  }
 }

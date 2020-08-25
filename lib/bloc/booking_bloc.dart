@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:meta/meta.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/repository/appointment.dart';
@@ -59,7 +59,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
         error = e.toString();
       }
       logger.e(error);
-      BookingLoadFailure(message:error);
+      BookingLoadFailure(message: error);
     } catch (error) {
       logger.e(error.toString());
       yield BookingLoadFailure();

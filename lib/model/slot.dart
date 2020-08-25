@@ -8,19 +8,26 @@ class Slot extends Equatable {
   Slot({
     @required this.startTime,
     @required this.endTime,
-    this.booked,
+    this.done = 0,
+    this.upcoming = 0,
     this.customersInSlot,
+    this.booked = false,
   });
-  List<Appointment> appointments = [];
-  Duration get duration => endTime.difference(startTime);
-  void addAppointment(Appointment appointment) {
-    appointments.add(appointment);
-  }
 
   final DateTime startTime;
   final DateTime endTime;
-  int booked;
   int customersInSlot;
+  int done;
+  int upcoming;
+  bool booked;
+
+  @override
+  List get props =>
+      [startTime, endTime, customersInSlot, done, upcoming, booked];
+
+  Duration get duration => endTime.difference(startTime);
+  bool get availableForBooking =>
+      customersInSlot - upcoming - done > 0 && !booked ? true : false;
 
   factory Slot.fromJson(Map<String, dynamic> json) => Slot(
         startTime: DateTime.parse(json["starttime"]),
@@ -31,8 +38,9 @@ class Slot extends Equatable {
         "starttime": startTime.toIso8601String(),
         "endtime": endTime.toIso8601String(),
         "cust_per_slot": customersInSlot,
+        "upcoming": upcoming,
+        "done": done,
         "booked": booked,
+        "availableForBooking": availableForBooking,
       };
-
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

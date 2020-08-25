@@ -46,8 +46,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   AppointmentRepository appointmentRepository;
   bool cancel = false;
 
-  @override
-  void initState() {
+ @override
+  void initState() { 
     _appointmentBloc = AppointmentBloc(
       slot: slot,
       subscriber: subscriber,
@@ -60,7 +60,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_appointmentBloc == null) {
+    if (_appointmentBloc<> == null) {
       _appointmentBloc = AppointmentBloc(
         slot: slot,
         subscriber: subscriber,

@@ -7,8 +7,10 @@ import 'package:qme/views/profile.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/views/slot_view.dart';
+import 'package:qme/views/subscriber.dart';
 import 'package:qme/views/unknown.dart';
 
+import 'model/subscriber.dart';
 import 'views/profile.dart';
 import 'views/signin.dart';
 import 'views/signup.dart';
@@ -46,13 +48,6 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: NearbyScreen.id),
       );
 
-    case SubscriberScreen.id:
-      Subscriber subscriber = settings.arguments;
-      return MaterialPageRoute(
-        builder: (context) => SubscriberScreen(subscriber: subscriber),
-        settings: RouteSettings(name: SubscriberScreen.id),
-      );
-
     case TokenScreen.id:
       String queueId = settings.arguments;
       return MaterialPageRoute(
@@ -60,7 +55,16 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: TokenScreen.id),
       );*/
 
+    case SubscriberScreen.id:
+      Subscriber subscriber = settings.arguments;
+      return MaterialPageRoute(
+        builder: (context) => SubscriberScreen(subscriber: subscriber),
+        settings: RouteSettings(name: SubscriberScreen.id),
+      );
+      
     case SlotView.id:
+
+    // TODO Update arguments
       final SlotViewArguments arg = settings.arguments ??
           SlotViewArguments(
             subscriberId: "settings.arguments",
