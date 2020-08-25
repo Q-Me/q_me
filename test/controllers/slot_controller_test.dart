@@ -262,17 +262,20 @@ void main() {
             endTime: start2.add(Duration(hours: 1)),
             upcoming: 0,
             done: 2,
+            customersInSlot: 2,
           ),
           Slot(
             startTime: start2.add(Duration(hours: 1)),
             endTime: start2.add(Duration(hours: 2)),
             upcoming: 2,
+            customersInSlot: 0,
             done: 0,
           ),
           Slot(
             startTime: start2.add(Duration(hours: 2)),
             endTime: start2.add(Duration(hours: 3)),
             upcoming: 1,
+            customersInSlot: 2,
             done: 0,
           ),
         ]));
