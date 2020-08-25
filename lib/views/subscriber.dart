@@ -18,6 +18,7 @@ import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/time.dart';
 import 'package:qme/views/appointment.dart';
+import 'package:qme/views/slot_view.dart';
 import 'package:qme/views/token.dart';
 import 'package:qme/widgets/error.dart';
 import 'package:qme/widgets/loader.dart';
@@ -39,7 +40,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
 
   @override
   void initState() {
-    logger.d('Opening queues for subscriber id:' + widget.subscriber.id);
+    logger.d('Opening subscriber for subscriber id:' + widget.subscriber.id);
     super.initState();
     _bloc = SubscriberBloc(widget.subscriber.id);
   }
@@ -86,7 +87,18 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
               children: <Widget>[
                 SubscriberHeaderInfo(subscriber: widget.subscriber),
                 SubscriberImages(),
-                Queues(),
+                // Queues(),
+                RaisedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      SlotView.id,
+                      arguments:
+                          SlotViewArguments(subscriberId: _bloc.subscriberId),
+                    );
+                  },
+                  child: Text('Check Available slots'),
+                ),
                 Divider(),
                 ReceptionsDisplay(),
                 SizedBox(height: 20)
@@ -238,7 +250,7 @@ class ReceptionCard extends StatelessWidget {
   final Reception reception;
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
+    return Provider.value(
       value: reception,
       child: Card(
         elevation: 8,

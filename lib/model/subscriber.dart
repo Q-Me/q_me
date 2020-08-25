@@ -38,7 +38,8 @@ class Subscriber extends ChangeNotifier {
       category;
   double latitude, longitude;
   bool verified;
-  List<String> displayImages;
+  List<String> displayImages, tags;
+  int rating;
 
   Subscriber({
     this.id,
@@ -55,6 +56,8 @@ class Subscriber extends ChangeNotifier {
     this.verified,
     this.distance,
     this.displayImages,
+    this.tags,
+    this.rating,
   });
 
   factory Subscriber.fromJson(Map<String, dynamic> json) {
@@ -79,12 +82,16 @@ class Subscriber extends ChangeNotifier {
           ? double.parse(json["longitude"].toString())
           : null,
       verified: int.parse(json['verified'].toString()) == 1 ? true : false,
-      description: json["description"],
+      description: json["description"] == null || json["description"] == "NULL"
+          ? ""
+          : json["description"],
       category: json["category"],
       distance: distance,
       displayImages: json["displayImages"] != null
           ? List<String>.from(json["displayImages"])
           : null,
+      tags: json["tags"] != null ? json["tags"] : null,
+      rating: json["rating"],
     );
   }
 
@@ -103,5 +110,6 @@ class Subscriber extends ChangeNotifier {
         "description": description,
         "category": category,
         "displayImages": displayImages,
+        "tags": tags,
       };
 }

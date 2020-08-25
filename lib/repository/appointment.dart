@@ -116,19 +116,22 @@ class AppointmentRepository {
     return response;
   }
 
-  Future getReceptionAppointments({
-    @required String counterId,
-    @required String status,
+  Future<List<Appointment>> getReceptionAppointments({
+    @required String receptionId,
+    @required status,
   }) async {
     final response = await _helper.post(
       '/user/slot/counterslots',
       req: {
-        "counter_id": counterId,
+        "counter_id": receptionId,
         "status": status,
       },
       authToken: await accessToken,
     );
-    return response;
+
+    return List<Appointment>.from(
+      response["slots"].map((element) => Appointment.fromMap(element)).toList(),
+    );
   }
 
   Future<List<Appointment>> fetchAppointments(
