@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
+import 'package:qme/utilities/logger.dart';
 
 import '../api/base_helper.dart';
 import '../model/subscriber.dart';
@@ -49,7 +50,7 @@ class SubscribersBloc extends ChangeNotifier {
       subscribersListSink.add(ApiResponse.completed(subscribers));
     } catch (e) {
       subscribersListSink.add(ApiResponse.error(e.toString()));
-      log('Error in Subscriber BLoC:fetchSubscribersList:' + e.toString());
+      logger.e('Error in Subscriber BLoC:fetchSubscribersList:' + e.toString());
     }
   }
 
@@ -67,7 +68,7 @@ class SubscribersBloc extends ChangeNotifier {
       subscribersListSink.add(ApiResponse.completed(subscriberList));
     } catch (e) {
       subscribersListSink.add(ApiResponse.error(e.toString()));
-      log('Error in Subscriber BLoC:fetchSubscribersList:' + e.toString());
+      logger.e('Error in Subscriber BLoC:fetchSubscribersList:' + e.toString());
     }
   }
 
