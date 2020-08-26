@@ -14,10 +14,8 @@ import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
-import 'package:qme/views/slot_view.dart';
 import 'package:qme/widgets/theme.dart';
 
-import 'views/home.dart';
 
 String initialHome = IntroScreen.id;
 
@@ -25,6 +23,7 @@ void main() async {
   Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  // await Hive.openBox("appointment");
   await Hive.openBox("user");
 
   // Logger.level = Level.warning;
@@ -32,8 +31,8 @@ void main() async {
   // TODO setConfigs();
   // TODO fetch user related information
 
-  await setSession();
-//  clearSession();
+  // await setSession();
+  await clearSession();
 
   if (await UserRepository().isSessionReady()) {
     initialHome = HomeScreen.id;

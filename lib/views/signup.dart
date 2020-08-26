@@ -7,16 +7,17 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/utilities/logger.dart';
+import 'package:qme/constants.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/formField.dart';
 import 'package:qme/widgets/text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -298,297 +299,295 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    MyBackButton(),
-                    Container(
-                        padding: EdgeInsets.only(left: 20),
-                        child: ThemedText(words: ['Hop', 'In'])),
-                    Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 30.0),
-                        child: Column(
-                          children: <Widget>[
-                            MyFormField(
-                              required: true,
-                              name: 'FIRST NAME*',
-                              callback: (value) {
-                                formData['firstName'] = value;
-                                print(formData['firstName']);
-                                log('first name is ${formData['firstName']}');
-                              },
-                            ),
-                            SizedBox(height: 10.0),
-                            MyFormField(
-                              name: 'LAST NAME',
-                              callback: (value) {
-                                formData['lastName'] = value;
-                                print(formData['lastName']);
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  MyBackButton(),
+                  Container(
+                      padding: EdgeInsets.only(left: 20),
+                      child: ThemedText(words: ['Hop', 'In'])),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+                    child: Column(
+                      children: <Widget>[
+                        MyFormField(
+                          required: true,
+                          name: 'FIRST NAME*',
+                          callback: (value) {
+                            formData['firstName'] = value;
+                            print(formData['firstName']);
+                            log('first name is ${formData['firstName']}');
+                          },
+                        ),
+                        SizedBox(height: 10.0),
+                        MyFormField(
+                          name: 'LAST NAME',
+                          callback: (value) {
+                            formData['lastName'] = value;
+                            print(formData['lastName']);
 
-                                log('last name is ${formData['lastName']}');
-                              },
-                            ),
-                            SizedBox(height: 10.0),
-                            Container(
-                              child: TextFormField(
-                                keyboardType: TextInputType.phone,
-                                controller: _phoneController,
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'This field cannot be left blank';
-                                  } else if (value.startsWith("+91")) {
-                                    return 'Phone number must start with +91';
-                                  } else if (value.length != 13) {
-                                    return 'Phone number must be 10 digits after +91';
-                                  } else {
-                                    //setState(() {
-                                    formData['phone'] = value;
-                                    print(formData['phone']);
-                                    //  });
-                                  }
-                                  return null;
-                                },
-                                decoration: kTextFieldDecoration.copyWith(
-                                    labelText: "PHONE*"),
-                              ),
-                            ),
-                            SizedBox(height: 10.0),
-                            MyFormField(
-                              keyboardType: TextInputType.emailAddress,
-                              name: 'EMAIL',
-                              required: false,
-                              callback: (value) {
-                                formData['email'] = value;
-                                print(formData['email']);
-                              },
-                            ),
-                            SizedBox(height: 10.0),
-                            TextFormField(
-                              // Password
-                              //autofocus: true,
-                              obscureText: !passwordVisible,
-                              validator: (value) {
-                                Pattern pattern =
-                                    r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])';
-                                RegExp regex = new RegExp(pattern);
-                                if (value.length < 6 || value.length > 20)
-                                  return 'Password should be not be less than 6 characters';
-                                else if (!regex.hasMatch(value)) {
-                                  return 'Password must contain one numeric ,one upper and one lower case letter';
-                                } else {
-                                  formData['password'] = value;
-                                  return null;
-                                }
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'PASSWORD',
-                                labelStyle: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey),
-                                focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context).primaryColor)),
-                                focusColor: Colors.lightBlue,
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    // Based on passwordVisible state choose the icon
-                                    passwordVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                  onPressed: () {
-                                    // Update the state i.e. toogle the state of passwordVisible variable
-                                    setState(() {
-                                      passwordVisible = !passwordVisible;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10.0),
-                            TextFormField(
-                              // Password
-                              // autofocus: true,
-                              obscureText: !passwordVisible,
-                              validator: (value) {
-                                if (value.length < 6)
-                                  return 'Password should be not be less than 6 characters';
-                                else {
-                                  formData['cpassword'] = value;
-                                  return null;
-                                }
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'CONFIRM PASSWORD',
-                                labelStyle: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey),
-                                focusedBorder: UnderlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.green)),
-                                focusColor: Theme.of(context).primaryColorDark,
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    // Based on passwordVisible state choose the icon
-                                    passwordVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                  onPressed: () {
-                                    // Update the state i.e. toggle the state of passwordVisible variable
-                                    setState(() {
-                                      passwordVisible = !passwordVisible;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                            Provider.value(
-                              value: checkedValue,
-                              child: CheckboxListTileFormField(
-                                title: FlatButton(
-                                  color: Colors.transparent,
-                                  onPressed: () => setState(() {
-                                    _launched = _launchInBrowser(
-                                        "https://q-me.flycricket.io/privacy.html");
-                                  }),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'I agree to Privacy Policy',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                onSaved: (newValue) {
-                                  bool checkedValue =
-                                      Provider.of<bool>(context);
-                                  checkedValue = newValue;
-                                  logger.d('Checked $checkedValue');
-                                },
-                                validator: (bool value) {
-                                  if (value) {
-                                    return null;
-                                  } else {
-                                    return 'In order to proceed you have to agree';
-                                  }
-                                },
-                              ),
-                            ),
-                            SizedBox(height: 50.0),
-                            Container(
-                              height: 50.0,
-                              child: Material(
-                                borderRadius: BorderRadius.circular(20.0),
-                                shadowColor: Colors.blueAccent,
+                            log('last name is ${formData['lastName']}');
+                          },
+                        ),
+                        SizedBox(height: 10.0),
+                        Container(
+                          child: TextFormField(
+                            keyboardType: TextInputType.phone,
+                            controller: _phoneController,
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'This field cannot be left blank';
+                              } else if (value.startsWith("+91")) {
+                                return 'Phone number must start with +91';
+                              } else if (value.length != 13) {
+                                return 'Phone number must be 10 digits after +91';
+                              } else {
+                                //setState(() {
+                                formData['phone'] = value;
+                                print(formData['phone']);
+                                //  });
+                              }
+                              return null;
+                            },
+                            decoration: kTextFieldDecoration.copyWith(
+                                labelText: "PHONE*"),
+                          ),
+                        ),
+                        SizedBox(height: 10.0),
+                        MyFormField(
+                          keyboardType: TextInputType.emailAddress,
+                          name: 'EMAIL',
+                          required: false,
+                          callback: (value) {
+                            formData['email'] = value;
+                            print(formData['email']);
+                          },
+                        ),
+                        SizedBox(height: 10.0),
+                        TextFormField(
+                          // Password
+                          //autofocus: true,
+                          obscureText: !passwordVisible,
+                          validator: (value) {
+                            Pattern pattern =
+                                r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])';
+                            RegExp regex = new RegExp(pattern);
+                            if (value.length < 6 || value.length > 20)
+                              return 'Password should be not be less than 6 characters';
+                            else if (!regex.hasMatch(value)) {
+                              return 'Password must contain one numeric ,one upper and one lower case letter';
+                            } else {
+                              formData['password'] = value;
+                              return null;
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'PASSWORD',
+                            labelStyle: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor)),
+                            focusColor: Colors.lightBlue,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                // Based on passwordVisible state choose the icon
+                                passwordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                                 color: Theme.of(context).primaryColor,
-                                elevation: 7.0,
-                                child: InkWell(
-                                  onTap: () async {
-                                    FocusScope.of(context).requestFocus(
-                                        FocusNode()); // dismiss the keyboard
-                                    if (formKey.currentState.validate()) {
-                                      log('$formData');
-                                      // check phone number length
-                                      if (formData['phone'].length != 13) {
-                                        Scaffold.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                                'Phone number must have 10 digits with country code'),
-                                          ),
-                                        );
-                                      }
-
-                                      if (formData['password'] !=
-                                          formData['cpassword']) {
-                                        Scaffold.of(context).showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  'Passwords do not match')),
-                                        );
-                                        return null;
-                                      }
-
-                                      Scaffold.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Processing Data'),
-                                        ),
-                                      );
-                                      final phone =
-                                          _phoneController.text.trim();
-                                      print("phone number: $phone");
-                                      print(formData);
-                                      SharedPreferences prefs =
-                                          await SharedPreferences.getInstance();
-
-                                      prefs.setString('userFirstNameSignup',
-                                          formData['firstName']);
-                                      prefs.setString('userLastNameSignup',
-                                          formData['lastName']);
-                                      prefs.setString(
-                                          'userPhoneSignup', formData['phone']);
-
-                                      prefs.setString('userPasswordSignup',
-                                          formData['password']);
-                                      prefs.setString('userCpasswordSignup',
-                                          formData['cpassword']);
-
-                                      prefs.setString(
-                                          'userEmailSignup', formData['email']);
-
-                                      prefs.setString('fcmToken', _fcmToken);
-                                      showDialog(
-                                          context: context,
-                                          barrierDismissible: false,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              title: Text("Alert!"),
-                                              content: Text(
-                                                  "You might receive an SMS message for verification and standard rates apply."),
-                                              actions: <Widget>[
-                                                DisagreeButton(),
-                                                FlatButton(
-                                                  child: Text("Agree"),
-                                                  textColor: Colors.white,
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  onPressed: () async {
-                                                    // Navigator.of(context).pop();
-                                                    loginUser(phone, context);
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          });
-                                    }
-                                  },
-                                  child: Center(
-                                    child: Text(
-                                      'Verify',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: 'Montserrat'),
-                                    ),
+                              ),
+                              onPressed: () {
+                                // Update the state i.e. toogle the state of passwordVisible variable
+                                setState(() {
+                                  passwordVisible = !passwordVisible;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10.0),
+                        TextFormField(
+                          // Password
+                          // autofocus: true,
+                          obscureText: !passwordVisible,
+                          validator: (value) {
+                            if (value.length < 6)
+                              return 'Password should be not be less than 6 characters';
+                            else {
+                              formData['cpassword'] = value;
+                              return null;
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'CONFIRM PASSWORD',
+                            labelStyle: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.green)),
+                            focusColor: Theme.of(context).primaryColorDark,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                // Based on passwordVisible state choose the icon
+                                passwordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              onPressed: () {
+                                // Update the state i.e. toggle the state of passwordVisible variable
+                                setState(() {
+                                  passwordVisible = !passwordVisible;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                        Provider.value(
+                          value: checkedValue,
+                          child: CheckboxListTileFormField(
+                            title: FlatButton(
+                              color: Colors.transparent,
+                              onPressed: () => setState(() {
+                                _launched = _launchInBrowser(
+                                    "https://q-me.flycricket.io/privacy.html");
+                              }),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'I agree to Privacy Policy',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                             ),
-                            SizedBox(height: 20.0),
-                            SizedBox(
-                              height: MediaQuery.of(context).viewInsets.bottom,
-                            )
-                          ],
-                        )),
-                  ]),
+                            onSaved: (newValue) {
+                              bool checkedValue = Provider.of<bool>(context);
+                              checkedValue = newValue;
+                              logger.d('Checked $checkedValue');
+                            },
+                            validator: (bool value) {
+                              if (value) {
+                                return null;
+                              } else {
+                                return 'In order to proceed you have to agree';
+                              }
+                            },
+                          ),
+                        ),
+                        SizedBox(height: 50.0),
+                        Container(
+                          height: 50.0,
+                          child: Material(
+                            borderRadius: BorderRadius.circular(20.0),
+                            shadowColor: Colors.blueAccent,
+                            color: Theme.of(context).primaryColor,
+                            elevation: 7.0,
+                            child: InkWell(
+                              onTap: () async {
+                                FocusScope.of(context).requestFocus(
+                                    FocusNode()); // dismiss the keyboard
+                                if (formKey.currentState.validate()) {
+                                  log('$formData');
+                                  // check phone number length
+                                  if (formData['phone'].length != 13) {
+                                    Scaffold.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Phone number must have 10 digits with country code'),
+                                      ),
+                                    );
+                                  }
+
+                                  if (formData['password'] !=
+                                      formData['cpassword']) {
+                                    Scaffold.of(context).showSnackBar(
+                                      SnackBar(
+                                          content:
+                                              Text('Passwords do not match')),
+                                    );
+                                    return null;
+                                  }
+
+                                  Scaffold.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Processing Data'),
+                                    ),
+                                  );
+                                  final phone = _phoneController.text.trim();
+                                  print("phone number: $phone");
+                                  print(formData);
+                                  Box box = await Hive.openBox("user");
+
+                                  await box.put('userFirstNameSignup',
+                                      formData['firstName']);
+                                  await box.put('userLastNameSignup',
+                                      formData['lastName']);
+                                  await box.put(
+                                      'userPhoneSignup', formData['phone']);
+
+                                  await box.put('userPasswordSignup',
+                                      formData['password']);
+                                  await box.put('userCpasswordSignup',
+                                      formData['cpassword']);
+
+                                  await box.put(
+                                      'userEmailSignup', formData['email']);
+
+                                  await box.put('fcmToken', _fcmToken);
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text("Alert!"),
+                                          content: Text(
+                                              "You might receive an SMS message for verification and standard rates apply."),
+                                          actions: <Widget>[
+                                            DisagreeButton(),
+                                            FlatButton(
+                                              child: Text("Agree"),
+                                              textColor: Colors.white,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              onPressed: () async {
+                                                // Navigator.of(context).pop();
+                                                loginUser(phone, context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                }
+                              },
+                              child: Center(
+                                child: Text(
+                                  'Verify',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Montserrat'),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20.0),
+                        SizedBox(
+                          height: MediaQuery.of(context).viewInsets.bottom,
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

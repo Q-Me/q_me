@@ -1,4 +1,3 @@
-//import 'dart:html';
 import 'dart:io';
 
 import 'package:country_code_picker/country_code_picker.dart';
@@ -6,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:qme/api/app_exceptions.dart';
+import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
@@ -13,7 +14,6 @@ import 'package:qme/views/home.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/widgets/text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   static const id = '/signin';
@@ -25,11 +25,9 @@ class _SignInScreenState extends State<SignInScreen>
     with TickerProviderStateMixin {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _codeController = TextEditingController();
   TabController _controller;
   var idToken;
   var verificationIdVar;
-  var _authVar;
   String countryCodeVal;
   String countryCodePassword;
   bool showOtpTextfield = false;
@@ -115,9 +113,9 @@ class _SignInScreenState extends State<SignInScreen>
           verificationIdOtp = verificationId;
           authOtp = _auth;
           loginPage = "SignIn";
-          SharedPreferences prefs = await SharedPreferences.getInstance();
+          Box box = await Hive.openBox("user");
 
-          prefs.setString('fcmToken', _fcmToken);
+          await box.put('fcmToken', _fcmToken);
 
           setState(() {
             showOtpTextfield = true;
@@ -230,19 +228,20 @@ class _SignInScreenState extends State<SignInScreen>
                                       ),
                                       title: TextFormField(
                                         decoration: InputDecoration(
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(8)),
-                                                borderSide: BorderSide(
-                                                    color: Colors.grey[200])),
-                                            focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(8)),
-                                                borderSide: BorderSide(
-                                                    color: Colors.grey[300])),
-                                            filled: true,
-                                            fillColor: Colors.grey[100],
-                                            hintText: "Mobile Number"),
+                                          enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(8)),
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey[200])),
+                                          focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(8)),
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey[300])),
+                                          filled: true,
+                                          fillColor: Colors.grey[100],
+                                          hintText: "Mobile Number",
+                                        ),
                                         controller: _phoneController,
                                         validator: (value) {
                                           if (value.isEmpty) {
@@ -312,7 +311,6 @@ class _SignInScreenState extends State<SignInScreen>
                                       child: Material(
                                         borderRadius:
                                             BorderRadius.circular(20.0),
-                                        // shadowColor: Colors.greenAccent,
                                         color: Theme.of(context).primaryColor,
                                         elevation: 7.0,
                                         child: InkWell(
@@ -348,14 +346,14 @@ class _SignInScreenState extends State<SignInScreen>
                                                           onPressed: () {
                                                             Navigator
                                                                 .pushAndRemoveUntil(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                      builder:
-                                                                          (context) =>
-                                                                              SignInScreen(),
-                                                                    ),
-                                                                    (route) =>
-                                                                        false);
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        SignInScreen(),
+                                                              ),
+                                                              (route) => false,
+                                                            );
                                                           },
                                                         ),
                                                         FlatButton(
@@ -563,10 +561,8 @@ class _SignInScreenState extends State<SignInScreen>
                                           if (value.isEmpty) {
                                             return 'This field cannot be left blank';
                                           } else {
-                                            setState(() {
                                               phoneNumber =
                                                   countryCodePassword + value;
-                                            });
                                             return null;
                                           }
                                         },
@@ -631,7 +627,7 @@ class _SignInScreenState extends State<SignInScreen>
                                                   phoneNumber,
                                                   password,
                                                 );
-                                              } on BadRequestException catch (e) {
+                                              } on BadRequestException catch (_) {
                                                 Scaffold.of(context)
                                                     .showSnackBar(
                                                   SnackBar(
@@ -660,7 +656,7 @@ class _SignInScreenState extends State<SignInScreen>
                                                         .fcmTokenSubmit(
                                                   _fcmToken,
                                                 );
-                                              } on Exception catch (e) {
+                                              } catch (e) {
                                                 logger.e(e.toString());
                                                 Scaffold.of(context)
                                                     .showSnackBar(

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:hive/hive.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/utilities/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
@@ -65,7 +65,7 @@ class UserRepository {
     return response;
   }
 
-  Future<Map> fcmTokenSubmit(String fcmToken) async {
+  Future<String> fcmTokenSubmit(String fcmToken) async {
     final String accessToken = await getAccessTokenFromStorage();
 
     final response = await _helper.post(
@@ -73,9 +73,12 @@ class UserRepository {
       req: {"token": fcmToken},
       authToken: accessToken,
     );
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("fcmToken", fcmToken);
-    return response;
+
+    final msg = response["msg"];
+    Box box = await Hive.openBox("user");
+    await box.put('fcmToken', msg);
+    
+    return msg;
   }
 
   Future<List<Appointment>> fetchAppointments(List<String> status) async {
@@ -95,10 +98,10 @@ class UserRepository {
   Future<bool> isSessionReady() async {
     // If the session is not ready then try to set the session and after
     // successful session set return true else return false
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final expiry = prefs.getString('expiry');
-    final refreshToken = prefs.getString('refreshToken');
-    final accessToken = prefs.getString('accessToken');
+    Box box = await Hive.openBox("user");
+    final expiry = await box.get('expiry');
+    final refreshToken = await box.get('refreshToken');
+    final accessToken = await box.get('accessToken');
     logger.d(
         'In storage:\nexpiry:$expiry\nrefreshToken:$refreshToken\naccessToken:$accessToken');
     if (expiry != null &&
