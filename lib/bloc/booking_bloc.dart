@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/utilities/logger.dart';
@@ -50,7 +49,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       yield BookingLoadSuccess(msg, details);
     } catch (error) {
       logger.e(error.toString());
-      yield BookingLoadFailure();
+      yield BookingLoadFailure(message: 'Oops something unexpected happened');
     }
   }
 

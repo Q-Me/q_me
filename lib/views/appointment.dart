@@ -121,7 +121,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                         SizedBox(
                           width: 15,
                         ),
-                        Text("Oops, that wasn't supposed to happen...")
+                        Text(state.message)
                       ],
                     ),
                   ),
