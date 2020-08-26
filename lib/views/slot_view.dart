@@ -32,7 +32,7 @@ class _SlotViewState extends State<SlotView> {
   Reception selectedReception;
   DateTime selectedDate;
   Slot selectedSlot;
-
+  ScrollController gridScroll = ScrollController();
   bool backArrowEnabled = false;
 
   double get h => MediaQuery.of(context).size.height;
@@ -76,12 +76,12 @@ class _SlotViewState extends State<SlotView> {
                 height: 100,
                 child: BlocBuilder<SlotViewBloc, SlotViewState>(
                   builder: (context, state) => CalendarStrip(
-                    startDate: DateTime.now(),
+                    startDate: DateTime.now().subtract(Duration(days: 2)),
                     endDate: DateTime.now().add(Duration(days: 7)),
                     onDateSelected: (date) {
                       logger.d('Selected date ${date.toString()}');
                       BlocProvider.of<SlotViewBloc>(context)
-                      .add(DatedReceptionsRequested(date: selectedDate));
+                          .add(DatedReceptionsRequested(date: date));
                     },
                     selectedDate: selectedDate,
                     dateTileBuilder: dateTileBuilder,
@@ -125,7 +125,15 @@ class _SlotViewState extends State<SlotView> {
                         (e) {
                           return GestureDetector(
                             onTap: () {
-                              selectedSlot = e;
+                              if (!e.availableForBooking) {
+                                return;
+                              }
+                              setState(() {
+                                selectedSlot = e;
+                                selectedReception = reception;
+                              });
+                              logger.i(
+                                  'Selected slot ${reception.id}\n${selectedSlot.toJson()}');
                             },
                             child: SlotBox(
                               slot: e,
@@ -151,7 +159,7 @@ class _SlotViewState extends State<SlotView> {
                         ),
                         padding: EdgeInsets.fromLTRB(20, 10, 10, 10),
                         scrollDirection: Axis.horizontal,
-                        controller: ScrollController(),
+                        controller: gridScroll,
                         itemCount: boxesOfSlot.length,
                         shrinkWrap: true,
                         itemBuilder: (BuildContext context, int index) {
@@ -187,19 +195,29 @@ class _SlotViewState extends State<SlotView> {
                     ),
                     SizedBox(height: 10),
                     FieldValue(label: 'Full Name', text: 'Piyush Chauhan'),
-                    FieldValue(label: 'Contact No.', text: '+91 9673582517'),
+                    FieldValue(label: 'Contact No.', text: '+919673582517'),
                   ],
                 ),
               ),
               SizedBox(height: 20),
-              Center(
-                child: RaisedButton(
-                  onPressed: () {
-                    logger.d('Hello');
-                  },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width - 100,
-                    child: Center(child: Text('Book Appointment')),
+              BlocBuilder<SlotViewBloc, SlotViewState>(
+                builder: (context, state) => Center(
+                  child: RaisedButton(
+                    onPressed: BlocProvider.of<SlotViewBloc>(context)
+                                    .datedReceptions
+                                    .length !=
+                                0 ||
+                            selectedSlot != null
+                        ? () {
+                            logger.d('Hello');
+                          }
+                        : null,
+                    // TODO change color to green there is a booked slot in a reception and only one reception is in dated Receptions
+                    // color: Colors.green,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width - 100,
+                      child: Center(child: Text('Book Appointment')),
+                    ),
                   ),
                 ),
               ),
@@ -286,6 +304,20 @@ class SlotBox extends StatelessWidget {
 
   SlotBox({this.selected = false, this.slot});
 
+  Color get slotColor {
+    // TODO Verify color codings
+    if (!slot.availableForBooking) {
+      return Colors.red;
+    } else if (slot.booked) {
+      return Colors.green;
+    } else if (selected) {
+      return Colors.blue;
+    } else if (slot.availableForBooking) {
+      return Colors.grey;
+    }
+    return Colors.white;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -296,7 +328,7 @@ class SlotBox extends StatelessWidget {
         ),
       ),
       decoration: BoxDecoration(
-        color: selected ? Theme.of(context).accentColor : Colors.white,
+        color: slotColor,
         borderRadius: BorderRadius.circular(5),
         boxShadow: [
           BoxShadow(

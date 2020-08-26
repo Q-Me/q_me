@@ -47,7 +47,9 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
       }
 
       // For each reception call detailed reception
-      for (int i = 0; i < (datedReceptions.length == null ? 0 : datedReceptions.length); i++) {
+      for (int i = 0;
+          i < (datedReceptions.length == null ? 0 : datedReceptions.length);
+          i++) {
         final String receptionId = datedReceptions[i].id;
         try {
           datedReceptions[i] = await _repository.getDetailedReception(
@@ -79,7 +81,8 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
           yield SlotViewLoadFail(msg);
           return;
         }
-        logger.d(receptionAppointments.toString());
+        logger.d('Appointment for reception  $receptionId\n' +
+            receptionAppointments.toString());
 
         // if no appointment is UPCOMING enable this reception for booking
         if (receptionAppointments.length == 1) {
@@ -103,9 +106,11 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
           }
         }
 
+        /* 
         for (Slot slot in datedReceptions[i].slotList) {
           logger.d('From api slot ' + slot.toJson().toString());
         }
+        */
       }
       yield SlotViewLoadSuccess(datedReceptions);
     }
