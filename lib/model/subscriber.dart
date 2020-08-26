@@ -90,7 +90,7 @@ class Subscriber extends ChangeNotifier {
       displayImages: json["displayImages"] != null
           ? List<String>.from(json["displayImages"])
           : null,
-      tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
+      // tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
       rating: json["rating"],
     );
   }

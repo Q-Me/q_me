@@ -32,11 +32,11 @@ void main() async {
   // TODO setConfigs();
   // TODO fetch user related information
 
- await setSession();
+  await setSession();
 //  clearSession();
 
   if (await UserRepository().isSessionReady()) {
-    initialHome = SlotView.id;
+    initialHome = HomeScreen.id;
   }
   runApp(MyApp());
 }

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qme/bloc/slotview_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
+import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 
 final String subscriberId = 'nplhS-7cJ';
@@ -14,7 +15,7 @@ void main() {
     blocTest(
       'Initialise with Initial State',
       build: () => SlotViewBloc(
-        subscriberId: subscriberId,
+        subscriber: Subscriber(id: subscriberId),
         accessToken: accessToken,
       ),
       expect: [],
@@ -36,48 +37,47 @@ void main() {
       "slots_done": [],
       "overrides": []
     });
-DateTime testDate = DateTime.utc(2020, 8, 25);
-        reception.addSlotList(
-          List<Slot>.from(
-            [
-              Slot(
-                startTime: testDate.add(Duration(hours: 16)),
-                endTime: testDate.add(Duration(hours: 17)),
-                booked: true,
-                customersInSlot: 3,
-                done: 0,
-                upcoming: 1,
-              ),
-              Slot(
-                startTime: testDate.add(Duration(hours: 17)),
-                endTime: testDate.add(Duration(hours: 18)),
-                booked: false,
-                customersInSlot: 3,
-                done: 0,
-                upcoming: 0,
-              ),
-            ],
+    DateTime testDate = DateTime.utc(2020, 8, 25);
+    reception.addSlotList(
+      List<Slot>.from(
+        [
+          Slot(
+            startTime: testDate.add(Duration(hours: 16)),
+            endTime: testDate.add(Duration(hours: 17)),
+            booked: true,
+            customersInSlot: 3,
+            done: 0,
+            upcoming: 1,
           ),
-        );
+          Slot(
+            startTime: testDate.add(Duration(hours: 17)),
+            endTime: testDate.add(Duration(hours: 18)),
+            booked: false,
+            customersInSlot: 3,
+            done: 0,
+            upcoming: 0,
+          ),
+        ],
+      ),
+    );
     blocTest(
       'Dated requested',
       build: () => SlotViewBloc(
-        subscriberId: subscriberId,
+        subscriber: Subscriber(id: subscriberId),
         accessToken: accessToken,
       ),
       act: (bloc) {
-        
         for (Slot slot in reception.slotList) {
           logger.d('Expectation' + slot.toJson().toString());
         }
-        
+
         return bloc.add(
           DatedReceptionsRequested(date: testDate),
         );
       },
       expect: [
         SlotViewLoading(),
-        SlotViewLoadSuccess(List<Reception>.from([reception]))
+        NothingSelected(List<Reception>.from([reception]))
       ],
     );
   });

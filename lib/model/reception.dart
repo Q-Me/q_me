@@ -22,17 +22,20 @@ class Reception extends Equatable {
     @required this.duration,
     @required this.custPerSlot,
     @required this.status,
+    this.availableForBooking = true,
   }) {
     createSlots();
   }
 
   final String id;
+  Slot bookedSlot;
   final String subscriberId;
   final DateTime startTime;
   final DateTime endTime;
   final Duration duration;
   final int custPerSlot;
   final String status;
+  bool availableForBooking;
   SplayTreeSet<Slot> _slots =
       SplayTreeSet<Slot>(Comparing.on((slot) => slot.startTime));
 
@@ -46,6 +49,7 @@ class Reception extends Equatable {
         custPerSlot,
         status,
         _slots,
+        availableForBooking
       ];
 
   List<Slot> get slotList => _slots.toList();

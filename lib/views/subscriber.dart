@@ -94,7 +94,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                       context,
                       SlotView.id,
                       arguments:
-                          SlotViewArguments(subscriberId: _bloc.subscriberId),
+                          SlotViewArguments(subscriber: _bloc.subscriber),
                     );
                   },
                   child: Text('Check Available slots'),
