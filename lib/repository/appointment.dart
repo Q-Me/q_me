@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 import 'package:ordered_set/comparing.dart';
 import 'package:qme/api/base_helper.dart';
-import 'package:qme/api/endpoints.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
@@ -63,11 +62,10 @@ class AppointmentRepository {
     return response;
   }
 
-  Future checkSlot({
-    @required String counterId,
-    @required String status,
-    @required accessToken
-    }) async {
+  Future checkSlot(
+      {@required String counterId,
+      @required String status,
+      @required accessToken}) async {
     final response = await _helper.post('/user/slot/counterslots',
         req: {
           "counter_id": counterId,
