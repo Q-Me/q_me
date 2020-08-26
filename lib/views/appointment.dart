@@ -92,11 +92,39 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
           body: BlocListener<BookingBloc, BookingState>(
             listener: (context, state) {
               if (state is BookingLoadInProgress) {
-                showSnackbar(context, "loading", null);
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        FaIcon(FontAwesomeIcons.locationArrow),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Text("Booking your appointment.....")
+                      ],
+                    ),
+                  ),
+                );
               } else if (state is BookingLoadSuccess) {
-                showSnackbar(context, "success", state.details.otp);
+                Navigator.pushReplacementNamed(
+                  context,
+                  BookingSuccessView.id,
+                  arguments: state.details.otp,
+                );
               } else if (state is BookingLoadFailure) {
-                showSnackbar(context, "failure", null);
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        FaIcon(FontAwesomeIcons.timesCircle),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Text("Oops, that wasn't supposed to happen...")
+                      ],
+                    ),
+                  ),
+                );
               }
             },
             child: Column(
@@ -274,37 +302,5 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     };
     print(dayData);
     return dayData[weekday.toString()];
-  }
-
-  void showSnackbar(BuildContext context, String state, dynamic value) {
-    if (state == "loading") {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Row(
-        children: [
-          FaIcon(FontAwesomeIcons.locationArrow),
-          SizedBox(
-            width: 15,
-          ),
-          Text("Booking your appointment.....")
-        ],
-      )));
-    } else if (state == "success") {
-      Navigator.pushReplacementNamed(
-        context,
-        BookingSuccessView.id,
-        arguments: value,
-      );
-    } else if (state == "failure") {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Row(
-        children: [
-          FaIcon(FontAwesomeIcons.timesCircle),
-          SizedBox(
-            width: 15,
-          ),
-          Text("Oops, that wasn't supposed to happen...")
-        ],
-      )));
-    }
   }
 }
