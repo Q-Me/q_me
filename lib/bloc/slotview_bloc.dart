@@ -33,7 +33,6 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
   Stream<SlotViewState> mapEventToState(SlotViewEvent event) async* {
     yield SlotViewLoading();
     if (event is DatedReceptionsRequested) {
-      yield SlotViewLoading();
       logger.d('Date requested ${event.date}');
       try {
         datedReceptions = await _repository.getDatedReceptions(
@@ -48,7 +47,7 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
       }
 
       // For each reception call detailed reception
-      for (int i = 0; i < datedReceptions.length; i++) {
+      for (int i = 0; i < (datedReceptions.length == null ? 0 : datedReceptions.length); i++) {
         final String receptionId = datedReceptions[i].id;
         try {
           datedReceptions[i] = await _repository.getDetailedReception(
