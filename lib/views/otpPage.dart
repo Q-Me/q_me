@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:pin_entry_text_field/pin_entry_text_field.dart';
 import 'package:qme/api/signin.dart';
@@ -10,8 +11,6 @@ import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
-import 'package:qme/widgets/text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/app_exceptions.dart';
 import '../repository/user.dart';
@@ -32,14 +31,14 @@ class _OtpPageState extends State<OtpPage> {
   final formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
   var _fcmToken;
-  fcmTokenApiCall() async{
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-                                      _fcmToken = prefs.getString('fcmToken');
-        var responsefcm = await fcmTokenSubmit(_fcmToken);
-        print("fcm token Api: $responsefcm");
-        print("fcm token Api status: ${responsefcm['status']}");
-        prefs.setString('fcmToken', _fcmToken);
-        print(_fcmToken);
+  fcmTokenApiCall() async {
+    Box box = await Hive.openBox("user");
+    _fcmToken = await box.get('fcmToken');
+    var responsefcm = await fcmTokenSubmit(_fcmToken);
+    print("fcm token Api: $responsefcm");
+    print("fcm token Api status: ${responsefcm['status']}");
+    await box.put('fcmToken', _fcmToken);
+    print(_fcmToken);
   }
 
   signInUser(BuildContext context) async {
@@ -54,7 +53,7 @@ class _OtpPageState extends State<OtpPage> {
       if (response['status'] == 200) {
         logger.d(response);
         fcmTokenApiCall();
-      
+
         Navigator.pushNamed(context, HomeScreen.id);
       } else {
         logger.d(response);
@@ -75,13 +74,13 @@ class _OtpPageState extends State<OtpPage> {
         content: Text('Processing Data'),
       ),
     );
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    formData['firstName'] = prefs.getString('userFirstNameSignup');
-    formData['lastName'] = prefs.getString('userLastNameSignup');
-    formData['phone'] = prefs.getString('userPhoneSignup');
-    formData['password'] = prefs.getString('userPasswordSignup');
-    formData['cpassword'] = prefs.getString('userCpasswordSignup');
-    formData['email'] = prefs.getString('userEmailSignup');
+    Box box = await Hive.openBox("user");
+    formData['firstName'] = await box.get('userFirstNameSignup');
+    formData['lastName'] = await box.get('userLastNameSignup');
+    formData['phone'] = await box.get('userPhoneSignup');
+    formData['password'] = await box.get('userPasswordSignup');
+    formData['cpassword'] = await box.get('userCpasswordSignup');
+    formData['email'] = await box.get('userEmailSignup');
 
     log('$formData');
     formData['name'] = formData['firstName'] + " " + formData['lastName'];
@@ -215,6 +214,9 @@ class _OtpPageState extends State<OtpPage> {
                                               verificationId: verificationIdOtp,
                                               smsCode: code);
 
+                                      Box box = await Hive.openBox("user");
+
+                                      _fcmToken = await box.get('fcmToken');
 
                                       AuthResult result = await authOtp
                                           .signInWithCredential(credential);

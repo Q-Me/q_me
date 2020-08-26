@@ -1,7 +1,7 @@
+import 'package:hive/hive.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void setSession() async {
   final Map<String, dynamic> signInResponse = await UserRepository().signIn({
@@ -13,8 +13,8 @@ void setSession() async {
 }
 
 void clearSession() async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.clear();
+  Box box = await Hive.openBox("user");
+  await box.clear();
 }
 
 void setSessionFromRefreshToken() async {
