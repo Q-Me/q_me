@@ -1,6 +1,7 @@
 import 'package:calendar_strip/calendar_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/bloc/slotview_bloc.dart';
 import 'package:qme/model/reception.dart';
@@ -71,21 +72,23 @@ class _SlotViewState extends State<SlotView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BlocListener(
-                listener: (context,state) => CalendarStrip(
-                  startDate: DateTime.now(),
-                  endDate: DateTime.now().add(Duration(days: 7)),
-                  onDateSelected: (date) {
-                    logger.d('Selected date ${date.toString()}');
-                    SlotViewBloc bloc =
-                        BlocProvider.of<SlotViewBloc>(context);
-                    bloc.add(DatedReceptionsRequested(date: selectedDate));
-                  },
-                  selectedDate: selectedDate,
-                  dateTileBuilder: dateTileBuilder,
-                  iconColor: Colors.black87,
-                  monthNameWidget: monthNameWidget,
-                  markedDates: [],
+              Container(
+                height: 100,
+                child: BlocBuilder<SlotViewBloc, SlotViewState>(
+                  builder: (context, state) => CalendarStrip(
+                    startDate: DateTime.now(),
+                    endDate: DateTime.now().add(Duration(days: 7)),
+                    onDateSelected: (date) {
+                      logger.d('Selected date ${date.toString()}');
+                      BlocProvider.of<SlotViewBloc>(context)
+                      .add(DatedReceptionsRequested(date: selectedDate));
+                    },
+                    selectedDate: selectedDate,
+                    dateTileBuilder: dateTileBuilder,
+                    iconColor: Colors.black87,
+                    monthNameWidget: monthNameWidget,
+                    markedDates: [],
+                  ),
                 ),
               ),
               Row(
@@ -106,8 +109,12 @@ class _SlotViewState extends State<SlotView> {
               ),
               BlocConsumer<SlotViewBloc, SlotViewState>(
                 builder: (context, state) {
-                  if (state is SlotViewLoading ||
-                      state is SlotViewStateInitial) {
+                  if (state is SlotViewLoading) {
+                    return CircularProgressIndicator();
+                  } else if (state is SlotViewStateInitial) {
+                    logger.d(state);
+                    BlocProvider.of<SlotViewBloc>(context)
+                        .add(DatedReceptionsRequested(date: DateTime.now()));
                     return CircularProgressIndicator();
                   } else if (state is SlotViewLoadSuccess) {
                     List<Reception> receptions = state.response;
@@ -158,8 +165,13 @@ class _SlotViewState extends State<SlotView> {
                   return Center(child: Text('Undetermined state'));
                 },
                 listener: (context, state) {
-                  BlocProvider.of<SlotViewBloc>(context)
-                      .add(DatedReceptionsRequested(date: selectedDate));
+                  // try {
+                  //   logger.d("DatedReceptionsRequested");
+                  //   BlocProvider.of<SlotViewBloc>(context)
+                  //       .add(DatedReceptionsRequested(date: selectedDate));
+                  // } catch (e) {
+                  //   logger.e("${e.toString()}");
+                  // }
                 },
               ),
               Padding(

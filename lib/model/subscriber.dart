@@ -90,11 +90,10 @@ class Subscriber extends ChangeNotifier {
       displayImages: json["displayImages"] != null
           ? List<String>.from(json["displayImages"])
           : null,
-      tags: json["tags"] != null ? json["tags"] : null,
+      tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
       rating: json["rating"],
     );
   }
-
   Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
@@ -109,7 +108,7 @@ class Subscriber extends ChangeNotifier {
         "distance": distance,
         "description": description,
         "category": category,
-        "displayImages": displayImages,
-        "tags": tags,
+        "displayImages": [displayImages],
+        "tags": [tags],
       };
 }

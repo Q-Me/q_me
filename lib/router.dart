@@ -67,7 +67,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     // TODO Update arguments
       final SlotViewArguments arg = settings.arguments ??
           SlotViewArguments(
-            subscriberId: "settings.arguments",
+            subscriberId: "nplhS-7cJ",
           );
       return MaterialPageRoute(builder: (context) => SlotView(arg));
 

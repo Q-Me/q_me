@@ -60,7 +60,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_appointmentBloc<> == null) {
+    if (_appointmentBloc == null) {
       _appointmentBloc = AppointmentBloc(
         slot: slot,
         subscriber: subscriber,
