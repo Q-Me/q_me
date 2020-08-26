@@ -22,7 +22,7 @@ class AppointmentRepository {
     if (localAccessToken != null) {
       return localAccessToken;
     } else {
-      localAccessToken = await setAccesssToken();
+      await setAccesssToken();
       return localAccessToken;
     }
   }

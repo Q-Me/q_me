@@ -14,6 +14,7 @@ import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
+import 'package:qme/views/slot_view.dart';
 import 'package:qme/widgets/theme.dart';
 
 import 'views/home.dart';
@@ -35,7 +36,7 @@ void main() async {
 //  clearSession();
 
   if (await UserRepository().isSessionReady()) {
-    initialHome = HomeScreen.id;
+    initialHome = SlotView.id;
   }
   runApp(MyApp());
 }
