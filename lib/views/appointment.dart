@@ -9,24 +9,28 @@ import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/views/booking_success.dart';
 
-String notes;
-
-class AppointmentScreen extends StatefulWidget {
-  static const String id = '/appointment';
+class ApppointmentScreenArguments {
   final Subscriber subscriber;
   final Reception reception;
   final Slot slot;
 
-  AppointmentScreen({this.subscriber, this.reception, this.slot});
+  ApppointmentScreenArguments({this.subscriber, this.reception, this.slot});
+}
+
+class AppointmentScreen extends StatefulWidget {
+  static const String id = '/appointment';
+  final ApppointmentScreenArguments arg;
+
+  AppointmentScreen(this.arg);
 
   @override
   _AppointmentScreenState createState() => _AppointmentScreenState();
 }
 
 class _AppointmentScreenState extends State<AppointmentScreen> {
-  Subscriber get subscriber => widget.subscriber;
-  Reception get reception => widget.reception;
-  Slot get slot => widget.slot;
+  Subscriber get subscriber => widget.arg.subscriber;
+  Reception get reception => widget.arg.reception;
+  Slot get slot => widget.arg.slot;
   double get h => MediaQuery.of(context).size.height;
   double get w => MediaQuery.of(context).size.width;
   String note = 'Add notes like requirements';
@@ -71,11 +75,12 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                 Navigator.pop(context);
               },
               child: Align(
-                  child: FaIcon(
-                FontAwesomeIcons.arrowLeft,
-                color: Colors.black,
+                child: FaIcon(
+                  FontAwesomeIcons.arrowLeft,
+                  color: Colors.black,
+                ),
+                alignment: Alignment.center,
               ),
-              alignment: Alignment.center,),
             ),
             backgroundColor: Colors.transparent,
             elevation: 0,

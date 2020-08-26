@@ -18,30 +18,30 @@ import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/noInternet.dart';
 import 'package:qme/widgets/theme.dart';
 
-import 'views/home.dart';
-
 String initialHome = IntroScreen.id;
 
 void main() async {
   Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  await Hive.openBox("appointment");
+  // await Hive.openBox("appointment");
+  await Hive.openBox("user");
 
   // Logger.level = Level.warning;
   // TODO show splash screen
   // TODO setConfigs();
   // TODO fetch user related information
   try {
-    await setSession();
-    //  clearSession();
+    // await setSession();
+    // await clearSession();
+
     if (await UserRepository().isSessionReady()) {
       initialHome = HomeScreen.id;
     }
   } on FetchDataException catch (e) {
     initialHome = NoInternetView.id;
   }
-  
+
   runApp(MyApp());
 }
 

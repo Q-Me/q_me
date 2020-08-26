@@ -1,16 +1,4 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:core';
-import 'dart:developer';
-
-import 'package:http/http.dart' as http;
-import 'package:qme/api/base_helper.dart';
-import 'package:qme/api/endpoints.dart';
-
-import '../model/user.dart';
-import 'kAPI.dart';
-
-Future<Map> signInWithPassword(String phoneNumber, String password) async {
+/* Future<Map> signInWithPassword(String phoneNumber, String password) async {
   // TODO refactor this into UserRepository (lib/repository/user.dart)
   final response = await http.post(
     baseURL + signInPasswordUrl,
@@ -55,18 +43,15 @@ Future<Map> fcmTokenSubmit(String fcmToken) async {
 
   ApiBaseHelper _helper = ApiBaseHelper();
   final UserData userData = await getUserDataFromStorage();
-  print("userData.accessToken ${userData.accessToken}");
-  print("fcm $fcmToken");
   var response = await http.post(
     baseURL + fcmUrl,
     body: {"token": fcmToken},
     headers: {'Authorization': 'Bearer ${userData.accessToken}'},
   );
-  print("response: ${response.statusCode} and ${response.body}");
-
   final decodedJSON = jsonDecode(response.body);
   if (response.statusCode == 200) {
     return {'status': 200};
   } else
     return {'status': response.statusCode, 'error': decodedJSON['error']};
 }
+ */
