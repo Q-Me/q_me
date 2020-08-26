@@ -13,6 +13,7 @@ import 'package:qme/simple_bloc_observer.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
+import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
 
 import 'views/home.dart';
@@ -23,7 +24,8 @@ void main() async {
   Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  await Hive.openBox("appointment");
+  // await Hive.openBox("appointment");
+  await Hive.openBox("user");
 
   // Logger.level = Level.warning;
   // TODO show splash screen

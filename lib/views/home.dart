@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/subscribersHome.dart';
@@ -14,7 +15,6 @@ import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/categories.dart';
 import 'package:qme/widgets/listItem.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/error.dart';
 import '../widgets/headerHome.dart';
@@ -54,8 +54,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void verifyFcmTokenChange(String _fcmToken) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var fcmToken = prefs.getString('fcmToken');
+    Box box = await Hive.openBox("user");
+    var fcmToken = await box.get('fcmToken');
     logger.i("verify fcm: $fcmToken\nverify _fcm: $_fcmToken");
     if (fcmToken != _fcmToken) {
       Navigator.pushNamed(context, SignInScreen.id);

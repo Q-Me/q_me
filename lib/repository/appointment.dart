@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 import 'package:ordered_set/comparing.dart';
 import 'package:qme/api/base_helper.dart';
-import 'package:qme/api/endpoints.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';

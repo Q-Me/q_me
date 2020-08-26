@@ -1,4 +1,3 @@
-//import 'dart:html';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:developer';
@@ -6,6 +5,7 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:qme/api/signin.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/views/home.dart';
@@ -13,7 +13,6 @@ import 'package:qme/views/nearby.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/widgets/text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   static const id = '/signin';
@@ -109,9 +108,9 @@ class _SignInScreenState extends State<SignInScreen>
           verificationIdOtp = verificationId;
           authOtp = _auth;
           loginPage = "SignIn";
-          SharedPreferences prefs = await SharedPreferences.getInstance();
+          Box box = await Hive.openBox("user");
 
-          prefs.setString('fcmToken', _fcmToken);
+          await box.put('fcmToken', _fcmToken);
 
           setState(() {
             showOtpTextfield = true;
@@ -663,9 +662,9 @@ class _SignInScreenState extends State<SignInScreen>
                                               // email and password both are available here
                                               Map response;
                                               try {
-                                                SharedPreferences prefs =
-                                                    await SharedPreferences
-                                                        .getInstance();
+                                                Box box =
+                                                    await Hive.openBox("user");
+
                                                 print(
                                                     "signInWithPassword api is called");
                                                 print(
@@ -696,14 +695,13 @@ class _SignInScreenState extends State<SignInScreen>
                                                       "fcm token api: $responsefcm");
                                                   print(
                                                       "fcm token status: ${responsefcm['status']}");
-                                                  prefs.setString(
+                                                  await box.put(
                                                       'fcmToken', _fcmToken);
                                                 } else {
                                                   print(
                                                       "respose of ${response['status']}");
-                                                  SharedPreferences prefs =
-                                                      await SharedPreferences
-                                                          .getInstance();
+                                                  Box box = await Hive.openBox(
+                                                      "user");
 
                                                   print(response);
                                                   if (response['status'] ==
