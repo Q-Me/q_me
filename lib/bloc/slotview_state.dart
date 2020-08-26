@@ -18,14 +18,50 @@ class SlotViewStateInitial extends SlotViewState {
 
 class SlotViewLoading extends SlotViewState {}
 
-class SlotViewLoadSuccess extends SlotViewState {
+class NothingSelected extends SlotViewState {
   final response;
 
-  SlotViewLoadSuccess(this.response);
+  NothingSelected(this.response);
+
+  @override
+  List<Object> get props => [response];
+}
+
+class BookedSlot extends SlotViewState {
+  final Slot slot;
+  final Reception reception;
+  final String subcriberId;
+
+  BookedSlot({
+    @required this.slot,
+    @required this.reception,
+    @required this.subcriberId,
+  });
+
+  @override
+  List<Object> get props => [slot, reception, subcriberId];
+}
+
+class SelectedSlot extends SlotViewState {
+  final Slot slot;
+  final Reception reception;
+  final Subscriber subcriber;
+
+  SelectedSlot({
+    @required this.slot,
+    @required this.reception,
+    @required this.subcriber,
+  });
+
+  @override
+  List<Object> get props => [slot, reception, subcriber];
 }
 
 class SlotViewLoadFail extends SlotViewState {
   final String message;
 
   SlotViewLoadFail(this.message);
+
+  @override
+  List<Object> get props => [message];
 }

@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
+import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/utilities/logger.dart';
 
@@ -13,14 +14,13 @@ part 'slotview_state.dart';
 
 class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
   AppointmentRepository _repository;
-  final String subscriberId;
+  final Subscriber subscriber;
   DateTime selectedDate;
   List<Reception> datedReceptions;
   final String accessToken;
 
-  SlotViewBloc(
-      {@required this.subscriberId, this.accessToken, this.selectedDate})
-      : super(SlotViewStateInitial(subscriberId)) {
+  SlotViewBloc({@required this.subscriber, this.accessToken, this.selectedDate})
+      : super(SlotViewStateInitial(subscriber.id)) {
     _repository = AppointmentRepository(
       localAccessToken: accessToken,
     );
@@ -33,10 +33,11 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
   Stream<SlotViewState> mapEventToState(SlotViewEvent event) async* {
     yield SlotViewLoading();
     if (event is DatedReceptionsRequested) {
+      datedReceptions = [];
       logger.d('Date requested ${event.date}');
       try {
         datedReceptions = await _repository.getDatedReceptions(
-          subscriberId: subscriberId,
+          subscriberId: subscriber.id,
           status: ["UPCOMING", "ACTIVE"],
           date: event.date,
         );
@@ -84,10 +85,12 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
         logger.d('Appointment for reception  $receptionId\n' +
             receptionAppointments.toString());
 
-        // if no appointment is UPCOMING enable this reception for booking
         if (receptionAppointments.length == 1) {
           Slot appointmentSlot = receptionAppointments[0].slot;
           final reception = datedReceptions[i];
+
+          // if there is an appointment is UPCOMING disable this reception for booking
+          datedReceptions[i].availableForBooking = false;
           final recpetionSlots = reception.slotList;
 
           for (int j = 0; j < recpetionSlots.length; j++) {
@@ -99,6 +102,7 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
                     appointmentSlot.endTime.isAtSameMomentAs(slot.endTime))) {
               // disable booking for the slot
               recpetionSlots[j].booked = true;
+              reception.bookedSlot = slot;
               logger.d("Found matching slot for appointment" +
                   recpetionSlots[j].toJson().toString());
               break;
@@ -112,7 +116,24 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
         }
         */
       }
-      yield SlotViewLoadSuccess(datedReceptions);
+      if (datedReceptions.length == 1 &&
+          datedReceptions[0].bookedSlot != null) {
+        yield BookedSlot(
+          slot: datedReceptions[0].bookedSlot,
+          reception: datedReceptions[0],
+          subcriberId: subscriber.id,
+        );
+      } else {
+        yield NothingSelected(datedReceptions);
+      }
+    } else if (event is SelectSlot) {
+      logger.i(
+          'Selected slot in reception ${event.reception.id} is ${event.slot.toJson()}');
+      yield SelectedSlot(
+        reception: event.reception,
+        slot: event.slot,
+        subcriber: subscriber,
+      );
     }
   }
 }

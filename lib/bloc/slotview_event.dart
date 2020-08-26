@@ -1,6 +1,5 @@
 part of 'slotview_bloc.dart';
 
-
 abstract class SlotViewEvent extends Equatable {
   const SlotViewEvent();
 }
@@ -34,4 +33,14 @@ class ReceptionAppointmentsRequested extends SlotViewEvent {
 
   @override
   List<Object> get props => [receptionId, status];
+}
+
+class SelectSlot extends SlotViewEvent {
+  final Slot slot;
+  final Reception reception;
+
+  SelectSlot({@required this.slot, @required this.reception});
+
+  @override
+  List<Object> get props => [slot, reception];
 }

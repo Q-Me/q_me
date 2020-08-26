@@ -42,7 +42,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: HomeScreen.id),
       );
 
-  /* case NearbyScreen.id:
+    /* case NearbyScreen.id:
       return MaterialPageRoute(
         builder: (context) => NearbyScreen(),
         settings: RouteSettings(name: NearbyScreen.id),
@@ -61,13 +61,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         builder: (context) => SubscriberScreen(subscriber: subscriber),
         settings: RouteSettings(name: SubscriberScreen.id),
       );
-      
-    case SlotView.id:
 
-    // TODO Update arguments
+    case SlotView.id:
+      // TODO Update arguments
       final SlotViewArguments arg = settings.arguments ??
           SlotViewArguments(
-            subscriberId: "nplhS-7cJ",
+            subscriber: Subscriber(id: "nplhS-7cJ"),
           );
       return MaterialPageRoute(builder: (context) => SlotView(arg));
 

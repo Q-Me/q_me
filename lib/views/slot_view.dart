@@ -6,15 +6,15 @@ import 'package:provider/provider.dart';
 import 'package:qme/bloc/slotview_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
+import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/widgets/calenderStrip.dart';
 import 'package:intl/intl.dart';
 
 class SlotViewArguments {
-  final String subscriberId;
+  final Subscriber subscriber;
 
-  SlotViewArguments({@required this.subscriberId})
-      : assert(subscriberId != null);
+  SlotViewArguments({@required this.subscriber}) : assert(subscriber != null);
 }
 
 class SlotView extends StatefulWidget {
@@ -28,8 +28,8 @@ class SlotView extends StatefulWidget {
 }
 
 class _SlotViewState extends State<SlotView> {
-  String get subscriberId => widget.args.subscriberId;
-  Reception selectedReception;
+  String get subscriberId => widget.args.subscriber.id;
+  Subscriber get subscriber => widget.args.subscriber;
   DateTime selectedDate;
   Slot selectedSlot;
   ScrollController gridScroll = ScrollController();
@@ -66,8 +66,8 @@ class _SlotViewState extends State<SlotView> {
         ),
         body: BlocProvider(
           create: (context) => SlotViewBloc(
-            subscriberId: subscriberId,
-            selectedDate: selectedDate,
+            subscriber: subscriber,
+            selectedDate: DateTime.now(),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +83,8 @@ class _SlotViewState extends State<SlotView> {
                       BlocProvider.of<SlotViewBloc>(context)
                           .add(DatedReceptionsRequested(date: date));
                     },
-                    selectedDate: selectedDate,
+                    selectedDate:
+                        BlocProvider.of<SlotViewBloc>(context).selectedDate,
                     dateTileBuilder: dateTileBuilder,
                     iconColor: Colors.black87,
                     monthNameWidget: monthNameWidget,
@@ -91,66 +92,93 @@ class _SlotViewState extends State<SlotView> {
                   ),
                 ),
               ),
-              Row(
-                children: [
-                  SizedBox(width: 20),
-                  Text(
-                    'Available times',
-                    style: Theme.of(context).textTheme.subtitle1,
-                  ),
-                  Spacer(),
-                  Opacity(
-                    opacity: backArrowEnabled ? 1 : 0,
-                    child: Icon(Icons.arrow_back_ios, color: Colors.grey),
-                  ),
-                  SizedBox(width: 10),
-                  Icon(Icons.arrow_forward_ios, color: Colors.grey),
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Text(
+                      'Available times',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                    Spacer(),
+                    Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    SizedBox(width: 10),
+                  ],
+                ),
               ),
-              BlocConsumer<SlotViewBloc, SlotViewState>(
-                builder: (context, state) {
-                  if (state is SlotViewLoading) {
-                    return CircularProgressIndicator();
-                  } else if (state is SlotViewStateInitial) {
-                    logger.d(state);
-                    BlocProvider.of<SlotViewBloc>(context)
-                        .add(DatedReceptionsRequested(date: DateTime.now()));
-                    return CircularProgressIndicator();
-                  } else if (state is SlotViewLoadSuccess) {
-                    List<Reception> receptions = state.response;
-                    List<Widget> boxesOfSlot = [];
+              Container(
+                height: h / 3 - 20,
+                width: w,
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                ),
+                child: BlocConsumer<SlotViewBloc, SlotViewState>(
+                  builder: (context, state) {
+                    if (state is SlotViewLoading) {
+                      return CircularProgressIndicator();
+                    } else if (state is SlotViewStateInitial) {
+                      logger.d(state);
+                      BlocProvider.of<SlotViewBloc>(context)
+                          .add(DatedReceptionsRequested(date: DateTime.now()));
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (state is NothingSelected ||
+                        state is SelectedSlot ||
+                        state is BookedSlot) {
+                      List<Reception> receptions =
+                          BlocProvider.of<SlotViewBloc>(context)
+                              .datedReceptions;
+                      if (receptions.length == 0) {
+                        return Center(child: Text('Unavialable'));
+                      } else if (receptions.length == 1) {}
+                      List<Widget> boxesOfSlot = [];
 
-                    for (Reception reception in receptions) {
-                      boxesOfSlot.addAll(reception.slotList.map(
-                        (e) {
-                          return GestureDetector(
-                            onTap: () {
-                              if (!e.availableForBooking) {
-                                return;
-                              }
-                              setState(() {
-                                selectedSlot = e;
-                                selectedReception = reception;
-                              });
-                              logger.i(
-                                  'Selected slot ${reception.id}\n${selectedSlot.toJson()}');
-                            },
-                            child: SlotBox(
-                              slot: e,
-                              selected: selectedSlot == e,
-                            ),
-                          );
-                        },
-                      ).toList());
-                    }
+                      for (Reception reception in receptions) {
+                        boxesOfSlot.addAll(reception.slotList.map(
+                          (e) {
+                            Slot slot = e;
+                            Color color;
+                            if (slot.booked) {
+                              color = Colors.green;
+                            } else if (!slot.availableForBooking) {
+                              color = Colors.red;
+                            } else if (state is SelectedSlot &&
+                                state.slot == slot) {
+                              color = Colors.blue;
+                            } else if (!reception.availableForBooking) {
+                              color = Colors.grey;
+                            } else {
+                              color = Colors.white;
+                            }
+                            return BlocBuilder<SlotViewBloc, SlotViewState>(
+                              builder: (context, state) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    if (!reception.availableForBooking ||
+                                        !e.availableForBooking) {
+                                      return;
+                                    }
+                                    BlocProvider.of<SlotViewBloc>(context).add(
+                                      SelectSlot(
+                                        slot: e,
+                                        reception: reception,
+                                      ),
+                                    );
+                                  },
+                                  child: SlotBox(
+                                    slot: e,
+                                    color: color,
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ).toList());
+                      }
 
-                    return Container(
-                      height: h / 3 - 20,
-                      width: w,
-                      decoration: BoxDecoration(
-                        color: Color(0xfff7f6f6),
-                      ),
-                      child: GridView.builder(
+                      return GridView.builder(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           crossAxisSpacing: 10,
@@ -165,22 +193,14 @@ class _SlotViewState extends State<SlotView> {
                         itemBuilder: (BuildContext context, int index) {
                           return boxesOfSlot[index];
                         },
-                      ),
-                    );
-                  } else if (state is SlotViewLoadFail) {
-                    return Text(state.message);
-                  }
-                  return Center(child: Text('Undetermined state'));
-                },
-                listener: (context, state) {
-                  // try {
-                  //   logger.d("DatedReceptionsRequested");
-                  //   BlocProvider.of<SlotViewBloc>(context)
-                  //       .add(DatedReceptionsRequested(date: selectedDate));
-                  // } catch (e) {
-                  //   logger.e("${e.toString()}");
-                  // }
-                },
+                      );
+                    } else if (state is SlotViewLoadFail) {
+                      return Text(state.message);
+                    }
+                    return Center(child: Text('Undetermined state'));
+                  },
+                  listener: (context, state) {},
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -200,25 +220,41 @@ class _SlotViewState extends State<SlotView> {
                 ),
               ),
               SizedBox(height: 20),
-              BlocBuilder<SlotViewBloc, SlotViewState>(
-                builder: (context, state) => Center(
-                  child: RaisedButton(
-                    onPressed: BlocProvider.of<SlotViewBloc>(context)
-                                    .datedReceptions
-                                    .length !=
-                                0 ||
-                            selectedSlot != null
-                        ? () {
-                            logger.d('Hello');
-                          }
-                        : null,
-                    // TODO change color to green there is a booked slot in a reception and only one reception is in dated Receptions
-                    // color: Colors.green,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width - 100,
-                      child: Center(child: Text('Book Appointment')),
-                    ),
-                  ),
+              Center(
+                child: BlocBuilder<SlotViewBloc, SlotViewState>(
+                  builder: (context, state) {
+                    return RaisedButton(
+                      onPressed: state is SelectedSlot || state is BookedSlot
+                          ? () {
+                              if (state is BookedSlot) {
+                                // TODO Go to my bookings view with this slot
+                                return;
+                              }
+                              if (state is SelectedSlot) {
+                                // TODO Go to appointment view
+                                Slot slot = state.slot;
+                                Reception recepion = state.reception;
+                                Subscriber subscriber = state.subcriber;
+                                return;
+                              }
+                            }
+                          : null,
+                      color: state is BookedSlot
+                          ? Colors.green
+                          : Theme.of(context).primaryColor,
+                      child: !(state is BookedSlot)
+                          ? Container(
+                              width: MediaQuery.of(context).size.width - 100,
+                              height: 40,
+                              child: Center(child: Text('Book Appointment')),
+                            )
+                          : Container(
+                              width: MediaQuery.of(context).size.width - 100,
+                              height: 40,
+                              child: Center(child: Text('Already Booked')),
+                            ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -260,63 +296,11 @@ class FieldValue extends StatelessWidget {
   }
 }
 
-class SlotSelectionBox extends StatefulWidget {
-  @override
-  _SlotSelectionBoxState createState() => _SlotSelectionBoxState();
-}
-
-class _SlotSelectionBoxState extends State<SlotSelectionBox> {
-  bool backArrowEnabled;
-  List<Slot> slots;
-  Slot selectedSlot;
-
-  @override
-  void initState() {
-    backArrowEnabled = false;
-    final start = DateTime(2020, 8, 16, 10);
-    slots = List.generate(
-      19,
-      (index) => Slot(
-        startTime: start.add(Duration(hours: index)),
-        endTime: start.add(Duration(hours: index + 1)),
-      ),
-    );
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    double h = MediaQuery.of(context).size.height;
-    double w = MediaQuery.of(context).size.width;
-    return Container(
-      decoration: BoxDecoration(),
-      child: Column(
-        children: [],
-      ),
-    );
-  }
-}
-
 class SlotBox extends StatelessWidget {
-  final bool selected;
   final Slot slot;
+  final Color color;
 
-  SlotBox({this.selected = false, this.slot});
-
-  Color get slotColor {
-    // TODO Verify color codings
-    if (!slot.availableForBooking) {
-      return Colors.red;
-    } else if (slot.booked) {
-      return Colors.green;
-    } else if (selected) {
-      return Colors.blue;
-    } else if (slot.availableForBooking) {
-      return Colors.grey;
-    }
-    return Colors.white;
-  }
+  SlotBox({@required this.slot, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -328,7 +312,7 @@ class SlotBox extends StatelessWidget {
         ),
       ),
       decoration: BoxDecoration(
-        color: slotColor,
+        color: color ?? Colors.white,
         borderRadius: BorderRadius.circular(5),
         boxShadow: [
           BoxShadow(
