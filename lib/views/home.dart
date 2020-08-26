@@ -39,7 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   final FirebaseMessaging _messaging = FirebaseMessaging();
-  var _fcmToken;
+  String _fcmToken;
+  
   @override
   void initState() {
     _bloc = SubscribersBloc();
@@ -55,9 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void verifyFcmTokenChange(String _fcmToken) async {
     Box box = await Hive.openBox("user");
-    var fcmToken = await box.get('fcmToken');
+    String fcmToken = await box.get('fcmToken');
     logger.i("verify fcm: $fcmToken\nverify _fcm: $_fcmToken");
     if (fcmToken != _fcmToken) {
+      // TODO FIX ME unset the session here
       Navigator.pushNamed(context, SignInScreen.id);
     }
   }

@@ -8,26 +8,30 @@ import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/appointment.dart';
-import 'package:qme/views/success.dart';
+import 'package:qme/views/booking_success.dart';
 
-String notes;
-
-class AppointmentScreen extends StatefulWidget {
-  static const String id = '/appointment';
+class ApppointmentScreenArguments {
   final Subscriber subscriber;
   final Reception reception;
   final Slot slot;
 
-  AppointmentScreen({this.subscriber, this.reception, this.slot});
+  ApppointmentScreenArguments({this.subscriber, this.reception, this.slot});
+}
+
+class AppointmentScreen extends StatefulWidget {
+  static const String id = '/appointment';
+  final ApppointmentScreenArguments arg;
+
+  AppointmentScreen(this.arg);
 
   @override
   _AppointmentScreenState createState() => _AppointmentScreenState();
 }
 
 class _AppointmentScreenState extends State<AppointmentScreen> {
-  Subscriber get subscriber => widget.subscriber;
-  Reception get reception => widget.reception;
-  Slot get slot => widget.slot;
+  Subscriber get subscriber => widget.arg.subscriber;
+  Reception get reception => widget.arg.reception;
+  Slot get slot => widget.arg.slot;
   double get h => MediaQuery.of(context).size.height;
   double get w => MediaQuery.of(context).size.width;
   String note = 'Add notes like requirements';
@@ -89,13 +93,39 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
           body: BlocListener<BookingBloc, BookingState>(
             listener: (context, state) {
               if (state is BookingLoadInProgress) {
-                showSnackbar(context, "loading", null);
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        FaIcon(FontAwesomeIcons.locationArrow),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Text("Booking your appointment.....")
+                      ],
+                    ),
+                  ),
+                );
               } else if (state is BookingLoadSuccess) {
-                showSnackbar(context, "success", state.details.otp.toString());
+                Navigator.pushReplacementNamed(
+                  context,
+                  BookingSuccess.id,
+                  arguments: state.details.otp,
+                );
               } else if (state is BookingLoadFailure) {
-                showSnackbar(context, "failure", null);
-              } else if (state is BookingDone) {
-                showSnackbar(context, "success", state.detail.otp.toString());
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        FaIcon(FontAwesomeIcons.timesCircle),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Text("Oops, that wasn't supposed to happen...")
+                      ],
+                    ),
+                  ),
+                );
               }
             },
             child: Column(
@@ -105,49 +135,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        alignment: Alignment.centerLeft,
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            FaIcon(
-                              FontAwesomeIcons.solidCalendar,
-                              size: 100,
-                              color: Colors.grey,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Text(
-                                "${slot.startTime.day}",
-                                style: TextStyle(fontSize: 50),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        alignment: Alignment.bottomLeft,
-                        height: 100,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "${DateFormat('E').format(slot.startTime)}",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 20),
-                            ),
-                            Text(
-                              "${DateFormat("MMMMEEEEd").format(slot.startTime)}",
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 15,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
+                      DateIcon(slot: slot),
                       Expanded(
                         flex: 3,
                         child: Container(
@@ -162,8 +150,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                 size: 50,
                                 color: Colors.grey,
                               ),
-                              Text(
-                                  "${DateFormat("jm").format(slot.startTime)}",
+                              Text("${DateFormat("jm").format(slot.startTime)}",
                                   style: TextStyle(fontSize: 30)),
                             ],
                           ),
@@ -172,9 +159,16 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 50,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      LongDateText(slot: slot),
+                    ],
+                  ),
                 ),
+                SizedBox(height: 50),
                 Container(
                     padding: EdgeInsets.fromLTRB(30, 0, 0, 10),
                     alignment: Alignment.centerLeft,
@@ -192,8 +186,11 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ListItem(title: "Name", value: "${subscriber.name}"),
-                            ListItem(title: "Phone No", value: "${subscriber.phone}"),
+                            ListItem(
+                                title: "Name", value: "${subscriber.name}"),
+                            ListItem(
+                                title: "Phone No",
+                                value: "${subscriber.phone}"),
                           ],
                         )),
                   ),
@@ -235,39 +232,69 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       ),
     );
   }
+}
 
-  void showSnackbar(BuildContext context, String state, dynamic value) {
-    if (state == "loading") {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Row(
-        children: [
-          FaIcon(FontAwesomeIcons.locationArrow),
-          SizedBox(
-            width: 15,
+class LongDateText extends StatelessWidget {
+  const LongDateText({
+    Key key,
+    @required this.slot,
+  }) : super(key: key);
+
+  final Slot slot;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          "${DateFormat('E').format(slot.startTime)}",
+          style: TextStyle(color: Colors.grey, fontSize: 20),
+        ),
+        Text(
+          "${DateFormat("MMMMEEEEd").format(slot.startTime)}",
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 15,
           ),
-          Text("Booking your appointment.....")
-        ],
-      )));
-    } else if (state == "success") {
-      Navigator.pushReplacementNamed(
-        context,
-        BookingSuccess.id,
-        arguments: {
-          "otp": value,
-        },
-      );
-    } else if (state == "failure") {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Row(
+        )
+      ],
+    );
+  }
+}
+
+class DateIcon extends StatelessWidget {
+  const DateIcon({
+    Key key,
+    @required this.slot,
+  }) : super(key: key);
+
+  final Slot slot;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      alignment: Alignment.centerLeft,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
         children: [
-          FaIcon(FontAwesomeIcons.timesCircle),
-          SizedBox(
-            width: 15,
+          FaIcon(
+            FontAwesomeIcons.solidCalendar,
+            size: 100,
+            color: Colors.grey,
           ),
-          Text("Oops, that wasn't supposed to happen...")
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Text(
+              "${slot.startTime.day}",
+              style: TextStyle(fontSize: 50),
+            ),
+          )
         ],
-      )));
-    }
+      ),
+    );
   }
 }
 

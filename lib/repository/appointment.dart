@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'package:intl/intl.dart';
 
 import 'package:meta/meta.dart';
 import 'package:ordered_set/comparing.dart';
@@ -10,6 +11,24 @@ import 'package:qme/model/user.dart';
 
 class AppointmentRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
+  String localAccessToken;
+
+  AppointmentRepository({this.localAccessToken}) {
+    accessToken;
+  }
+
+  Future<String> get accessToken async {
+    if (localAccessToken != null) {
+      return localAccessToken;
+    } else {
+      await setAccesssToken();
+      return localAccessToken;
+    }
+  }
+
+  setAccesssToken() async {
+    localAccessToken = await getAccessTokenFromStorage();
+  }
 
   Future<List<Reception>> viewReceptionsByStatus({
     @required subscriberId,
@@ -31,6 +50,40 @@ class AppointmentRepository {
       _receptions.add(Reception.fromJson(Map<String, dynamic>.from(element)));
     }
     return _receptions.toList();
+  }
+
+  Future<List<Reception>> getDatedReceptions({
+    @required String subscriberId,
+    @required DateTime date,
+    @required List<String> status,
+  }) async {
+    final response = await _helper.post(
+      '/user/slot/datedcounters',
+      req: {
+        "subscriber_id": subscriberId,
+        "date": DateFormat('yyyy-MM-dd').format(date), //(YYYY-MM-DD)
+        "status": status
+      },
+      authToken: await accessToken,
+    );
+
+    List<Reception> receptionsList = List.from(response["counters"])
+        .map((element) => Reception.fromJson(element))
+        .toList();
+    receptionsList.sort((a, b) => a.startTime.compareTo(b.startTime));
+
+    return receptionsList;
+  }
+
+  Future<Reception> getDetailedReception(String receptionId) async {
+    final response = await _helper.post(
+      '/user/slot/viewcounterdetailed',
+      req: {
+        "counter_id": receptionId,
+      },
+      authToken: localAccessToken,
+    );
+    return Reception.fromJson(response);
   }
 
   Future book({
@@ -63,24 +116,28 @@ class AppointmentRepository {
     return response;
   }
 
-  Future checkSlot(
-      {@required String counterId,
-      @required String status,
-      accessToken}) async {
-    accessToken = await getAccessTokenFromStorage();
-    final response = await _helper.post('/user/slot/counterslots',
-        req: {
-          "counter_id": counterId,
-          "status": status,
-        },
-        authToken: accessToken);
-    return response;
+  Future<List<Appointment>> getReceptionAppointments({
+    @required String receptionId,
+    @required status,
+  }) async {
+    final response = await _helper.post(
+      '/user/slot/counterslots',
+      req: {
+        "counter_id": receptionId,
+        "status": status,
+      },
+      authToken: await accessToken,
+    );
+
+    return List<Appointment>.from(
+      response["slots"].map((element) => Appointment.fromMap(element)).toList(),
+    );
   }
 
   Future<List<Appointment>> fetchAppointments(
       {@required List<String> status, @required String accessToken}) async {
     final response = await _helper.post(
-      '/user/slot/book',
+      '/user/slot/book', // TODO Fix this with format
       req: {"status": status.length < 4 ? status : "ALL"},
       authToken: accessToken,
     );
@@ -128,18 +185,4 @@ class AppointmentRepository {
     );
     return response;
   }
-}
-
-void main() async {
-  final String accessToken = '';
-  AppointmentRepository appointmentRepository = AppointmentRepository();
-  /*
-  List<Appointment> aptms = await appointmentRepository.fetchAppointments();
-  for (Appointment appointment in aptms) {
-    print(appointment.toMap());
-  }
-  */
-  final Reception reception = await appointmentRepository.viewReception(
-      receptionId: 'null', accessToken: 'f');
-  print(reception.toJson());
 }

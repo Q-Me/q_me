@@ -59,15 +59,13 @@ dependencies:
   icon_shadow: ^1.0.1
   intl: ^0.16.1
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  test: ^1.15.2
   hive_generator: ^0.7.1
   build_runner: ^1.10.1
-
-
-
+  bloc_test: ^7.0.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -98,13 +96,10 @@ flutter:
    - assets/my-bookings.png
    - assets/no-bookings.jpg
   #  - images/a_dot_ham.jpeg
-
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
-
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
-
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
