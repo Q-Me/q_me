@@ -2,13 +2,9 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:hive/hive.dart';
-import 'package:logger/logger.dart';
+import 'package:meta/meta.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
-import 'package:qme/model/subscriber.dart';
-import 'package:qme/model/user.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/utilities/logger.dart';
 
@@ -35,52 +31,38 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
 
   Stream<BookingState> _mapBookingRequested(BookingRequested event) async* {
     yield BookingLoadInProgress();
-    bool slotAvailable = true;
-    var booking;
     logger.i("counter: ${event.counterId}, startTime: ${event.startTime}");
-    try {
-      booking = await appointmentRepository.checkSlot(
-          counterId: event.counterId,
-          accessToken: event.accessToken,
-          status: "ALL");
-      final detail =
-          Appointment.fromMap(booking["slots"][(booking["slots"].length) - 1]);
-      // if (detail.slot)
-      if (detail.slotStatus == "UPCOMING") {
-        slotAvailable = false;
-      }
-    } on RangeError catch (e) {
-      logger.i(e);
-      slotAvailable = true;
-    } catch (e) {
-      logger.e(e);
-      yield BookingLoadFailure();
-    }
 
-    if (slotAvailable == true) {
-      try {
-        final bookingResponse = await appointmentRepository.book(
-            counterId: event.counterId,
-            subscriberId: event.subscriberId,
-            startTime: event.startTime,
-            endTime: event.endTime,
-            note: event.note,
-            accessToken: event.accessToken);
-        logger.i(bookingResponse);
-        final msg = bookingResponse["msg"];
-        final details = Appointment.fromMap(bookingResponse["slot"]);
-        message = msg;
-        detail = details;
-        logger.i(msg, details);
-        yield BookingLoadSuccess(msg, details);
-      } catch (error) {
-        logger.e(error);
-        yield BookingLoadFailure();
+    try {
+      final bookingResponse = await appointmentRepository.book(
+          counterId: event.counterId,
+          subscriberId: event.subscriberId,
+          startTime: event.startTime,
+          endTime: event.endTime,
+          note: event.note,
+          accessToken: event.accessToken);
+      logger.i(bookingResponse);
+      final msg = bookingResponse["msg"];
+      final details = Appointment.fromMap(bookingResponse["slot"]);
+      message = msg;
+      detail = details;
+      logger.i(msg, details);
+      yield BookingLoadSuccess(msg, details);
+    } on BadRequestException catch (e) {
+      Map errorMap = e.toMap();
+      String error;
+      if (errorMap.containsKey('err')) {
+        error = errorMap['err'];
+      } else if (errorMap.containsKey('error')) {
+        error = errorMap['error'];
+      } else {
+        error = e.toString();
       }
-    } else {
-      final detail =
-          Appointment.fromMap(booking["slots"][(booking["slots"].length) - 1]);
-      yield BookingDone(detail);
+      logger.e(error);
+      BookingLoadFailure(message: error);
+    } catch (error) {
+      logger.e(error.toString());
+      yield BookingLoadFailure();
     }
   }
 

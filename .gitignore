@@ -45,3 +45,5 @@ API\ FORMAT.json
 /build/
 /.dart_tool/
 /.idea/
+/.vscode/* 
+

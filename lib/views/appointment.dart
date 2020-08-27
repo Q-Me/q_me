@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
@@ -47,8 +46,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   AppointmentRepository appointmentRepository;
   bool cancel = false;
 
-  @override
-  void initState() {
+ @override
+  void initState() { 
     _appointmentBloc = AppointmentBloc(
       slot: slot,
       subscriber: subscriber,
@@ -247,6 +246,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             SizedBox(height: 50),
+                            Text(state.message),
                             SizedBox(width: 10),
                             Expanded(
                               child: ThemedSolidButton(
@@ -264,8 +264,6 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                   }),
                             ),
                             SizedBox(width: 10),
-                            // TODO button to add slot to wish list
-//                    WishListButton(added: false),
                           ],
                         );
                       } else if (state is BookingLoadSuccess) {
@@ -430,6 +428,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                             SizedBox(height: 20),
                           ],
                         );
+                      } else {
+                        return Text('Invalid state');
                       }
                     })
                   ],
