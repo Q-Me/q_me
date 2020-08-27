@@ -3,7 +3,7 @@ import 'package:qme/model/user.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 
-void setSession() async {
+Future<void> setSession() async {
   final Map<String, dynamic> signInResponse = await UserRepository().signIn({
     "phone": "+919673582517",
     "password": "P1yush.123",
@@ -12,7 +12,7 @@ void setSession() async {
   logger.i('SignIn session: ${signInResponse.toString()}');
 }
 
-void clearSession() async {
+Future<void> clearSession() async {
   Box box = await Hive.openBox("user");
   await box.clear();
 }
