@@ -165,7 +165,10 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      LongDateText(slot: slot),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: LongDateText(slot: slot),
+                      ),
                     ],
                   ),
                 ),
@@ -251,12 +254,12 @@ class LongDateText extends StatelessWidget {
       children: [
         Text(
           "${DateFormat('E').format(slot.startTime)}",
-          style: TextStyle(color: Colors.grey, fontSize: 20),
+          style: TextStyle(fontSize: 20),
         ),
         Text(
           "${DateFormat("MMMMEEEEd").format(slot.startTime)}",
           style: TextStyle(
-            color: Colors.grey,
+            // color: Colors.grey,
             fontSize: 15,
           ),
         )

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:qme/bloc/booking_bloc.dart';
+import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
+import 'package:qme/model/user.dart';
+import 'package:qme/repository/appointment.dart';
 
 class ListItemBooked extends StatelessWidget {
   const ListItemBooked({
@@ -10,12 +15,16 @@ class ListItemBooked extends StatelessWidget {
     @required this.location,
     @required this.slot,
     @required this.otp,
+    @required this.counterId,
+    @required this.primaryContext,
   }) : super(key: key);
 
   final String name;
   final String location;
   final DateTime slot;
   final String otp;
+  final String counterId;
+  final BuildContext primaryContext;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +87,40 @@ class ListItemBooked extends StatelessWidget {
         Center(
           child: Material(
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Whoa, Hold On..."),
+                        content: Text(
+                            "Do you really want to cancel your appointment?"),
+                        actions: <Widget>[
+                          new RaisedButton(
+                            onPressed: () async {
+                              BookingBloc bookingBloc = new BookingBloc(
+                                  appointmentRepository:
+                                      AppointmentRepository());
+                              bookingBloc.add(CancelRequested(counterId,
+                                  await getAccessTokenFromStorage()));
+                              BlocProvider.of<BookingslistBloc>(primaryContext).add(BookingsListRequested());
+                              bookingBloc.close();
+                              Navigator.pop(context);
+                            },
+                            child: Text("Yep, I'm sure"),
+                            color: Colors.red[600],
+                          ),
+                          new RaisedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text("No, I want my appointment"),
+                            color: Colors.green[600],
+                          )
+                        ],
+                      );
+                    });
+              },
               child: Padding(
                 padding: const EdgeInsets.all(15),
                 child: Text(
@@ -245,8 +287,12 @@ class ListItemCancelled extends StatelessWidget {
             ],
           ),
         ),
-        TimeAndDateItem(icon: FontAwesomeIcons.calendarAlt, description: "${DateFormat.yMMMMEEEEd().format(slot)}"),
-        TimeAndDateItem(icon: FontAwesomeIcons.clock, description: "${DateFormat.jm().format(slot)}"),
+        TimeAndDateItem(
+            icon: FontAwesomeIcons.calendarAlt,
+            description: "${DateFormat.yMMMMEEEEd().format(slot)}"),
+        TimeAndDateItem(
+            icon: FontAwesomeIcons.clock,
+            description: "${DateFormat.jm().format(slot)}"),
         SizedBox(
           height: 20,
         ),

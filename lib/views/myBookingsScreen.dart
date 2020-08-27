@@ -151,10 +151,13 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         delegate: SliverChildBuilderDelegate((context, index) {
                       if (list[index].slotStatus == "UPCOMING") {
                         return ListItemBooked(
-                            name: list[index].subscriberName,
-                            location: list[index].address,
-                            slot: list[index].slot.startTime,
-                            otp: list[index].otp.toString());
+                          primaryContext: context,
+                          name: list[index].subscriberName,
+                          location: list[index].address,
+                          slot: list[index].slot.startTime,
+                          otp: list[index].otp.toString(),
+                          counterId: list[index].counterId,
+                        );
                       } else if (list[index].slotStatus == "DONE") {
                         return ListItemFinished(
                             name: list[index].subscriberName,

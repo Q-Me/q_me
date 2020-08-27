@@ -102,8 +102,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           settings: RouteSettings(name: ReviewScreen.id));
 
     case BookingSuccess.id:
-      final SuccessScreenArguments arguments =
-          settings.arguments ?? SuccessScreenArguments(otp: settings.arguments);
+      final SuccessScreenArguments arguments = SuccessScreenArguments(otp: settings.arguments);
       return MaterialPageRoute(
           builder: (context) => BookingSuccess(arguments),
           settings: RouteSettings(name: BookingSuccess.id));

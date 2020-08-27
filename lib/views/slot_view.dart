@@ -130,7 +130,7 @@ class _SlotViewState extends State<SlotView> {
                           BlocProvider.of<SlotViewBloc>(context)
                               .datedReceptions;
                       if (receptions.length == 0) {
-                        return Center(child: Text('Unavialable'));
+                        return Center(child: Text('Unavailable'));
                       } else if (receptions.length == 1) {}
                       List<Widget> boxesOfSlot = [];
 
