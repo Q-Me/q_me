@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
+import 'package:icon_shadow/icon_shadow.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
@@ -22,6 +23,7 @@ import 'package:qme/views/token.dart';
 import 'package:qme/widgets/error.dart';
 import 'package:qme/widgets/loader.dart';
 
+/*
 class SubscriberScreen extends StatefulWidget {
   static const String id = '/booking';
   final Subscriber subscriber;
@@ -36,7 +38,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
   final double appBarOffset = 10;
 
   SubscriberBloc _bloc;
-
+/*
   @override
   void initState() {
     logger.d('Opening queues for subscriber id:' + widget.subscriber.id);
@@ -51,7 +53,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
       _bloc = SubscriberBloc(widget.subscriber.id);
     }
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +66,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
           alignment: Alignment(-1, -1),
           child: GestureDetector(
             onTap: () {
-              Navigator.pop(context);
+              // Navigator.pop(context);
             },
             child: CircleAvatar(
               foregroundColor: Colors.white,
@@ -98,67 +100,8 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
     );
   }
 }
-
-class SubscriberImages extends StatelessWidget {
-  const SubscriberImages({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<ApiResponse<List<String>>>(
-        stream: Provider.of<SubscriberBloc>(context).imageStream,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            switch (snapshot.data.status) {
-              case Status.COMPLETED:
-                if (snapshot.data.data.length == 0) {
-                  logger.i('No images to display');
-                  return Container();
-                }
-                List<String> imgs = snapshot.data.data
-                    .map((e) => '$baseURL/user/displayimage/' + e)
-                    .toList();
-                logger.i(
-                    'SubscriberBloc Access Token:${Provider.of<SubscriberBloc>(context).accessToken}');
-                return SizedBox(
-                  width: 600,
-                  height: 300,
-                  child: Carousel(
-                    images: imgs.map((imgUrl) {
-                      return CachedNetworkImage(
-                        imageUrl: imgUrl,
-                        fit: BoxFit.contain,
-                        httpHeaders: {
-                          HttpHeaders.authorizationHeader:
-                              'Bearer ${Provider.of<SubscriberBloc>(context).accessToken}'
-                        },
-                      );
-                    }).toList(),
-                  ),
-                );
-                break;
-              case Status.LOADING:
-                return Loading(
-                    // TODO add shimmer loader
-                    loadingMessage: snapshot.data.message);
-                break;
-              case Status.ERROR:
-                return Error(
-                  errorMessage: snapshot.data.message,
-                  onRetryPressed: () => Provider.of<SubscriberBloc>(context)
-                      .fetchSubscriberDetails(),
-                );
-                break;
-            }
-          } else {
-            log('no Snapshot data');
-          }
-          return Container();
-        });
-  }
-}
-
+*/
+/*
 class Queues extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -232,6 +175,7 @@ class ReceptionsDisplay extends StatelessWidget {
         });
   }
 }
+
 
 class ReceptionCard extends StatelessWidget {
   ReceptionCard(this.reception);
@@ -313,6 +257,7 @@ class SlotItem extends StatelessWidget {
     );
   }
 }
+
 
 class QueueItem extends StatelessWidget {
   final Queue queue;
@@ -442,6 +387,7 @@ class QueueItem extends StatelessWidget {
   }
 }
 
+
 class QueuesDisplay extends StatelessWidget {
   final List<Queue> queues;
   QueuesDisplay(this.queues);
@@ -458,13 +404,14 @@ class QueuesDisplay extends StatelessWidget {
         : Text('No queues found');
   }
 }
+*/
 
 class SubscriberHeaderInfo extends StatelessWidget {
   final Subscriber subscriber;
   SubscriberHeaderInfo({this.subscriber});
   @override
   Widget build(BuildContext context) {
-    return Column(
+    /*return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(subscriber.name,
@@ -487,6 +434,275 @@ class SubscriberHeaderInfo extends StatelessWidget {
         ),
         SizedBox(height: 10),
       ],
+    );
+    */
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "${subscriber.name}",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Text(
+          "${subscriber.address}",
+          textAlign: TextAlign.left,
+        ),
+      ],
+    );
+  }
+}
+
+class SubscriberServices extends StatelessWidget {
+  final Subscriber subscriber;
+
+  const SubscriberServices({Key key, this.subscriber}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          height: 2,
+          width: MediaQuery.of(context).size.width,
+          color: Colors.grey,
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              children: [
+                Text('Unisex Saloon'),
+                Text('Free Shampoo'),
+                Text(subscriber.description == "NULL" || null
+                    ? " "
+                    : subscriber.description)
+              ],
+            ),
+            Text("learn more")
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class SubscriberImages extends StatelessWidget {
+  const SubscriberImages({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<ApiResponse<List<String>>>(
+        stream: Provider.of<SubscriberBloc>(context).imageStream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            switch (snapshot.data.status) {
+              case Status.COMPLETED:
+                if (snapshot.data.data.length == 0) {
+                  logger.i('No images to display');
+                  return Container();
+                }
+                List<String> imgs = snapshot.data.data
+                    .map((e) => '$baseURL/user/displayimage/' + e)
+                    .toList();
+                logger.i(
+                    'SubscriberBloc Access Token:${Provider.of<SubscriberBloc>(context).accessToken}');
+                return SizedBox(
+                  width: 10,
+                  height: 50,
+                  child: Carousel(
+                    showIndicator: false,
+                    images: imgs.map((imgUrl) {
+                      return CachedNetworkImage(
+                        imageUrl: imgUrl,
+                        fit: BoxFit.contain,
+                        httpHeaders: {
+                          HttpHeaders.authorizationHeader:
+                              'Bearer ${Provider.of<SubscriberBloc>(context).accessToken}'
+                        },
+                      );
+                    }).toList(),
+                  ),
+                );
+                break;
+              case Status.LOADING:
+                return Loading(
+                    // TODO add shimmer loader
+                    loadingMessage: snapshot.data.message);
+                break;
+              case Status.ERROR:
+                return Error(
+                  errorMessage: snapshot.data.message,
+                  onRetryPressed: () => Provider.of<SubscriberBloc>(context)
+                      .fetchSubscriberDetails(),
+                );
+                break;
+            }
+          } else {
+            log('no Snapshot data');
+          }
+          return Container();
+        });
+  }
+}
+
+class SubscriberScreen extends StatefulWidget {
+  static const String id = '/booking';
+  final Subscriber subscriber;
+
+  const SubscriberScreen({Key key, this.subscriber}) : super(key: key);
+
+  @override
+  _SubscriberScreenState createState() => _SubscriberScreenState();
+}
+
+class _SubscriberScreenState extends State<SubscriberScreen> {
+  SubscriberBloc _bloc;
+
+  @override
+  void initState() {
+    logger.d('Opening queues for subscriber id:' + widget.subscriber.id);
+    super.initState();
+    _bloc = SubscriberBloc(widget.subscriber.id);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_bloc == null) {
+      _bloc = SubscriberBloc(widget.subscriber.id);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+      floatingActionButton: IconButton(
+          icon: IconShadowWidget(
+            Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+            ),
+            shadowColor: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          }),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: ChangeNotifierProvider.value(
+          value: _bloc,
+          child: Stack(
+            alignment: AlignmentDirectional.bottomEnd,
+            children: [
+              Positioned(
+                top: 0,
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.45,
+                  width: MediaQuery.of(context).size.width,
+                  child: SubscriberImages(),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                child: SingleChildScrollView(
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    padding: EdgeInsets.all(20),
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SubscriberHeaderInfo(
+                              subscriber: widget.subscriber,
+                            ),
+                            Container(
+                              padding: EdgeInsets.all(5),
+                              width: MediaQuery.of(context).size.width / 3.5,
+                              height: MediaQuery.of(context).size.width / 13,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [], //TODO: Ratings here
+                              ),
+                            )
+                          ],
+                        ),
+                        SubscriberServices(subscriber: widget.subscriber),
+                        RaisedButton.icon(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                          ),
+                          onPressed: () {},
+
+                          icon: Icon(
+                            Icons.message,
+                            color: Colors.white,
+                          ),
+                          label: Container(
+                            height: MediaQuery.of(context).size.width / 8,
+                            width: MediaQuery.of(context).size.width / 1.6,
+                            padding: EdgeInsets.all(10),
+                            child: Row(
+                              // mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'Check availible slots',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+
+                          color: Color(0xFF084ff2),
+                          //   width: MediaQuery.of(context).size.width / 1.4,
+                          //   height: MediaQuery.of(context).size.width / 9,
+                          //   decoration: BoxDecoration(
+                          //       borderRadius: BorderRadius.circular(18)),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Ratings and Reviews',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16)),
+                            Icon(Icons.arrow_forward)
+                          ],
+                        ),
+                        Placeholder(
+                          fallbackWidth: 200,
+                          fallbackHeight: 50,
+                        )
+                      ],
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

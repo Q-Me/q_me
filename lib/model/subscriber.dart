@@ -79,8 +79,8 @@ class Subscriber extends ChangeNotifier {
           ? double.parse(json["longitude"].toString())
           : null,
       verified: int.parse(json['verified'].toString()) == 1 ? true : false,
-      description: json["description"],
-      category: json["category"],
+      description: json["description"] == null ? "" : json["description"],
+      category: json["category"] ?? '',
       distance: distance,
       displayImages: json["displayImages"] != null
           ? List<String>.from(json["displayImages"])
