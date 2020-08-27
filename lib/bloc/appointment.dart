@@ -81,11 +81,6 @@ class AppointmentBloc with ChangeNotifier {
     } on UnauthorisedException catch (e) {
       logger.e(e.toString() + '\nAccess token : $_accessToken');
       return;
-
-//      _accessToken = await _userRepository.accessTokenFromApi();
-      logger.i('AccessToken from api : $_accessToken');
-      _userData = await _userRepository.fetchProfile(_accessToken);
-      userSink.add(ApiResponse.completed(_userData));
     } catch (e) {
       userSink.add(ApiResponse.error(e.toString()));
       logger.e(e.toString());

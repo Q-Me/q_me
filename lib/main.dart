@@ -5,18 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/kAPI.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/router.dart' as router;
 import 'package:qme/services/analytics.dart';
 import 'package:qme/simple_bloc_observer.dart';
 import 'package:qme/utilities/logger.dart';
+import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
-import 'package:qme/views/signin.dart';
+import 'package:qme/views/noInternet.dart';
 import 'package:qme/widgets/theme.dart';
-
-import 'views/home.dart';
 
 String initialHome = IntroScreen.id;
 
@@ -31,11 +31,17 @@ void main() async {
   // TODO show splash screen
   // TODO setConfigs();
   // TODO fetch user related information
-//  setSession();
-//  clearSession();
-  if (await UserRepository().isSessionReady()) {
-    initialHome = HomeScreen.id;
+  try {
+    await setSession();
+    // await clearSession();
+
+    if (await UserRepository().isSessionReady()) {
+      initialHome = HomeScreen.id;
+    }
+  } on FetchDataException catch (e) {
+    initialHome = NoInternetView.id;
   }
+
   runApp(MyApp());
 }
 

@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+import 'package:equatable/equatable.dart';
 import 'package:qme/model/slot.dart';
 
 Appointment appointmentFromMap(String str) =>
@@ -11,7 +12,7 @@ Appointment appointmentFromMap(String str) =>
 
 String appointmentToMap(Appointment data) => json.encode(data.toMap());
 
-class Appointment {
+class Appointment extends Equatable {
   Appointment({
     this.subscriberName,
     this.longitude,
@@ -51,6 +52,27 @@ class Appointment {
   final String note;
   final otp;
   final String rating;
+
+  @override
+  List<Object> get props => [
+        subscriberName,
+        longitude,
+        latitude,
+        phone,
+        address,
+        category,
+        verified,
+        profileImage,
+        counterStartTime,
+        counterEndTime,
+        counterStatus,
+        subscriberId,
+        counterId,
+        slot,
+        slotStatus,
+        note,
+        otp,
+      ];
 
   factory Appointment.fromMap(Map<String, dynamic> json) => Appointment(
         subscriberName: json["subscriber"] == null ? null : json["subscriber"],
