@@ -152,7 +152,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                         flex: 3,
                         child: Container(
                           alignment: Alignment.bottomRight,
-                          height: 100,
+                          height: 150,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -164,7 +164,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                               ),
                               Text(
                                   "${DateFormat("jm").format(slot.startTime)}",
-                                  style: TextStyle(fontSize: 30)),
+                                  style: TextStyle(fontSize: 25)),
                             ],
                           ),
                         ),

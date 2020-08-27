@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
@@ -23,6 +24,7 @@ import 'views/token.dart';
 import 'views/unknown.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
+  logger.d(settings.name);
   switch (settings.name) {
     case SignUpScreen.id:
       return MaterialPageRoute(
