@@ -16,7 +16,6 @@ import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
 import 'package:qme/widgets/theme.dart';
 
-
 String initialHome = IntroScreen.id;
 
 void main() async {
@@ -32,8 +31,7 @@ void main() async {
   // TODO fetch user related information
 
   // await setSession();
-  await clearSession();
-
+  await setSession();
   if (await UserRepository().isSessionReady()) {
     initialHome = HomeScreen.id;
   }
