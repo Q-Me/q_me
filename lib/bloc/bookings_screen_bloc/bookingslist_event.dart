@@ -14,3 +14,14 @@ class BookingsListRequested extends BookingslistEvent {
   @override
   List<Object> get props => [statusRequired];
 }
+
+class CancelRequested extends BookingslistEvent {
+  final String counterId;
+  final String accessToken;
+
+  CancelRequested(this.counterId, this.accessToken)
+      : assert(accessToken != null && counterId != null);
+
+  @override
+  List<Object> get props => [counterId, accessToken];
+}

@@ -89,7 +89,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                 // Queues(),
                 RaisedButton(
                   onPressed: () {
-                    Navigator.pushNamed(
+                    Navigator.pushReplacementNamed(
                       context,
                       SlotView.id,
                       arguments:

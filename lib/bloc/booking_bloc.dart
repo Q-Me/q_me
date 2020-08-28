@@ -23,9 +23,10 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       yield* _mapBookingRequested(event);
     } else if (event is BookingRefreshRequested) {
       yield* _mapBookingRefreshRequested(event);
-    } else if (event is CancelRequested) {
-      yield* _mapCancelRequestEventToState(event);
     }
+    //  else if (event is CancelRequested) {
+    //   yield* _mapCancelRequestEventToState(event);
+    // }
   }
 
   Stream<BookingState> _mapBookingRequested(BookingRequested event) async* {
@@ -58,18 +59,18 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     yield BookingInitial(false);
   }
 
-  Stream<BookingState> _mapCancelRequestEventToState(
-      CancelRequested event) async* {
-    yield BookingLoadInProgress();
-    try {
-      final bookingResponse = await appointmentRepository.cancel(
-          counterId: event.counterId, accessToken: event.accessToken);
-      final msg = bookingResponse["msg"];
-      logger.i(msg);
-      yield BookingInitial(false);
-    } catch (error) {
-      logger.e(error);
-      yield BookingInitial(true);
-    }
-  }
+  // Stream<BookingState> _mapCancelRequestEventToState(
+  //     CancelRequested event) async* {
+  //   yield BookingLoadInProgress();
+  //   try {
+  //     final bookingResponse = await appointmentRepository.cancel(
+  //         counterId: event.counterId, accessToken: event.accessToken);
+  //     final msg = bookingResponse["msg"];
+  //     logger.i(msg);
+  //     yield BookingInitial(false);
+  //   } catch (error) {
+  //     logger.e(error);
+  //     yield BookingInitial(true);
+  //   }
+  // }
 }

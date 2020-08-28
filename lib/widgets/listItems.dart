@@ -98,13 +98,12 @@ class ListItemBooked extends StatelessWidget {
                         actions: <Widget>[
                           new RaisedButton(
                             onPressed: () async {
-                              BookingBloc bookingBloc = new BookingBloc(
-                                  appointmentRepository:
-                                      AppointmentRepository());
-                              bookingBloc.add(CancelRequested(counterId,
-                                  await getAccessTokenFromStorage()));
-                              BlocProvider.of<BookingslistBloc>(primaryContext).add(BookingsListRequested());
-                              bookingBloc.close();
+                              BlocProvider.of<BookingslistBloc>(primaryContext).add(
+                                CancelRequested(
+                                  counterId,
+                                  await getAccessTokenFromStorage(),
+                                ),
+                              );
                               Navigator.pop(context);
                             },
                             child: Text("Yep, I'm sure"),

@@ -147,7 +147,7 @@ class _SlotViewState extends State<SlotView> {
                               color = Colors.red;
                             } else if (state is SelectedSlot &&
                                 state.slot == slot) {
-                              color = Colors.blue;
+                              color = Theme.of(context).primaryColor;
                             } else if (!reception.availableForBooking) {
                               color = Colors.grey;
                             } else {
@@ -241,7 +241,7 @@ class _SlotViewState extends State<SlotView> {
                                 Slot slot = state.slot;
                                 Reception reception = state.reception;
                                 Subscriber subscriber = state.subcriber;
-                                Navigator.pushNamed(
+                                Navigator.pushReplacementNamed(
                                   context,
                                   AppointmentScreen.id,
                                   arguments: ApppointmentScreenArguments(
@@ -337,7 +337,7 @@ class SlotBox extends StatelessWidget {
     return Container(
       child: Center(
         child: Text(
-          DateFormat.jm().format(slot.startTime),
+          DateFormat.jm().format(slot.startTime.toLocal()),
           style: TextStyle(color: color == Colors.white ? Colors.black : Colors.white),
         ),
       ),
