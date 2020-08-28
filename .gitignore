@@ -46,3 +46,4 @@ API\ FORMAT.json
 /.dart_tool/
 /.idea/
 /.vscode/* 
+/android/key.properties

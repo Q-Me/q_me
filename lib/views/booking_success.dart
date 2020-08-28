@@ -24,6 +24,7 @@ class _BookingSuccessState extends State<BookingSuccess> {
     return Scaffold(
         body: Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             width: 200,
