@@ -12,7 +12,7 @@ import 'package:qme/repository/queue.dart';
 import 'package:qme/repository/subscribers.dart';
 import 'package:qme/utilities/logger.dart';
 
-class SubscriberBloc extends ChangeNotifier {
+class SubscriberBloc2 extends ChangeNotifier {
   Subscriber subscriber;
   String subscriberId, queueStatus, accessToken;
 
@@ -25,7 +25,7 @@ class SubscriberBloc extends ChangeNotifier {
 
   Stream<ApiResponse<List<String>>> get imageStream => _imagesController.stream;
 
-  SubscriberBloc(this.subscriberId) {
+  SubscriberBloc2(this.subscriberId) {
     _imagesController = StreamController<ApiResponse<List<String>>>();
 
     _subscriberRepository = SubscriberRepository();
