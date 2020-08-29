@@ -7,15 +7,15 @@ abstract class SubscriberState extends Equatable {
   List<Object> get props => [];
 }
 
-class SubscriberInitial extends SubscriberState {}
-
 class SubscriberLoading extends SubscriberState {}
 
 class SubscriberReady extends SubscriberState {
   final Subscriber subscriber;
+  final String accessToken;
+
   final List<String> images;
 
-  SubscriberReady({this.images, this.subscriber});
+  SubscriberReady({this.accessToken, this.images, this.subscriber});
 
   @override
   List<Object> get props => [subscriber, images];
@@ -25,7 +25,9 @@ class SubscriberScreenReady extends SubscriberState {
   final Subscriber subscriber;
   final List<String> images;
   final List<Review> review;
-  SubscriberScreenReady({this.images, this.subscriber, this.review});
+  final String accessToken;
+  SubscriberScreenReady(
+      {this.images, this.subscriber, this.review, this.accessToken});
 
   @override
   List<Object> get props => [subscriber, review, images];
