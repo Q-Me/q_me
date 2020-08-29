@@ -20,6 +20,7 @@ import 'package:qme/model/reception.dart';
 import 'package:qme/model/review.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/model/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/time.dart';
 import 'package:qme/views/appointment.dart';
@@ -44,55 +45,172 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-      floatingActionButton: IconButton(
-          icon: IconShadowWidget(
-            Icon(
-              Icons.arrow_back,
-              color: Colors.black,
+        floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+        floatingActionButton: IconButton(
+            icon: IconShadowWidget(
+              Icon(
+                Icons.arrow_back,
+                color: Colors.black,
+              ),
+              shadowColor: Colors.white,
             ),
-            shadowColor: Colors.white,
+            onPressed: () {
+              Navigator.pop(context);
+            }),
+        body: Stack(alignment: AlignmentDirectional.bottomEnd, children: [
+          BlocBuilder<SubscriberBloc, SubscriberState>(
+            builder: (context, state) {
+              if (state is SubscriberLoading) {
+                return Positioned(
+                    top: 0,
+                    child: Container(
+                        height: h * 0.45,
+                        width: w,
+                        child: Center(child: CircularProgressIndicator())));
+              }
+              if (state is SubscriberReady) {
+                BlocProvider.of<SubscriberBloc>(context)
+                    .add(FetchReviewEvent(subscriber: widget.subscriber));
+                return Positioned(
+                  top: 0,
+                  child: Container(
+                    height: h * 0.45,
+                    width: MediaQuery.of(context).size.width,
+                    child: SubscriberImages(
+                      images: state.images,
+                    ),
+                  ),
+                );
+              }
+              if (state is SubscriberScreenReady) {
+                return Positioned(
+                  top: 0,
+                  child: Container(
+                    height: h * 0.45,
+                    width: MediaQuery.of(context).size.width,
+                    child: SubscriberImages(
+                      images: state.images,
+                    ),
+                  ),
+                );
+              }
+              if (state is SubscriberError) {
+                return Error(
+                  errorMessage: state.error,
+                  onRetryPressed: () => BlocProvider.of<SubscriberBloc>(context)
+                      .add(ProfileInitialEvent(subscriber: widget.subscriber)),
+                );
+              } else {
+                return Container();
+              }
+            },
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          }),
-      body: BlocBuilder<SubscriberBloc, SubscriberState>(
-        builder: (BuildContext context, state) {
-          if (state is SubscriberLoading) {
-            return LoadingStateScreen(
-              w: w,
-              h: h,
-              subscriber: widget.subscriber,
-            );
-          }
-          if (state is SubscriberReady) {
-            BlocProvider.of<SubscriberBloc>(context)
-                .add(FetchReviewEvent(subscriber: widget.subscriber));
-            return SubscriberReadyStateScreen(
-                state: state, subscriber: widget.subscriber, w: w, h: h);
-          }
-          if (state is SubscriberScreenReady) {
-            return SubscriberScreenReadyStateScreen(
-              w: w,
-              h: h,
-              state: state,
-              subscriber: widget.subscriber,
-            );
-          }
-          if (state is SubscriberError) {
-            return Error(
-              errorMessage: state.error,
-              onRetryPressed: () => BlocProvider.of<SubscriberBloc>(context)
-                  .add(ProfileInitialEvent(subscriber: widget.subscriber)),
-            );
-          } else {
-            return Container(
-              child: Text('oops'),
-            );
-          }
-        },
-      ),
-    );
+          Positioned(
+            bottom: 0,
+            child: Container(
+              height: h * 0.6,
+              padding: EdgeInsets.all(20),
+              width: w,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SubscriberHeaderInfo(
+                        subscriber: widget.subscriber,
+                      ),
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        width: w / 3.5,
+                        height: w / 13,
+                        child: SubscriberStarRating(
+                          subscriber: widget.subscriber,
+                        ),
+                      )
+                    ],
+                  ),
+                  SubscriberServices(subscriber: widget.subscriber),
+                  RaisedButton.icon(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                    onPressed: () {
+                      log('Navigating to subscriber id:${widget.subscriber.id}');
+                      Navigator.pushNamed(context, SlotView.id,
+                          arguments:
+                              SlotViewArguments(subscriber: widget.subscriber));
+                    },
+                    icon: Icon(
+                      Icons.message,
+                      color: Colors.white,
+                    ),
+                    label: Container(
+                      height: w / 8,
+                      width: w / 1.6,
+                      padding: EdgeInsets.all(10),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Check availible slots',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    color: Color(0xFF084ff2),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Ratings and Reviews',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      Icon(Icons.arrow_forward)
+                    ],
+                  ),
+                  BlocBuilder<SubscriberBloc, SubscriberState>(
+                    builder: (context, state) {
+                      if (state is SubscriberLoading) {
+                        return Container(
+                          height: 50,
+                          width: 50,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      if (state is SubscriberReady) {
+                        return Container(
+                          height: 50,
+                          width: 50,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      if (state is SubscriberScreenReady) {
+                        return SubscriberReviews(
+                          reviews: state.review,
+                        );
+                      }
+                      if (state is SubscriberError) {
+                        return Container();
+                      } else {
+                        return Container();
+                      }
+                    },
+                  )
+                ],
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20)),
+              ),
+            ),
+          ),
+        ]));
   }
 }
 
@@ -158,11 +276,11 @@ class SubscriberServices extends StatelessWidget {
 }
 
 class SubscriberImages extends StatelessWidget {
-  const SubscriberImages({
-    Key key,
-    @required this.images,
-  }) : super(key: key);
+  const SubscriberImages({Key key, @required this.images, this.accessToken})
+      : super(key: key);
   final List<String> images;
+  final String accessToken;
+
   @override
   Widget build(BuildContext context) {
     if (images.length == 0) {
@@ -171,10 +289,8 @@ class SubscriberImages extends StatelessWidget {
     }
     List<String> imgs =
         images.map((e) => '$baseURL/user/displayimage/' + e).toList();
-    return
-        // logger.i(
-        //     'SubscriberBloc Access Token:${Provider.of<SubscriberBloc>(context).accessToken}');
-        SizedBox(
+    logger.i('SubscriberBloc Access Token:$accessToken');
+    return SizedBox(
       width: 10,
       height: 50,
       child: Carousel(
@@ -183,10 +299,9 @@ class SubscriberImages extends StatelessWidget {
           return CachedNetworkImage(
             imageUrl: imgUrl,
             fit: BoxFit.contain,
-            // httpHeaders: {
-            //   HttpHeaders.authorizationHeader:
-            //       'Bearer ${Provider.of<SubscriberBloc>(context).accessToken}'
-            // },
+            httpHeaders: {
+              HttpHeaders.authorizationHeader: 'Bearer $accessToken'
+            },
           );
         }).toList(),
       ),
@@ -194,68 +309,6 @@ class SubscriberImages extends StatelessWidget {
   }
 }
 
-/*
-class SubscriberImages2 extends StatelessWidget {
-  const SubscriberImages2({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<ApiResponse<List<String>>>(
-        stream: Provider.of<SubscriberBloc>(context).imageStream,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            switch (snapshot.data.status) {
-              case Status.COMPLETED:
-                if (snapshot.data.data.length == 0) {
-                  logger.i('No images to display');
-                  return Container();
-                }
-                List<String> imgs = snapshot.data.data
-                    .map((e) => '$baseURL/user/displayimage/' + e)
-                    .toList();
-                logger.i(
-                    'SubscriberBloc Access Token:${Provider.of<SubscriberBloc>(context).accessToken}');
-                return SizedBox(
-                  width: 10,
-                  height: 50,
-                  child: Carousel(
-                    showIndicator: false,
-                    images: imgs.map((imgUrl) {
-                      return CachedNetworkImage(
-                        imageUrl: imgUrl,
-                        fit: BoxFit.contain,
-                        httpHeaders: {
-                          HttpHeaders.authorizationHeader:
-                              'Bearer ${Provider.of<SubscriberBloc>(context).accessToken}'
-                        },
-                      );
-                    }).toList(),
-                  ),
-                );
-                break;
-              case Status.LOADING:
-                return Loading(
-                    // TODO add shimmer loader
-                    loadingMessage: snapshot.data.message);
-                break;
-              case Status.ERROR:
-                return Error(
-                  errorMessage: snapshot.data.message,
-                  onRetryPressed: () => Provider.of<SubscriberBloc>(context)
-                      .fetchSubscriberDetails(),
-                );
-                break;
-            }
-          } else {
-            log('no Snapshot data');
-          }
-          return Container();
-        });
-  }
-}
-*/
 class SubscriberStarRating extends StatelessWidget {
   const SubscriberStarRating({
     this.subscriber,
@@ -327,362 +380,5 @@ class SubscriberReviews extends StatelessWidget {
                 subtitle: Text(review.review),
               );
             });
-  }
-}
-
-class LoadingStateScreen extends StatelessWidget {
-  const LoadingStateScreen({Key key, this.w, this.h, this.subscriber})
-      : super(key: key);
-  final double w;
-  final double h;
-  final Subscriber subscriber;
-  @override
-  Widget build(BuildContext context) {
-    return Stack(alignment: AlignmentDirectional.bottomEnd, children: [
-      Positioned(
-          top: 0,
-          child: Container(
-              height: h * 0.45,
-              width: w,
-              child: Center(child: CircularProgressIndicator()))),
-      Positioned(
-        bottom: 0,
-        child: Container(
-          height: h * 0.6,
-          padding: EdgeInsets.all(20),
-          width: w,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SubscriberHeaderInfo(
-                    subscriber: subscriber,
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(5),
-                    width: w / 3.5,
-                    height: w / 13,
-                    child: SubscriberStarRating(
-                      subscriber: subscriber,
-                    ),
-                  )
-                ],
-              ),
-              SubscriberServices(subscriber: subscriber),
-              RaisedButton.icon(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                ),
-                onPressed: () {
-                  log('Navigating to subscriber id:${subscriber.id}');
-                  Navigator.pushNamed(context, SlotView.id,
-                      arguments: SlotViewArguments(subscriber: subscriber));
-                },
-
-                icon: Icon(
-                  Icons.message,
-                  color: Colors.white,
-                ),
-                label: Container(
-                  height: w / 8,
-                  width: w / 1.6,
-                  padding: EdgeInsets.all(10),
-                  child: Row(
-                    // mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Check availible slots',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-
-                color: Color(0xFF084ff2),
-                //   width: MediaQuery.of(context).size.width / 1.4,
-                //   height: MediaQuery.of(context).size.width / 9,
-                //   decoration: BoxDecoration(
-                //       borderRadius: BorderRadius.circular(18)),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Ratings and Reviews',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  Icon(Icons.arrow_forward)
-                ],
-              ),
-              Container(
-                height: 50,
-                width: 50,
-                child: Center(child: CircularProgressIndicator()),
-              )
-            ],
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-          ),
-        ),
-      ),
-    ]);
-  }
-}
-
-class SubscriberReadyStateScreen extends StatelessWidget {
-  const SubscriberReadyStateScreen(
-      {Key key, this.w, this.h, this.subscriber, this.state})
-      : super(key: key);
-  final double w;
-  final double h;
-  final Subscriber subscriber;
-  final SubscriberReady state;
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomEnd,
-      children: [
-        Positioned(
-          top: 0,
-          child: Container(
-            height: h * 0.45,
-            width: MediaQuery.of(context).size.width,
-            child: SubscriberImages(
-              images: state.images,
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          child: SingleChildScrollView(
-            physics: NeverScrollableScrollPhysics(),
-            child: Container(
-              height: h * 0.6,
-              padding: EdgeInsets.all(20),
-              width: w,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SubscriberHeaderInfo(
-                        subscriber: subscriber,
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(5),
-                        width: w / 3.5,
-                        height: w / 13,
-                        child: SubscriberStarRating(
-                          subscriber: subscriber,
-                        ),
-                      )
-                    ],
-                  ),
-                  SubscriberServices(subscriber: subscriber),
-                  RaisedButton.icon(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                    ),
-                    onPressed: () {
-                      log('Navigating to subscriber id:${subscriber.id}');
-                      Navigator.pushNamed(context, SlotView.id,
-                          arguments: SlotViewArguments(subscriber: subscriber));
-                    },
-
-                    icon: Icon(
-                      Icons.message,
-                      color: Colors.white,
-                    ),
-                    label: Container(
-                      height: w / 8,
-                      width: w / 1.6,
-                      padding: EdgeInsets.all(10),
-                      child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Check availible slots',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-
-                    color: Color(0xFF084ff2),
-                    //   width: MediaQuery.of(context).size.width / 1.4,
-                    //   height: MediaQuery.of(context).size.width / 9,
-                    //   decoration: BoxDecoration(
-                    //       borderRadius: BorderRadius.circular(18)),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Ratings and Reviews',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      Icon(Icons.arrow_forward)
-                    ],
-                  ),
-                ],
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20)),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/*
-  SubscriberBloc _bloc;
-
-  @override
-  void initState() {
-    logger.d('Opening queues for subscriber id:' + widget.subscriber.id);
-    super.initState();
-    _bloc = SubscriberBloc(widget.subscriber.id);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_bloc == null) {
-      _bloc = SubscriberBloc(widget.subscriber.id);
-    }
-  }
-
-  */
-
-class SubscriberScreenReadyStateScreen extends StatelessWidget {
-  const SubscriberScreenReadyStateScreen(
-      {Key key, this.w, this.h, this.subscriber, this.state})
-      : super(key: key);
-  final double w;
-  final double h;
-  final Subscriber subscriber;
-  final SubscriberScreenReady state;
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomEnd,
-      children: [
-        Positioned(
-          top: 0,
-          child: Container(
-            height: h * 0.45,
-            width: MediaQuery.of(context).size.width,
-            child: SubscriberImages(
-              images: state.images,
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          child: SingleChildScrollView(
-            physics: NeverScrollableScrollPhysics(),
-            child: Container(
-              height: h * 0.6,
-              padding: EdgeInsets.all(20),
-              width: w,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SubscriberHeaderInfo(
-                        subscriber: subscriber,
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(5),
-                        width: w / 3.5,
-                        height: w / 13,
-                        child: SubscriberStarRating(
-                          subscriber: subscriber,
-                        ),
-                      )
-                    ],
-                  ),
-                  SubscriberServices(subscriber: subscriber),
-                  RaisedButton.icon(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                    ),
-                    onPressed: () {
-                      log('Navigating to subscriber id:${subscriber.id}');
-                      Navigator.pushNamed(context, SlotView.id,
-                          arguments: SlotViewArguments(subscriber: subscriber));
-                    },
-
-                    icon: Icon(
-                      Icons.message,
-                      color: Colors.white,
-                    ),
-                    label: Container(
-                      height: w / 8,
-                      width: w / 1.6,
-                      padding: EdgeInsets.all(10),
-                      child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Check availible slots',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-
-                    color: Color(0xFF084ff2),
-                    //   width: MediaQuery.of(context).size.width / 1.4,
-                    //   height: MediaQuery.of(context).size.width / 9,
-                    //   decoration: BoxDecoration(
-                    //       borderRadius: BorderRadius.circular(18)),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Ratings and Reviews',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      Icon(Icons.arrow_forward)
-                    ],
-                  ),
-                  SubscriberReviews(
-                    reviews: state.review,
-                  )
-                ],
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20)),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }
