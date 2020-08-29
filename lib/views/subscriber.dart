@@ -83,6 +83,8 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                 );
               }
               if (state is SubscriberScreenReady) {
+                print('images length : ${state.images.length}');
+
                 return Positioned(
                   top: 0,
                   child: Container(

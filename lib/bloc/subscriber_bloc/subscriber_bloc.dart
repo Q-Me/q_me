@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:qme/api/base_helper.dart';
+import 'package:qme/api/kAPI.dart';
 import 'package:qme/model/review.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/model/user.dart';
@@ -43,7 +44,9 @@ Stream<SubscriberState> _mapInitialEventToState(subscriberId) async* {
         subscriberId: subscriberId);
 
     _images = subscriber.displayImages;
-    print('loaded');
+    subscriber.imgURL == null
+        ? _images.insert(0, 'https://dontwaitapp.co/img/bank1080.png')
+        : _images.insert(0, '$baseURL/user/profileimage/${subscriber.imgURL}');
 
     yield SubscriberReady(
         subscriber: subscriber, images: _images, accessToken: accessToken);
