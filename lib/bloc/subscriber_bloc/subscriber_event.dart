@@ -13,6 +13,14 @@ class ProfileInitialEvent extends SubscriberEvent {
   ProfileInitialEvent({this.subscriber});
 
   @override
-  // TODO: implement props
+  List<Object> get props => [subscriber];
+}
+
+class FetchReviewEvent extends SubscriberEvent {
+  final Subscriber subscriber;
+
+  FetchReviewEvent({this.subscriber});
+
+  @override
   List<Object> get props => [subscriber];
 }
