@@ -3,10 +3,12 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/kAPI.dart';
+import 'package:qme/bloc/subscriber_bloc/subscriber_bloc.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/router.dart' as router;
 import 'package:qme/services/analytics.dart';
@@ -15,10 +17,20 @@ import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
+
 import 'package:qme/views/noInternet.dart';
 import 'package:qme/widgets/theme.dart';
 
 String initialHome = HomeScreen.id;
+
+import 'package:qme/views/signin.dart';
+import 'package:qme/widgets/theme.dart';
+
+
+String firstInitialHome = IntroScreen.id;
+String initialHome = SignInScreen.id;
+bool firstLogin = true;
+
 
 void main() async {
   Bloc.observer = SimpleBlocObserver();
@@ -26,6 +38,15 @@ void main() async {
   await Hive.initFlutter();
   // await Hive.openBox("appointment");
   await Hive.openBox("user");
+  Box box = await Hive.openBox("user");
+  firstLogin = await box.get('firstLogin');
+      if (firstLogin != false) firstLogin = true;
+      
+      // Logger.level = Level.warning;
+      // TODO show splash screen
+      // TODO setConfigs();
+      // TODO fetch user related information
+
 
   // Logger.level = Level.warning;
   // TODO show splash screen
@@ -54,10 +75,11 @@ class MyApp extends StatelessWidget {
       theme: myTheme,
       debugShowCheckedModeBanner: false,
       onGenerateRoute: router.generateRoute,
-      initialRoute: initialHome,
+      initialRoute: firstLogin ? firstInitialHome : initialHome,
       navigatorObservers: <NavigatorObserver>[
         AnalyticsService().getAnalyticsObserver(),
       ],
+
     );
   }
 }

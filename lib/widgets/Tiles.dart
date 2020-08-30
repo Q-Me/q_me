@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qme/bloc/subscriber_bloc/subscriber_bloc.dart';
 
 import '../model/subscriber.dart';
 import '../views/subscriber.dart';
@@ -102,12 +104,11 @@ class SubscriberGridTile extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
 //          log('From Nearby (SubscriberGridTile) Going to Subscriber id:${subscriberData.id}');
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    SubscriberScreen(subscriber: subscriberData),
-              ));
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            BlocProvider.of<SubscriberBloc>(context)
+                .add(ProfileInitialEvent(subscriber: subscriberData));
+            return SubscriberScreen(subscriber: subscriberData);
+          }));
         },
         child: Container(
           decoration: BoxDecoration(

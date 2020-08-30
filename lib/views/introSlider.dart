@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:intro_slider/dot_animation_enum.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
@@ -84,8 +85,10 @@ class IntroScreenState extends State<IntroScreen> {
     );
   }
 
-  void onDonePress() {
+  void onDonePress() async{
     Navigator.pushNamed(context, SignInScreen.id);
+     Box box = await Hive.openBox("user");
+  await box.put('firstLogin' , false);
   }
 
   void onTabChangeCompleted(index) {}
