@@ -63,131 +63,144 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
               _bloc.add(ProfileInitialEvent(subscriber: widget.subscriber));
               return _bloc;
             },
-            child: Stack(alignment: AlignmentDirectional.bottomEnd, children: [
-              BlocBuilder<SubscriberBloc, SubscriberState>(
-                builder: (context, state) {
-                  if (state is SubscriberLoading) {
-                    return Positioned(
-                        top: 0,
-                        child: Container(
-                            height: h * 0.45,
-                            width: w,
-                            child: Center(child: CircularProgressIndicator())));
-                  }
-                  if (state is SubscriberReady) {
-                    BlocProvider.of<SubscriberBloc>(context)
-                        .add(FetchReviewEvent(subscriber: widget.subscriber));
-                    return Positioned(
-                      top: 0,
-                      child: Container(
-                        height: h * 0.45,
+            child: SingleChildScrollView(
+              child: Column(children: [
+                BlocBuilder<SubscriberBloc, SubscriberState>(
+                  builder: (context, state) {
+                    if (state is SubscriberLoading) {
+                      return Container(
+                          height: h * 0.4,
+                          width: w,
+                          child: Center(child: CircularProgressIndicator()));
+                    }
+                    if (state is SubscriberReady) {
+                      BlocProvider.of<SubscriberBloc>(context)
+                          .add(FetchReviewEvent(subscriber: widget.subscriber));
+                      return Container(
+                        height: h * 0.4,
                         width: MediaQuery.of(context).size.width,
                         child: SubscriberImages(
                             images: state.images,
                             accessToken: state.accessToken),
-                      ),
-                    );
-                  }
-                  if (state is SubscriberScreenReady) {
-                    print('images length : ${state.images.length}');
+                      );
+                    }
+                    if (state is SubscriberScreenReady) {
+                      print('images length : ${state.images.length}');
 
-                    return Positioned(
-                      top: 0,
-                      child: Container(
-                        height: h * 0.45,
+                      return Container(
+                        height: h * 0.4,
                         width: MediaQuery.of(context).size.width,
                         child: SubscriberImages(
                             images: state.images,
                             accessToken: state.accessToken),
-                      ),
-                    );
-                  }
-                  if (state is SubscriberError) {
-                    return Error(
-                      errorMessage: state.error,
-                      onRetryPressed: () =>
-                          BlocProvider.of<SubscriberBloc>(context).add(
-                              ProfileInitialEvent(
-                                  subscriber: widget.subscriber)),
-                    );
-                  } else {
-                    return Container();
-                  }
-                },
-              ),
-              Positioned(
-                bottom: 0,
-                child: Container(
-                  height: h * 0.6,
-                  padding: EdgeInsets.all(20),
-                  width: w,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20)),
+                      );
+                    }
+                    if (state is SubscriberError) {
+                      return Error(
+                        errorMessage: state.error,
+                        onRetryPressed: () =>
+                            BlocProvider.of<SubscriberBloc>(context).add(
+                                ProfileInitialEvent(
+                                    subscriber: widget.subscriber)),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: h * 0.6,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: IntrinsicHeight(
+                    child: Container(
+                      // height: h*0.6,
+                      padding: EdgeInsets.all(20),
+                      width: w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20)),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          SubscriberHeaderInfo(
-                            subscriber: widget.subscriber,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SubscriberHeaderInfo(
+                                subscriber: widget.subscriber,
+                              ),
+                              Container(
+                                padding: EdgeInsets.all(5),
+                                width: w / 3.5,
+                                height: w / 13,
+                                child: SubscriberStarRating(
+                                  subscriber: widget.subscriber,
+                                ),
+                              )
+                            ],
                           ),
-                          Container(
-                            padding: EdgeInsets.all(5),
-                            width: w / 3.5,
-                            height: w / 13,
-                            child: SubscriberStarRating(
-                              subscriber: widget.subscriber,
-                            ),
+                          SubscriberServices(subscriber: widget.subscriber),
+                          CheckAvailableSlotsButton(
+                              subscriber: widget.subscriber, w: w),
+                          // Spacer(
+                          //   flex: 1,
+                          // ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Ratings and Reviews',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
+                            ],
+                          ),
+                          // Spacer(
+                          //   flex: 1,
+                          // ),
+                          BlocBuilder<SubscriberBloc, SubscriberState>(
+                            builder: (context, state) {
+                              if (state is SubscriberLoading) {
+                                return Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: Center(
+                                      child: CircularProgressIndicator()),
+                                );
+                              } else if (state is SubscriberReady) {
+                                return Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: Center(
+                                      child: CircularProgressIndicator()),
+                                );
+                              } else if (state is SubscriberScreenReady) {
+                                return SubscriberReviews(
+                                  reviews: state.review,
+                                );
+                              } else if (state is SubscriberError) {
+                                return Error(
+                                  errorMessage: "Could Not Load Reviews",
+                                  onRetryPressed: () {
+                                    BlocProvider.of<SubscriberBloc>(context)
+                                        .add(ProfileInitialEvent(
+                                            subscriber: widget.subscriber));
+                                  },
+                                );
+                              } else {
+                                return Text("Undefined State");
+                              }
+                            },
                           )
                         ],
                       ),
-                      SubscriberServices(subscriber: widget.subscriber),
-                      CheckAvailableSlotsButton(
-                          subscriber: widget.subscriber, w: w),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Ratings and Reviews',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16)),
-                          Icon(Icons.arrow_forward)
-                        ],
-                      ),
-                      BlocBuilder<SubscriberBloc, SubscriberState>(
-                        builder: (context, state) {
-                          if (state is SubscriberLoading) {
-                            return Container(
-                              height: 50,
-                              width: 50,
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          } else if (state is SubscriberReady) {
-                            return Container(
-                              height: 50,
-                              width: 50,
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          } else if (state is SubscriberScreenReady) {
-                            return SubscriberReviews(
-                              reviews: state.review,
-                            );
-                          } else if (state is SubscriberError) {
-                            return Text("Error");
-                          } else {
-                            return Text("Undefined State");
-                          }
-                        },
-                      )
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ])));
+              ]),
+            )));
   }
 }
 
@@ -283,14 +296,12 @@ class SubscriberServices extends StatelessWidget {
           children: [
             Column(
               children: [
-                Text('Unisex Saloon'),
-                Text('Free Shampoo'),
                 Text(subscriber.description == "NULL"
                     ? " "
                     : "${subscriber.description}")
               ],
             ),
-            Text("learn more")
+            // Text("learn more")
           ],
         ),
       ],
@@ -310,7 +321,7 @@ class SubscriberImages extends StatelessWidget {
     //   logger.i('No images to display');
     //   return Container();
     // }
-    List<String> imgs = images.length == 0
+    List<String> imgs = images.length == 1
         ? ["https://dontwaitapp.co/img/bank1080.png"]
         : images.map((e) => '$baseURL/user/displayimage/' + e).toList();
     logger.i('SubscriberBloc Access Token:$accessToken');
@@ -346,19 +357,17 @@ class SubscriberStarRating extends StatelessWidget {
       children: [
         subscriber.rating == null
             ? Container()
-            : RatingBar(
+            : RatingBarIndicator(
                 itemSize: 15,
-                initialRating: subscriber.rating.toDouble(),
-                minRating: 0,
                 direction: Axis.horizontal,
-                allowHalfRating: true,
                 itemCount: 5,
+                rating: subscriber.rating.toDouble(),
                 itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
                 itemBuilder: (context, _) => Icon(
                   Icons.star,
                   color: Colors.black,
                 ),
-                onRatingUpdate: (double value) {},
+                // onRatingUpdate: (double value) {},
               ),
       ],
     );
@@ -380,28 +389,33 @@ class SubscriberReviews extends StatelessWidget {
           )
         : ListView.builder(
             scrollDirection: Axis.vertical,
-            shrinkWrap: true,
+            shrinkWrap: false,
             physics: NeverScrollableScrollPhysics(),
             itemCount: reviews.length,
             itemBuilder: (context, index) {
               final Review review = reviews[index];
               return ListTile(
-                title: Text(review.custName),
-                leading: RatingBar(
+                title: Row(
+                  children: [
+                    Icon(Icons.account_circle),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(review.custName),
+                  ],
+                ),
+                trailing: RatingBarIndicator(
+                  rating: review.rating,
                   itemSize: 12,
-                  initialRating: review.rating.toDouble(),
-                  minRating: 0,
                   direction: Axis.horizontal,
-                  allowHalfRating: true,
                   itemCount: 5,
                   itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
                   itemBuilder: (context, _) => Icon(
                     Icons.star,
                     color: Colors.black,
                   ),
-                  onRatingUpdate: (double value) {},
                 ),
-                subtitle: Text(review.review),
+                subtitle: Text(review.review == "NULL" ? "" : review.review),
               );
             });
   }

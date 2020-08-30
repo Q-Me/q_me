@@ -11,14 +11,15 @@ class Review {
   String custName;
   String subscriberId;
   String review;
-  int rating;
+  double rating;
 
   factory Review.fromJson(Map<String, dynamic> json) => Review(
         counterId: json["counter_id"],
         custName: json["cust_name"],
         subscriberId: json["subscriber_id"],
         review: json["review"],
-        rating: int.parse(json["rating"]),
+        rating:
+            json["rating"] is int ? json["rating"].toDouble() : json["rating"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -26,6 +27,6 @@ class Review {
         "cust_name": custName,
         "subscriber_id": subscriberId,
         "review": review,
-        "rating": rating.toString(),
+        "rating": rating,
       };
 }
