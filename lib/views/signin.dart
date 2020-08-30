@@ -561,8 +561,8 @@ class _SignInScreenState extends State<SignInScreen>
                                           if (value.isEmpty) {
                                             return 'This field cannot be left blank';
                                           } else {
-                                              phoneNumber =
-                                                  countryCodePassword + value;
+                                            phoneNumber =
+                                                countryCodePassword + value;
                                             return null;
                                           }
                                         },

@@ -3,9 +3,11 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:qme/api/kAPI.dart';
+import 'package:qme/bloc/subscriber_bloc/subscriber_bloc.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/router.dart' as router;
 import 'package:qme/services/analytics.dart';
@@ -15,7 +17,6 @@ import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
 import 'package:qme/widgets/theme.dart';
-
 
 String initialHome = IntroScreen.id;
 
@@ -32,8 +33,7 @@ void main() async {
   // TODO fetch user related information
 
   // await setSession();
-  await clearSession();
-
+  await setSession();
   if (await UserRepository().isSessionReady()) {
     initialHome = HomeScreen.id;
   }
@@ -45,14 +45,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return MaterialApp(
-      theme: myTheme,
-      debugShowCheckedModeBanner: false,
-      onGenerateRoute: router.generateRoute,
-      initialRoute: initialHome,
-      navigatorObservers: <NavigatorObserver>[
-        AnalyticsService().getAnalyticsObserver(),
-      ],
+    return BlocProvider(
+      create: (context) => SubscriberBloc(),
+      child: MaterialApp(
+        theme: myTheme,
+        debugShowCheckedModeBanner: false,
+        onGenerateRoute: router.generateRoute,
+        initialRoute: initialHome,
+        navigatorObservers: <NavigatorObserver>[
+          AnalyticsService().getAnalyticsObserver(),
+        ],
+      ),
     );
   }
 }
