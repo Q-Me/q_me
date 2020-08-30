@@ -17,7 +17,6 @@ import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/time.dart';
-import 'package:qme/views/appointment.dart';
 import 'package:qme/views/slot_view.dart';
 import 'package:qme/views/token.dart';
 import 'package:qme/widgets/error.dart';
@@ -90,7 +89,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                 // Queues(),
                 RaisedButton(
                   onPressed: () {
-                    Navigator.pushNamed(
+                    Navigator.pushReplacementNamed(
                       context,
                       SlotView.id,
                       arguments:
@@ -302,11 +301,6 @@ class SlotItem extends StatelessWidget {
           'Slot:\nStart:${slot.startTime.toString()}\n'
           'End:${slot.endTime.toString()}',
         );
-        Navigator.pushNamed(context, AppointmentScreen.id, arguments: {
-          "subscriber": subscriber,
-          "reception": reception,
-          "slot": slot,
-        });
       },
       child: Container(
         padding: EdgeInsets.all(5),

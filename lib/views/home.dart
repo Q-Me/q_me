@@ -1,5 +1,3 @@
- 
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -12,9 +10,8 @@ import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
-import 'package:qme/views/appointmentHistory.dart';
-import 'package:qme/views/signin.dart';
-import 'package:qme/widgets/categories.dart';
+import 'package:qme/views/menu.dart';
+import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/widgets/listItem.dart';
 
 import '../widgets/error.dart';
@@ -59,10 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Box box = await Hive.openBox("user");
     String fcmToken = await box.get('fcmToken');
     logger.i("verify fcm: $fcmToken\nverify _fcm: $_fcmToken");
-    if (fcmToken != _fcmToken) { 
-    await UserRepository().fcmTokenSubmit(_fcmToken);
-    await box.put('fcmToken' , _fcmToken);
-
+    if (fcmToken != _fcmToken) {
+      await UserRepository().fcmTokenSubmit(_fcmToken);
+      await box.put('fcmToken', _fcmToken);
     }
   }
 
@@ -218,100 +214,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          AppointmentsHistoryScreen()
+          // AppointmentsHistoryScreen()
+          BookingsScreen(),
           // Column(
           //   children: <Widget>[
           //     Text('Your appointment history'),
           //     Text('Hello'),
           //   ],
           // ),
+          MenuScreen(),
         ].elementAt(_selectedIndex),
         bottomNavigationBar: CupertinoTabBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(icon: Icon(Icons.home)),
+            BottomNavigationBarItem(icon: Icon(Icons.timer)),
             BottomNavigationBarItem(icon: Icon(Icons.person)),
           ],
         ),
       ),
-    );
-  }
-}
-
-class Badges extends StatefulWidget {
-  const Badges({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  _BadgesState createState() => _BadgesState();
-}
-
-class _BadgesState extends State<Badges> {
-  List<bool> pressedBadges;
-  String selectedCategory;
-  Map<String, dynamic> categoryMap = {
-    'Saloon': 0,
-    'Medical Store': 1,
-    'Bank': 2,
-    'Supermarket': 3,
-    'Airport': 4
-  };
-  @override
-  void initState() {
-    pressedBadges = List.generate(categoryMap.keys.length, (index) => false);
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
-      children: <CategoryBadge>[
-        CategoryBadge(
-          iconPath: 'assets/icons/saloon.png',
-          label: 'Saloon',
-          pressed: pressedBadges[categoryMap['Saloon']],
-        ),
-        CategoryBadge(
-          iconPath: 'assets/icons/medicine.png',
-          label: 'Medical Store',
-          pressed: pressedBadges[categoryMap['Medical Store']],
-        ),
-//        CategoryBadge(
-//          icon: Icons.account_balance,
-//          label: 'Bank',
-//          pressed: pressedBadges[categoryMap['Bank']],
-//        ),
-        CategoryBadge(
-          iconPath: 'assets/icons/airport.png',
-          label: "Airport",
-          pressed: pressedBadges[categoryMap['Airport']],
-        ),
-        CategoryBadge(
-          icon: Icons.shopping_cart,
-          label: 'Supermarket',
-          pressed: pressedBadges[categoryMap['Supermarket']],
-        ),
-      ]
-          .map((badge) => GestureDetector(
-                onTap: () async {
-                  setState(() {
-                    pressedBadges = List.generate(
-                        categoryMap.keys.length, (index) => false);
-                    pressedBadges[categoryMap[badge.getCategory()]] = true;
-                    selectedCategory = badge.getCategory();
-                    log('Selected category: $selectedCategory');
-                  });
-
-                  await Provider.of<SubscribersBloc>(context, listen: false)
-                      .setCategory(selectedCategory);
-                },
-                child: badge,
-              ))
-          .toList(),
     );
   }
 }
@@ -342,9 +264,6 @@ class DateTile extends StatelessWidget {
             flex: 1,
             child: Text(
               'Tue',
-//              '${DateTime.now().add(Duration(
-//                    days: index,
-//                  )).weekday}', // TODO: Display which weekday
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,

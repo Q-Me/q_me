@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,6 +13,7 @@ import 'package:qme/views/home.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/widgets/text.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignInScreen extends StatefulWidget {
   static const id = '/signin';
@@ -26,8 +26,7 @@ class _SignInScreenState extends State<SignInScreen>
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   TabController _controller;
-  var idToken;
-  var verificationIdVar;
+  String idToken;
   String countryCodeVal;
   String countryCodePassword;
   final FirebaseMessaging _messaging = FirebaseMessaging();
@@ -37,6 +36,7 @@ class _SignInScreenState extends State<SignInScreen>
   String password;
   String phoneNumber;
   String _fcmToken;
+  bool passwordHidden = true;
 
   double get mediaHeight => MediaQuery.of(context).size.height;
   double get mediaWidth => MediaQuery.of(context).size.width;
@@ -93,13 +93,12 @@ class _SignInScreenState extends State<SignInScreen>
                             color: Theme.of(context).primaryColor,
                             onPressed: () {
                               Navigator.pushAndRemoveUntil(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SignInScreen(),
-                                                  ),
-                                                  (route) => false,
-                                                );
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SignInScreen(),
+                                ),
+                                (route) => false,
+                              );
                             },
                           )
                         ],
@@ -420,21 +419,42 @@ class _SignInScreenState extends State<SignInScreen>
                                     SizedBox(height: mediaHeight * 0.02),
                                     ListTile(
                                       title: TextFormField(
-                                        obscureText: true,
+                                        obscureText: passwordHidden,
                                         decoration: InputDecoration(
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(8)),
-                                                borderSide: BorderSide(
-                                                    color: Colors.grey[200])),
-                                            focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(8)),
-                                                borderSide: BorderSide(
-                                                    color: Colors.grey[300])),
-                                            filled: true,
-                                            fillColor: Colors.grey[100],
-                                            hintText: "Password"),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(8),
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey[200],
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(8),
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey[300],
+                                            ),
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.grey[100],
+                                          hintText: "Password",
+                                          suffixIcon: GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                passwordHidden =
+                                                    !passwordHidden;
+                                              });
+                                            },
+                                            child: passwordHidden
+                                                ? Icon(Icons.visibility_off)
+                                                : Icon(Icons.visibility),
+                                          ),
+                                        ),
+                                        style: GoogleFonts.roboto(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                         controller: _passwordController,
                                         validator: (value) {
                                           if (value.isEmpty) {

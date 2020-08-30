@@ -20,12 +20,13 @@ dateTileBuilder(
   TextStyle selectedStyle = TextStyle(
     fontSize: 17,
     fontWeight: FontWeight.w800,
-    color: Colors.black87,
+    color: Colors.white,
   );
-  TextStyle dayNameStyle = TextStyle(fontSize: 14.5, color: fontColor);
+  TextStyle dayNameStyleNormal = TextStyle(fontSize: 14.5, color: fontColor);
+  TextStyle dayNameStyleSelected = TextStyle(fontSize: 14.5, color: Colors.white);
 
   List<Widget> _children = [
-    Text(dayName, style: dayNameStyle),
+    Text(dayName, style: !isSelectedDate ? dayNameStyleNormal : dayNameStyleSelected),
     Text(date.day.toString(),
         style: !isSelectedDate ? normalStyle : selectedStyle),
   ];
@@ -39,7 +40,7 @@ dateTileBuilder(
     alignment: Alignment.center,
     padding: EdgeInsets.only(top: 8, left: 5, right: 5, bottom: 5),
     decoration: BoxDecoration(
-      color: !isSelectedDate ? Colors.transparent : Colors.green,
+      color: !isSelectedDate ? Colors.transparent : Color.fromRGBO(9, 79, 239, 1),
       borderRadius: BorderRadius.all(Radius.circular(10)),
     ),
     child: Column(
