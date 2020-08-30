@@ -67,6 +67,7 @@ class SubscriberRepository {
         'category': category,
       },
       headers: {'Authorization': 'Bearer $accessToken'},
+      authToken: accessToken,
     );
     return Subscribers.fromJson(response).list;
   }

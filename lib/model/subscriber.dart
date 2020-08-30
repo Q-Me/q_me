@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:qme/api/kAPI.dart';
 
 Subscribers subscribersFromJson(String str) =>
     Subscribers.fromJson(json.decode(str));
@@ -62,11 +63,20 @@ class Subscriber extends ChangeNotifier {
 
   factory Subscriber.fromJson(Map<String, dynamic> json) {
     String distance;
+    List<String> displayImages;
     if (json['distance'] != null) {
       distance = double.parse(json['distance']) > 1
           ? "${double.parse(json['distance'])} km"
           : "${double.parse(json['distance']) * 1000} m";
     }
+    String profileImage = 'json["imgUrl"]';
+    if (json["displayImages"] != null && json["imgUrl"] != null) {
+      displayImages = List<String>.from(json["displayImages"]);
+      displayImages.insert(0, profileImage);
+    } else if (json["displayImages"] != null) {
+      displayImages = List<String>.from(json["displayImages"]);
+    }
+
     return Subscriber(
       id: json["id"],
       name: json["name"],
@@ -87,9 +97,7 @@ class Subscriber extends ChangeNotifier {
           : json["description"],
       category: json["category"],
       distance: distance,
-      displayImages: json["displayImages"] != null
-          ? List<String>.from(json["displayImages"])
-          : null,
+      displayImages: json["displayImages"] != null ? displayImages : null,
       // tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
       rating: json["rating"],
     );

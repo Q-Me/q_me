@@ -45,17 +45,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return BlocProvider(
-      create: (context) => SubscriberBloc(),
-      child: MaterialApp(
-        theme: myTheme,
-        debugShowCheckedModeBanner: false,
-        onGenerateRoute: router.generateRoute,
-        initialRoute: initialHome,
-        navigatorObservers: <NavigatorObserver>[
-          AnalyticsService().getAnalyticsObserver(),
-        ],
-      ),
+    return MaterialApp(
+      theme: myTheme,
+      debugShowCheckedModeBanner: false,
+      onGenerateRoute: router.generateRoute,
+      initialRoute: initialHome,
+      navigatorObservers: <NavigatorObserver>[
+        AnalyticsService().getAnalyticsObserver(),
+      ],
     );
   }
 }

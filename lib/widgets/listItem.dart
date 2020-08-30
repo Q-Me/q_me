@@ -22,8 +22,6 @@ class SubscriberListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 7.0),
       child: GestureDetector(
         onTap: () {
-          BlocProvider.of<SubscriberBloc>(context)
-              .add(ProfileInitialEvent(subscriber: subscriber));
           Navigator.pushNamed(context, SubscriberScreen.id,
               arguments: subscriber);
         },
