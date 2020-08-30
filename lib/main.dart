@@ -18,7 +18,7 @@ import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/noInternet.dart';
 import 'package:qme/widgets/theme.dart';
 
-String initialHome = IntroScreen.id;
+String initialHome = HomeScreen.id;
 
 void main() async {
   Bloc.observer = SimpleBlocObserver();

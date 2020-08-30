@@ -163,7 +163,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           name: list[index].subscriberName,
                           location: list[index].address,
                           slot: list[index].slot.startTime,
-                          rating: 1.0,
+                          rating: list[index].rating * 1.0,
                           counterId: list[index].counterId,
                           subscriberId: list[index].subscriberId,
                           subscriberName: list[index].subscriberName,
