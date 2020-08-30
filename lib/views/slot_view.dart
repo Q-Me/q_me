@@ -265,7 +265,7 @@ class _SlotViewState extends State<SlotView> {
                                   'Book Appointment',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 16
+                                    fontSize: 16,
                                   ),
                                 ),
                               ),
@@ -278,7 +278,7 @@ class _SlotViewState extends State<SlotView> {
                                   'Already Booked',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 16
+                                    fontSize: 16,
                                   ),
                                 ),
                               ),
@@ -337,8 +337,9 @@ class SlotBox extends StatelessWidget {
     return Container(
       child: Center(
         child: Text(
-          DateFormat.jm().format(slot.startTime.toLocal()),
-          style: TextStyle(color: color == Colors.white ? Colors.black : Colors.white),
+          DateFormat.jm().format(slot.startTime),
+          style: TextStyle(
+              color: color == Colors.white ? Colors.black : Colors.white),
         ),
       ),
       decoration: BoxDecoration(
