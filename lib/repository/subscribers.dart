@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:qme/model/review.dart';
 import 'package:qme/utilities/logger.dart';
 
 import '../api/base_helper.dart';
@@ -39,6 +40,19 @@ class SubscriberRepository {
     );
 
     return Subscriber.fromJson(response);
+  }
+
+  Future<List<Review>> fetchSubscriberReviews(
+      {@required String subscriberId}) async {
+    final String accessToken = await getAccessTokenFromStorage();
+    final response = await _helper.post(
+      '/user/rating/subscriberrating',
+      req: {"subscriber_id": subscriberId},
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+    List<Review> reviews =
+        List.from(response["rating"]).map((e) => Review.fromJson(e)).toList();
+    return reviews;
   }
 
   Future<List<Subscriber>> subscriberListByLocation({

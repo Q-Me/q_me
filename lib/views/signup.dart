@@ -325,6 +325,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 return 'This field cannot be left blank';
                               // } else if (value.startsWith("+91")) {
                               //   return 'Phone number must start with +91';
+
                               } else if (value.length != 13) {
                                 return 'Phone number must be 10 digits after +91';
                               } else {

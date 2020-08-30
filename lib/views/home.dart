@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final FirebaseMessaging _messaging = FirebaseMessaging();
   String _fcmToken;
-  
+
   @override
   void initState() {
     _bloc = SubscribersBloc();
