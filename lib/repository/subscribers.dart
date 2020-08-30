@@ -11,6 +11,16 @@ import '../repository/user.dart';
 
 class SubscriberRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
+  String localAccessToken;
+  Future<String> get accessToken async => await getAccessTokenFromStorage();
+
+  setAccessToken() async {
+    localAccessToken ?? await accessToken;
+  }
+
+  SubscriberRepository({this.localAccessToken}) {
+    setAccessToken();
+  }
 
   Future<List<Subscriber>> fetchSubscriberList({String accessToken}) async {
     /*Get all subscribers list*/
@@ -35,7 +45,7 @@ class SubscriberRepository {
     final response = await _helper.post(
       '/user/getsubscriber',
       req: {"subscriber_id": subscriberId},
-      headers: {'Authorization': 'Bearer $accessToken'},
+      authToken: await accessToken,
     );
 
     return Subscriber.fromJson(response);
@@ -57,9 +67,17 @@ class SubscriberRepository {
     return Subscribers.fromJson(response).list;
   }
 
+  Future<List<String>> subscriberCategories() async {
+    final response = await _helper.post(
+      '/user/categories',
+      authToken: await accessToken,
+    );
+    return response["categories"];
+  }
+
   Future<List<Subscriber>> subscriberByCategory({
     String location,
-    String category,
+    @required String category,
     String accessToken,
   }) async {
     final response = await _helper.post(
