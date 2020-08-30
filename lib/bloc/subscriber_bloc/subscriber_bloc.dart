@@ -15,16 +15,15 @@ part 'subscriber_state.dart';
 
 List<String> _images = [];
 List<Review> _review = [];
-String accessToken;
+String _accessToken;
 
 class SubscriberBloc extends Bloc<SubscriberEvent, SubscriberState> {
-  SubscriberBloc() : super(SubscriberLoading());
-
+  SubscriberBloc(this.subscriber) : super(SubscriberInitial());
+  Subscriber subscriber;
   @override
   Stream<SubscriberState> mapEventToState(
     SubscriberEvent event,
   ) async* {
-    // TODO: implement mapEventToState
     if (event is ProfileInitialEvent) {
       yield* _mapInitialEventToState(event.subscriber.id);
     }
@@ -39,17 +38,14 @@ Stream<SubscriberState> _mapInitialEventToState(subscriberId) async* {
   Subscriber subscriber;
   SubscriberRepository _subscriberRepository = SubscriberRepository();
   try {
-    accessToken = await getAccessTokenFromStorage();
+    _accessToken = await getAccessTokenFromStorage();
     subscriber = await _subscriberRepository.fetchSubscriberDetails(
         subscriberId: subscriberId);
 
     _images = subscriber.displayImages;
-    subscriber.imgURL == null
-        ? _images.insert(0, 'https://dontwaitapp.co/img/bank1080.png')
-        : _images.insert(0, '$baseURL/user/profileimage/${subscriber.imgURL}');
 
     yield SubscriberReady(
-        subscriber: subscriber, images: _images, accessToken: accessToken);
+        subscriber: subscriber, images: _images, accessToken: _accessToken);
   } on Exception catch (e) {
     logger.e(e.toString());
     print('error');
@@ -63,8 +59,6 @@ Stream<SubscriberState> _mapFetchReviewEventToState(subscriberId) async* {
   Subscriber subscriber;
   SubscriberRepository _subscriberRepository = SubscriberRepository();
   try {
-    accessToken = await getAccessTokenFromStorage();
-
     _review = await _subscriberRepository.fetchSubscriberReviews(
         subscriberId: subscriberId);
     print('loaded');
@@ -73,7 +67,7 @@ Stream<SubscriberState> _mapFetchReviewEventToState(subscriberId) async* {
         subscriber: subscriber,
         images: _images,
         review: _review,
-        accessToken: accessToken);
+        accessToken: _accessToken);
   } on Exception catch (e) {
     logger.e(e.toString());
     print('error');
