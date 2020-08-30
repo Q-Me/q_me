@@ -56,7 +56,7 @@ class _OtpPageState extends State<OtpPage> {
         return logger.d("error in api hit");
       }
     } catch (e) {
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text(e.toMap()["msg"].toString())));
       log('Error in signIn API: ' + e.toString());
       return;
     }

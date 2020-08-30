@@ -14,14 +14,12 @@ import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
-import 'package:qme/constants.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/formField.dart';
 import 'package:qme/widgets/text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -46,7 +44,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _codeController = TextEditingController();
   String _fcmToken;
   Future<void> _launched;
-  bool showOtpTextfield = false;
   final FirebaseMessaging _messaging = FirebaseMessaging();
   String idToken;
   fcmTokenApiCall() async {
@@ -76,11 +73,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               logger.d(" $idToken ");
             });
             final code = _codeController.text.trim();
-            // Scaffold.of(context).showSnackBar(
-            //   SnackBar(
-            //     content: Text('Processing Data'),
-            //   ),
-            // );
             try {
               Box box = await Hive.openBox("user");
               formData['firstName'] = await box.get('userFirstNameSignup');
@@ -110,11 +102,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ));
               } catch (e) {
-                Scaffold.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString()),
-                  ),
-                );
+                showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("SignUn Failed"),
+                        content: Text(e.toMap()["msg"].toString()),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text("OK"),
+                            textColor: Colors.white,
+                            color: Theme.of(context).primaryColor,
+                            onPressed: () {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SignInScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            },
+                          )
+                        ],
+                      );
+                    });
               }
               log('SignUp response:${response.toString()}');
 
@@ -122,27 +134,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   response['msg'] == 'Registation successful') {
                 // Make SignIn call
                 try {
-                  // Scaffold.of(context)
-                  //     .showSnackBar(SnackBar(content: Text('Processing Data')));
                   response = await UserRepository().signInWithOtp(idToken);
                   if (response['accessToken'] != null) {
                     logger.d("respose of ${response['status']}");
                     logger.d(response);
 
-                    Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, HomeScreen.id, (route) => false);
                     fcmTokenApiCall();
                   } else {
                     return logger.d("error in api hit");
                   }
                 } catch (e) {
-                  Scaffold.of(context)
-                      .showSnackBar(SnackBar(content: Text(e.toString())));
+                  showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("SignUn Failed"),
+                          content: Text(e.toMap()["msg"].toString()),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text("OK"),
+                              textColor: Colors.white,
+                              color: Theme.of(context).primaryColor,
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            )
+                          ],
+                        );
+                      });
                   log('Error in signIn API: ' + e.toString());
                   return;
                 }
               } else {
                 logger.d("SignUp failed");
-                //Navigator.pushNamed(context, SignInScreen.id);
                 return;
               }
             } on PlatformException catch (e) {
@@ -186,7 +213,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           textColor: Colors.white,
                           color: Theme.of(context).primaryColor,
                           onPressed: () async {
-                            Navigator.of(context).pop();
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignInScreen(),
+                              ),
+                              (route) => false,
+                            );
                           },
                         )
                       ],
@@ -323,8 +356,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             validator: (value) {
                               if (value.isEmpty) {
                                 return 'This field cannot be left blank';
-                              // } else if (value.startsWith("+91")) {
-                              //   return 'Phone number must start with +91';
+                                // } else if (value.startsWith("+91")) {
+                                //   return 'Phone number must start with +91';
 
                               } else if (value.length != 13) {
                                 return 'Phone number must be 10 digits after +91';
@@ -543,6 +576,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                               color: Theme.of(context)
                                                   .primaryColor,
                                               onPressed: () async {
+                                                Navigator.of(context)
+                                                    .pushNamed(OtpPage.id);
                                                 loginUser(phone, context);
                                               },
                                             ),

@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -15,7 +13,6 @@ import 'package:qme/views/home.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/widgets/text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   static const id = '/signin';
@@ -32,7 +29,6 @@ class _SignInScreenState extends State<SignInScreen>
   var verificationIdVar;
   String countryCodeVal;
   String countryCodePassword;
-  bool showOtpTextfield = false;
   final FirebaseMessaging _messaging = FirebaseMessaging();
   final formKey =
       GlobalKey<FormState>(); // Used in login button and forget password
@@ -54,7 +50,6 @@ class _SignInScreenState extends State<SignInScreen>
           AuthResult result = await _auth.signInWithCredential(credential);
           logger.d("printing the credential");
           logger.d(credential);
-          logger.d(json.decode(credential.toString()));
 
           FirebaseUser user = result.user;
 
@@ -83,8 +78,32 @@ class _SignInScreenState extends State<SignInScreen>
                 }
               } catch (e) {
                 logger.d(" !!$e !!");
-                Scaffold.of(context)
-                    .showSnackBar(SnackBar(content: Text(e.toString())));
+                showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("SignIn Failed"),
+                        content: Text(e.toMap()["msg"].toString()),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text("OK"),
+                            textColor: Colors.white,
+                            color: Theme.of(context).primaryColor,
+                            onPressed: () {
+                              Navigator.pushAndRemoveUntil(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        SignInScreen(),
+                                                  ),
+                                                  (route) => false,
+                                                );
+                            },
+                          )
+                        ],
+                      );
+                    });
                 logger.d('Error in signIn API: ' + e.toString());
                 return;
               }
@@ -109,10 +128,6 @@ class _SignInScreenState extends State<SignInScreen>
           Box box = await Hive.openBox("user");
 
           await box.put('fcmToken', _fcmToken);
-
-          setState(() {
-            showOtpTextfield = true;
-          });
         },
         codeAutoRetrievalTimeout: null);
   }
@@ -474,8 +489,8 @@ class _SignInScreenState extends State<SignInScreen>
                                                 Scaffold.of(context)
                                                     .showSnackBar(
                                                   SnackBar(
-                                                    content: Text(
-                                                        e.toMap()["msg"]),
+                                                    content:
+                                                        Text(e.toMap()["msg"]),
                                                   ),
                                                 );
                                                 return;

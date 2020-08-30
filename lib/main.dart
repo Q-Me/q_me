@@ -29,7 +29,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   // await Hive.openBox("appointment");
-  await Hive.openBox("user");
+  // await Hive.openBox("user");
   Box box = await Hive.openBox("user");
   firstLogin = await box.get('firstLogin');
       if (firstLogin != false) firstLogin = true;
@@ -43,6 +43,7 @@ void main() async {
       // await setSession();
       await clearSession();
   if (await UserRepository().isSessionReady()) {
+    initialHome = HomeScreen.id;
     initialHome = HomeScreen.id;
   }
   runApp(MyApp());
