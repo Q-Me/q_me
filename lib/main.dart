@@ -16,9 +16,13 @@ import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
+import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
 
-String initialHome = IntroScreen.id;
+
+String firstInitialHome = IntroScreen.id;
+String initialHome = SignInScreen.id;
+bool firstLogin = true;
 
 void main() async {
   Bloc.observer = SimpleBlocObserver();
@@ -26,14 +30,18 @@ void main() async {
   await Hive.initFlutter();
   // await Hive.openBox("appointment");
   await Hive.openBox("user");
+  Box box = await Hive.openBox("user");
+  firstLogin = await box.get('firstLogin');
+      if (firstLogin != false) firstLogin = true;
+      
+      // Logger.level = Level.warning;
+      // TODO show splash screen
+      // TODO setConfigs();
+      // TODO fetch user related information
 
-  // Logger.level = Level.warning;
-  // TODO show splash screen
-  // TODO setConfigs();
-  // TODO fetch user related information
 
-  // await setSession();
-  await setSession();
+      // await setSession();
+      await clearSession();
   if (await UserRepository().isSessionReady()) {
     initialHome = HomeScreen.id;
   }
@@ -45,17 +53,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return BlocProvider(
-      create: (context) => SubscriberBloc(),
-      child: MaterialApp(
-        theme: myTheme,
-        debugShowCheckedModeBanner: false,
-        onGenerateRoute: router.generateRoute,
-        initialRoute: initialHome,
-        navigatorObservers: <NavigatorObserver>[
-          AnalyticsService().getAnalyticsObserver(),
-        ],
-      ),
+    return MaterialApp(
+      theme: myTheme,
+      debugShowCheckedModeBanner: false,
+      onGenerateRoute: router.generateRoute,
+      initialRoute: firstLogin ? firstInitialHome : initialHome,
+      navigatorObservers: <NavigatorObserver>[
+        AnalyticsService().getAnalyticsObserver(),
+      ],
+
     );
   }
 }
