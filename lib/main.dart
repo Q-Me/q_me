@@ -3,6 +3,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:qme/api/app_exceptions.dart';
@@ -15,25 +16,29 @@ import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
-import 'package:qme/views/noInternet.dart';
+import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
 
-String initialHome = HomeScreen.id;
+import 'package:qme/views/noInternet.dart';
+
+String initialHome = IntroScreen.id;
+bool firstLogin;
 
 void main() async {
   Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  // await Hive.openBox("appointment");
-  await Hive.openBox("user");
+  Box box = await Hive.openBox("user");
+  firstLogin = await box.get('firstLogin');
+  if (firstLogin == false) initialHome = SignInScreen.id;
 
   // Logger.level = Level.warning;
   // TODO show splash screen
   // TODO setConfigs();
   // TODO fetch user related information
   try {
-    await setSession();
-    // await clearSession();
+    // await setSession();
+    await clearSession();
 
     if (await UserRepository().isSessionReady()) {
       initialHome = HomeScreen.id;
