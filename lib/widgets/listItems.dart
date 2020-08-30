@@ -7,6 +7,8 @@ import 'package:qme/bloc/booking_bloc.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/repository/appointment.dart';
+import 'package:qme/utilities/logger.dart';
+import 'package:qme/views/review.dart';
 
 class ListItemBooked extends StatelessWidget {
   const ListItemBooked({
@@ -98,7 +100,8 @@ class ListItemBooked extends StatelessWidget {
                         actions: <Widget>[
                           new RaisedButton(
                             onPressed: () async {
-                              BlocProvider.of<BookingslistBloc>(primaryContext).add(
+                              BlocProvider.of<BookingslistBloc>(primaryContext)
+                                  .add(
                                 CancelRequested(
                                   counterId,
                                   await getAccessTokenFromStorage(),
@@ -148,12 +151,20 @@ class ListItemFinished extends StatelessWidget {
     @required this.location,
     @required this.slot,
     @required this.rating,
+    @required this.subscriberId,
+    @required this.counterId,
+    @required this.subscriberName,
+    @required this.primaryContext,
   }) : super(key: key);
 
   final String name;
   final String location;
   final DateTime slot;
   final double rating;
+  final String subscriberId;
+  final String counterId;
+  final String subscriberName;
+  final BuildContext primaryContext;
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +225,7 @@ class ListItemFinished extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: rating == null
                           ? Text(
-                              "You have not been rated yet",
+                              "You have not rated yet",
                               style: TextStyle(
                                 fontSize: 18,
                               ),
@@ -230,9 +241,21 @@ class ListItemFinished extends StatelessWidget {
                             ),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(8),
-                    child: FaIcon(FontAwesomeIcons.angleRight),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        ReviewScreen.id,
+                        arguments: ReviewScreenArguments(
+                            counterId, subscriberId, name, subscriberName, slot),
+                      );
+                      BlocProvider.of<BookingslistBloc>(primaryContext)
+                          .add(BookingsListRequested());
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: FaIcon(FontAwesomeIcons.angleRight),
+                    ),
                   )
                 ],
               ),

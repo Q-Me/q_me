@@ -160,10 +160,15 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         );
                       } else if (list[index].slotStatus == "DONE") {
                         return ListItemFinished(
-                            name: list[index].subscriberName,
-                            location: list[index].address,
-                            slot: list[index].slot.startTime,
-                            rating: double.parse(list[index].rating));
+                          name: list[index].subscriberName,
+                          location: list[index].address,
+                          slot: list[index].slot.startTime,
+                          rating: 1.0,
+                          counterId: list[index].counterId,
+                          subscriberId: list[index].subscriberId,
+                          subscriberName: list[index].subscriberName,
+                          primaryContext: context,
+                        );
                       } else {
                         return ListItemCancelled(
                           name: list[index].subscriberName,
