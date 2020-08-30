@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:qme/model/subscriber.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
+import 'package:qme/views/noInternet.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/profile.dart';
+import 'package:qme/views/review.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/views/slot_view.dart';
 import 'package:qme/views/subscriber.dart';
+import 'package:qme/views/booking_success.dart';
 import 'package:qme/views/unknown.dart';
 
 import 'model/subscriber.dart';
@@ -17,6 +22,7 @@ import 'views/signup.dart';
 import 'views/unknown.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
+  logger.d(settings.name);
   switch (settings.name) {
     case SignUpScreen.id:
       return MaterialPageRoute(
@@ -63,21 +69,13 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
 
     case SlotView.id:
-      // TODO Update arguments
-      final SlotViewArguments arg = settings.arguments ??
-          SlotViewArguments(
-            subscriber: Subscriber(id: "nplhS-7cJ"),
-          );
+      final SlotViewArguments arg = settings.arguments;
       return MaterialPageRoute(builder: (context) => SlotView(arg));
 
     case AppointmentScreen.id:
-      Map<String, dynamic> arguments = settings.arguments;
+      final ApppointmentScreenArguments arguments = settings.arguments;
       return MaterialPageRoute(
-        builder: (context) => AppointmentScreen(
-          subscriber: arguments["subscriber"],
-          reception: arguments["reception"],
-          slot: arguments["slot"],
-        ),
+        builder: (context) => AppointmentScreen(arguments),
         settings: RouteSettings(name: AppointmentScreen.id),
       );
 
@@ -91,6 +89,24 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => IntroScreen(),
         settings: RouteSettings(name: IntroScreen.id),
+      );
+    case ReviewScreen.id:
+      final ReviewScreenArguments arguments = settings.arguments;
+      return MaterialPageRoute(
+          builder: (context) => ReviewScreen(arguments),
+          settings: RouteSettings(name: ReviewScreen.id));
+
+    case BookingSuccess.id:
+      final SuccessScreenArguments arguments =
+          SuccessScreenArguments(otp: settings.arguments.toString());
+      return MaterialPageRoute(
+          builder: (context) => BookingSuccess(arguments),
+          settings: RouteSettings(name: BookingSuccess.id));
+
+    case NoInternetView.id:
+      return MaterialPageRoute(
+        builder: (context) => NoInternetView(),
+        settings: RouteSettings(name: NoInternetView.id),
       );
 
     default:

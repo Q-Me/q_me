@@ -49,8 +49,8 @@ Future<void> storeUserData(UserData userData) async {
   }
   if (userData.refreshToken != null)
     await box.put('refreshToken', userData.refreshToken);
-  if (userData.email != null) await box.put('isUser', userData.email);
-  if (userData.phone != null) await box.put('isUser', userData.phone);
+  if (userData.email != null) await box.put('email', userData.email);
+  if (userData.phone != null) await box.put('phone', userData.phone);
 
   logger.d('Storing user data success');
 

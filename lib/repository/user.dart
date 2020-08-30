@@ -13,7 +13,8 @@ import '../model/user.dart';
 class UserRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
 
-  Future<UserData> fetchProfile(String accessToken) async {
+  Future<UserData> fetchProfile() async {
+    final String accessToken = await getAccessTokenFromStorage();
     final response = await _helper.post(kProfile,
         headers: {HttpHeaders.authorizationHeader: bearerToken(accessToken)});
     return UserData(
@@ -77,7 +78,7 @@ class UserRepository {
     final msg = response["msg"];
     Box box = await Hive.openBox("user");
     await box.put('fcmToken', msg);
-    
+
     return msg;
   }
 

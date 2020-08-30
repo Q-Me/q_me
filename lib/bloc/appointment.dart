@@ -76,7 +76,7 @@ class AppointmentBloc with ChangeNotifier {
           ? await getAccessTokenFromStorage()
           : _accessToken;
       logger.d('Access token $_accessToken');
-      _userData = await _userRepository.fetchProfile(_accessToken);
+      _userData = await _userRepository.fetchProfile();
       userSink.add(ApiResponse.completed(_userData));
     } on UnauthorisedException catch (e) {
       logger.e(e.toString() + '\nAccess token : $_accessToken');
