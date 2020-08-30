@@ -92,8 +92,9 @@ class AppointmentRepository {
     @required DateTime startTime,
     @required DateTime endTime,
     @required String note,
-    @required String accessToken,
+    String accessToken,
   }) async {
+    accessToken = await getAccessTokenFromStorage();
     final response = await _helper.post(
       '/user/slot/book',
       req: {
@@ -184,18 +185,4 @@ class AppointmentRepository {
     );
     return response;
   }
-}
-
-void main() async {
-  final String accessToken = '';
-  AppointmentRepository appointmentRepository = AppointmentRepository();
-  /*
-  List<Appointment> aptms = await appointmentRepository.fetchAppointments();
-  for (Appointment appointment in aptms) {
-    print(appointment.toMap());
-  }
-  */
-  final Reception reception = await appointmentRepository.viewReception(
-      receptionId: 'null', accessToken: 'f');
-  print(reception.toJson());
 }

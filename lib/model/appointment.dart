@@ -31,6 +31,7 @@ class Appointment extends Equatable {
     this.slotStatus,
     this.note,
     this.otp,
+    this.rating,
   });
 
   final String subscriberName;
@@ -49,7 +50,8 @@ class Appointment extends Equatable {
   final Slot slot;
   final String slotStatus;
   final String note;
-  final int otp;
+  final otp;
+  final rating;
 
   @override
   List<Object> get props => [
@@ -105,6 +107,7 @@ class Appointment extends Equatable {
         slotStatus: json["slot_status"] == null ? null : json["slot_status"],
         note: json["note"] == null ? null : json["note"],
         otp: json["otp"] == null ? null : json["otp"],
+        rating: json["rating"] == null ? null : json["rating"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -131,5 +134,6 @@ class Appointment extends Equatable {
         "slot_status": slotStatus == null ? null : slotStatus,
         "note": note == null ? null : note,
         "otp": otp == null ? null : otp,
+        "rating": rating == null ? null : rating,
       };
 }

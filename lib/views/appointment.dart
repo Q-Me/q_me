@@ -1,43 +1,37 @@
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:qme/api/base_helper.dart';
-import 'package:qme/api/kAPI.dart';
 import 'package:qme/bloc/appointment.dart';
 import 'package:qme/bloc/booking_bloc.dart';
-import 'package:qme/bloc/note_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
-import 'package:qme/model/user.dart';
 import 'package:qme/repository/appointment.dart';
-import 'package:qme/utilities/logger.dart';
-import 'package:qme/widgets/button.dart';
-import 'package:qme/widgets/error.dart';
-import 'package:qme/widgets/loader.dart';
+import 'package:qme/views/booking_success.dart';
 
-String notes;
-
-class AppointmentScreen extends StatefulWidget {
-  static const String id = '/appointment';
+class ApppointmentScreenArguments {
   final Subscriber subscriber;
   final Reception reception;
   final Slot slot;
 
-  AppointmentScreen({this.subscriber, this.reception, this.slot});
+  ApppointmentScreenArguments({this.subscriber, this.reception, this.slot});
+}
+
+class AppointmentScreen extends StatefulWidget {
+  static const String id = '/appointment';
+  final ApppointmentScreenArguments arg;
+
+  AppointmentScreen(this.arg);
 
   @override
   _AppointmentScreenState createState() => _AppointmentScreenState();
 }
 
 class _AppointmentScreenState extends State<AppointmentScreen> {
-  Subscriber get subscriber => widget.subscriber;
-  Reception get reception => widget.reception;
-  Slot get slot => widget.slot;
+  Subscriber get subscriber => widget.arg.subscriber;
+  Reception get reception => widget.arg.reception;
+  Slot get slot => widget.arg.slot;
   double get h => MediaQuery.of(context).size.height;
   double get w => MediaQuery.of(context).size.width;
   String note = 'Add notes like requirements';
@@ -46,8 +40,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   AppointmentRepository appointmentRepository;
   bool cancel = false;
 
- @override
-  void initState() { 
+  @override
+  void initState() {
     _appointmentBloc = AppointmentBloc(
       slot: slot,
       subscriber: subscriber,
@@ -72,369 +66,170 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider<BookingBloc>(
-              create: (context) =>
-                  BookingBloc(appointmentRepository: appointmentRepository))
-        ],
+      child: BlocProvider(
+        create: (context) =>
+            BookingBloc(appointmentRepository: appointmentRepository),
         child: Scaffold(
           appBar: AppBar(
             leading: GestureDetector(
-              child: Icon(Icons.arrow_back),
               onTap: () {
                 Navigator.pop(context);
               },
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(48.0),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                child: Text(
-                  'Review and Confirm',
-                  textAlign: TextAlign.left,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline4
-                      .copyWith(color: Colors.white),
+              child: Align(
+                child: FaIcon(
+                  FontAwesomeIcons.arrowLeft,
+                  color: Colors.black,
                 ),
+                alignment: Alignment.center,
               ),
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text(
+              "Slot",
+              style: TextStyle(color: Colors.black),
             ),
           ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ChangeNotifierProvider.value(
-                value: _appointmentBloc,
-                child: Column(
-                  children: <Widget>[
-                    ListTile(
-                      title: Text(
-                        '${DateFormat('d MMMM y').format(slot.startTime)} at ${DateFormat.jm().format(slot.startTime)}',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 24),
-                      ),
-                      subtitle: Text(
-                        '${slot.endTime.difference(slot.startTime).inMinutes} min, ends at ${DateFormat.jm().format(slot.endTime)}',
-                      ),
-                    ),
-                    Divider(),
-                    ListTile(
-                      title: Text(
-                        subscriber.name.split("|").join(" "),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 24),
-                      ),
-                      subtitle: Text(subscriber.address),
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        child: CachedNetworkImage(
-                          imageUrl: subscriber.imgURL != null
-                              ? '$baseURL/user/profileimage/${subscriber.imgURL}'
-                              : 'https://dontwaitapp.co/img/bank1080.png',
-                          fit: BoxFit.cover,
-                          httpHeaders: {
-                            HttpHeaders.authorizationHeader:
-                                'Bearer <Put access token here>}'
-                          },
+          body: BlocListener<BookingBloc, BookingState>(
+            listener: (context, state) {
+              if (state is BookingLoadInProgress) {
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        FaIcon(FontAwesomeIcons.locationArrow),
+                        SizedBox(
+                          width: 15,
                         ),
-                      ),
+                        Text("Booking your appointment.....")
+                      ],
                     ),
-                    Divider(height: 20),
-                    StreamBuilder<ApiResponse<UserData>>(
-                      stream: _appointmentBloc.userStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && !snapshot.hasError) {
-                          switch (snapshot.data.status) {
-                            case Status.ERROR:
-                              return Error(
-                                errorMessage: snapshot.data.message,
-                                onRetryPressed:
-                                    _appointmentBloc.fetchUserProfile(),
-                              );
-                              break;
-                            case Status.LOADING:
-                              return Loading(
-                                loadingMessage: snapshot.data.message,
-                              );
-                              break;
-                            case Status.COMPLETED:
-                              return CustomerDetails(
-                                name: snapshot.data.data.name,
-                                phone: snapshot.data.data.phone,
-                                note: note,
-                              );
-                              break;
-                          }
-                        } else {
-                          return Text('No data error');
-                        }
-                        return Text('No appointment data');
-                      },
+                  ),
+                );
+              } else if (state is BookingLoadSuccess) {
+                Navigator.pushReplacementNamed(
+                  context,
+                  BookingSuccess.id,
+                  arguments: state.details.otp,
+                );
+              } else if (state is BookingLoadFailure) {
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        FaIcon(FontAwesomeIcons.timesCircle),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Text(state.message)
+                      ],
                     ),
-                    BlocConsumer<BookingBloc, BookingState>(
-                        listener: (context, state) {
-                      if (state is BookingLoadFailure) {
-                        Scaffold.of(context).showSnackBar(SnackBar(
-                          content: Text("An unexpected error occured"),
-                          action: SnackBarAction(
-                              label: "Retry",
-                              onPressed: () async {
-                                BlocProvider.of<BookingBloc>(context).add(
-                                    BookingRequested(
-                                        subscriber.id,
-                                        note,
-                                        reception.id,
-                                        slot.startTime,
-                                        slot.endTime,
-                                        await getAccessTokenFromStorage()));
-                              }),
-                        ));
-                      } else if (state is BookingInitial) {
-                        if (state.error == false) {
-                          Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Text("Booking Successfully Cancelled"),
-                          ));
-                        } else if (state.error == true) {
-                          Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Text(
-                                "An unexpected error occurred while cancelling.\nTry booking the appointment and cancelling again"),
-                          ));
-                        }
-                      }
-                    }, builder: (context, state) {
-                      final bloccontext = context;
-                      if (state is BookingInitial) {
-                        {
-                          logger.i("Reception: " + reception.id,
-                              "Subscriber: " + subscriber.id);
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              SizedBox(height: 50),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: ThemedSolidButton(
-                                    text: 'Book Appointment',
-                                    buttonFunction: () async {
-                                      logger.i('Button clicked');
-                                      // box.put("appointment", "true");
-                                      BlocProvider.of<BookingBloc>(context).add(
-                                          BookingRequested(
-                                              subscriber.id,
-                                              notes,
-                                              reception.id,
-                                              slot.startTime,
-                                              slot.endTime,
-                                              await getAccessTokenFromStorage()));
-                                    }),
+                  ),
+                );
+              }
+            },
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      DateIcon(slot: slot),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          alignment: Alignment.bottomRight,
+                          height: 150,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              FaIcon(
+                                FontAwesomeIcons.clock,
+                                size: 50,
+                                color: Colors.grey,
                               ),
-                              SizedBox(width: 10),
-                              // TODO button to add slot to wish list
-//                    WishListButton(added: false),
+                              Text(
+                                  "${DateFormat("jm").format(slot.startTime)}",
+                                  style: TextStyle(fontSize: 25)),
                             ],
-                          );
-                        }
-                      } else if (state is BookingLoadInProgress) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.blue[800],
                           ),
-                        );
-                      } else if (state is BookingLoadFailure) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            SizedBox(height: 50),
-                            Text(state.message),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: ThemedSolidButton(
-                                  text: 'Retry Appointment',
-                                  buttonFunction: () async {
-                                    logger.i('Button clicked');
-                                    BlocProvider.of<BookingBloc>(context).add(
-                                        BookingRequested(
-                                            subscriber.id,
-                                            notes,
-                                            reception.id,
-                                            slot.startTime,
-                                            slot.endTime,
-                                            await getAccessTokenFromStorage()));
-                                  }),
-                            ),
-                            SizedBox(width: 10),
-                          ],
-                        );
-                      } else if (state is BookingLoadSuccess) {
-                        int otp = state.details.otp;
-                        return Column(
-                          children: <Widget>[
-                            SizedBox(height: 20),
-                            Column(
-                              children: <Widget>[
-                                Text(
-                                  'You OTP for the appointment is',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyText1
-                                      .copyWith(
-                                        fontSize: 20,
-                                      ),
-                                ),
-                                Text(
-                                  '$otp',
-                                  style: TextStyle(
-                                    fontSize: 42,
-                                    letterSpacing: 12,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                SizedBox(width: 10),
-                                Expanded(
-                                  child: ThemedSolidButton(
-                                      text: 'Cancel Appointment',
-                                      buttonFunction: () async {
-                                        logger.i('Button clicked');
-                                        showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text("Whoa, Hold On..."),
-                                                content: Text(
-                                                    "Do you really want to cancel your appointment?"),
-                                                actions: <Widget>[
-                                                  new RaisedButton(
-                                                    onPressed: () async {
-                                                      cancel = true;
-                                                      BlocProvider.of<
-                                                                  BookingBloc>(
-                                                              bloccontext)
-                                                          .add(CancelRequested(
-                                                              reception.id,
-                                                              await getAccessTokenFromStorage()));
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child:
-                                                        Text("Yep, I'm sure"),
-                                                    color: Colors.red[600],
-                                                  ),
-                                                  new RaisedButton(
-                                                    onPressed: () {
-                                                      cancel = false;
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text(
-                                                        "No, I want my appointment"),
-                                                    color: Colors.green[600],
-                                                  )
-                                                ],
-                                              );
-                                            });
-                                      }),
-                                ),
-                                SizedBox(width: 10),
-                                // TODO button to add slot to wish list
-//                    WishListButton(added: false),
-                              ],
-                            ),
-                            SizedBox(height: 20),
-                          ],
-                        );
-                      } else if (state is BookingDone) {
-                        int otp = state.detail.otp;
-                        return Column(
-                          children: <Widget>[
-                            SizedBox(height: 20),
-                            Column(
-                              children: <Widget>[
-                                Text(
-                                  'You OTP for the appointment is',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyText1
-                                      .copyWith(
-                                        fontSize: 20,
-                                      ),
-                                ),
-                                Text(
-                                  '$otp',
-                                  style: TextStyle(
-                                    fontSize: 42,
-                                    letterSpacing: 12,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                SizedBox(width: 10),
-                                Expanded(
-                                  child: ThemedSolidButton(
-                                      text: 'Cancel Appointment',
-                                      buttonFunction: () async {
-                                        logger.i('Button clicked');
-                                        showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text("Whoa, Hold On..."),
-                                                content: Text(
-                                                    "Do you really want to cancel your appointment?"),
-                                                actions: <Widget>[
-                                                  new RaisedButton(
-                                                    onPressed: () async {
-                                                      cancel = true;
-                                                      BlocProvider.of<
-                                                                  BookingBloc>(
-                                                              bloccontext)
-                                                          .add(CancelRequested(
-                                                              reception.id,
-                                                              await getAccessTokenFromStorage()));
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child:
-                                                        Text("Yep, I'm sure"),
-                                                    color: Colors.red[600],
-                                                  ),
-                                                  new RaisedButton(
-                                                    onPressed: () {
-                                                      cancel = false;
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text(
-                                                        "No, I want my appointment"),
-                                                    color: Colors.green[600],
-                                                  )
-                                                ],
-                                              );
-                                            });
-                                      }),
-                                ),
-                                SizedBox(width: 10),
-                                // TODO button to add slot to wish list
-//                    WishListButton(added: false),
-                              ],
-                            ),
-                            SizedBox(height: 20),
-                          ],
-                        );
-                      } else {
-                        return Text('Invalid state');
-                      }
-                    })
-                  ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: LongDateText(slot: slot),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 50),
+                Container(
+                    padding: EdgeInsets.fromLTRB(30, 0, 0, 10),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Appointment for",
+                      style: TextStyle(fontSize: 25),
+                    )),
+                Card(
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Container(
+                        width: double.infinity,
+                        alignment: Alignment.topLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListItem(
+                                title: "Name", value: "${subscriber.name}"),
+                            ListItem(
+                                title: "Phone No",
+                                value: "${subscriber.phone}"),
+                          ],
+                        )),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: BlocBuilder<BookingBloc, BookingState>(
+                    builder: (context, state) {
+                      return RaisedButton(
+                        onPressed: () {
+                          BlocProvider.of<BookingBloc>(context)
+                              .add(BookingRequested(
+                            subscriber.id,
+                            note,
+                            reception.id,
+                            slot.startTime,
+                            slot.endTime,
+                          ));
+                        },
+                        color: Theme.of(context).primaryColor,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 20),
+                          child: Text(
+                            "Book Appointment",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                      );
+                    },
+                  ),
+                )
+              ],
             ),
           ),
         ),
@@ -443,241 +238,103 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   }
 }
 
-class BookedAppointmentDetails extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-class CustomerDetails extends StatefulWidget {
-  const CustomerDetails({
+class LongDateText extends StatelessWidget {
+  const LongDateText({
     Key key,
-    @required this.name,
-    @required this.phone,
-    this.note = '',
-  });
-  final String name, phone, note;
+    @required this.slot,
+  }) : super(key: key);
 
-  @override
-  _CustomerDetailsState createState() => _CustomerDetailsState();
-}
+  final Slot slot;
 
-class _CustomerDetailsState extends State<CustomerDetails> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<NoteBloc>(
-      create: (context) => NoteBloc(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ListTile(
-            subtitle: Text('Customer Name'),
-            title: Text(widget.name),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          "${DateFormat('E').format(slot.startTime)}",
+          style: TextStyle(fontSize: 20),
+        ),
+        Text(
+          "${DateFormat("MMMMEEEEd").format(slot.startTime)}",
+          style: TextStyle(
+            // color: Colors.grey,
+            fontSize: 15,
           ),
-          ListTile(
-            subtitle: Text('Customer Phone'),
-            title: Text(widget.phone),
-          ),
-          Divider(),
-          BlocBuilder<NoteBloc, NoteState>(builder: (context, state) {
-            if (state is NoteAbsent) {
-              return ListTile(
-                onTap: () async {
-                  print("printing booking note before");
-                  final bookingNote = await Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => BookingNotes()));
-                  notes = bookingNote;
-                  if (bookingNote != '') {
-                    BlocProvider.of<NoteBloc>(context).add(NoteAdded(notes));
-                  }
-                },
-                leading: Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  ),
-                  child: Icon(
-                    Icons.turned_in_not,
-                    color: Colors.blue[800],
-                    size: 35,
-                  ),
-                ),
-                title: Text(
-                  'Booking notes',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                subtitle: Text(
-                  widget.note,
-                  textAlign: TextAlign.left,
-                ),
-                trailing: Icon(Icons.arrow_forward_ios),
-              );
-            } else if (state is NotePresent) {
-              return ListTile(
-                onTap: () async {
-                  print("printing booking note before");
-
-                  final bookingNote = await Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => BookingNotes()));
-                  notes = bookingNote;
-                  if (bookingNote != '') {
-                    BlocProvider.of<NoteBloc>(context).add(NoteAdded(notes));
-                  }
-                },
-                leading: Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  ),
-                  child: Icon(
-                    Icons.turned_in,
-                    color: Colors.blue[800],
-                    size: 35,
-                  ),
-                ),
-                title: Text(
-                  'Booking notes',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                subtitle: Text(
-                  state.notes,
-                  textAlign: TextAlign.left,
-                ),
-                trailing: Icon(Icons.arrow_forward_ios),
-              );
-            }
-          })
-        ],
-      ),
+        )
+      ],
     );
   }
 }
 
-class WishListButton extends StatelessWidget {
-  const WishListButton({
+class DateIcon extends StatelessWidget {
+  const DateIcon({
     Key key,
-    this.added,
+    @required this.slot,
   }) : super(key: key);
-  final bool added;
+
+  final Slot slot;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.red, blurRadius: 5.0, spreadRadius: 1.0),
+      padding: EdgeInsets.all(10),
+      alignment: Alignment.centerLeft,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          FaIcon(
+            FontAwesomeIcons.solidCalendar,
+            size: 100,
+            color: Colors.grey,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Text(
+              "${slot.startTime.day}",
+              style: TextStyle(fontSize: 50),
+            ),
+          )
         ],
-      ),
-      child: CircleAvatar(
-        backgroundColor: Colors.grey[100],
-        radius: 20,
-        child: GestureDetector(
-          onTap: () {
-            logger.i('Add to wish list button clicked');
-          },
-          child: added
-              ? Icon(
-                  Icons.favorite,
-                  color: Colors.red,
-                )
-              : Icon(
-                  Icons.favorite_border,
-                ),
-        ),
       ),
     );
   }
 }
 
-class BookingNotes extends StatelessWidget {
-  const BookingNotes({
+class ListItem extends StatelessWidget {
+  const ListItem({
     Key key,
-    this.note,
+    @required this.title,
+    @required this.value,
   }) : super(key: key);
-  final String note;
+
+  final String title;
+  final String value;
+
   @override
   Widget build(BuildContext context) {
-    var cHeight = MediaQuery.of(context).size.height;
-    var cWidth = MediaQuery.of(context).size.width;
-    TextEditingController noteController = TextEditingController();
-    return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(color: Colors.black),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            // // color: _c,
-
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    " Add Booking Note",
-                    style: TextStyle(
-                        // fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                    height: cHeight * 0.05,
-                  ),
-                  Text(
-                    "It includes requests and comments about your booking",
-                  ),
-                  SizedBox(
-                    height: cHeight * 0.04,
-                  ),
-                  TextFormField(
-                    controller: noteController,
-                    maxLines: 5,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value.length == 0) {
-                        return ('Enter information');
-                      } else {
-                        return null;
-                      }
-                    },
-                  ),
-                  SizedBox(
-                    height: cHeight * 0.1,
-                  ),
-                  Container(
-                    width: cWidth * 0.8,
-                    child: RaisedButton(
-                        onPressed: () {
-                          Navigator.pop(context, noteController.text);
-                        },
-                        textColor: Colors.white,
-                        padding: const EdgeInsets.all(0.0),
-                        child: Container(
-                          child: Text(
-                            "Done",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        )),
-                  )
-                ],
-              ),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            title,
+            style: TextStyle(color: Colors.grey),
           ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            value,
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+        Divider(
+          thickness: 3,
+        ),
+      ],
     );
   }
 }

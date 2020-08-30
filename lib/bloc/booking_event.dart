@@ -10,19 +10,17 @@ class BookingRequested extends BookingEvent {
   final String counterId;
   final DateTime startTime;
   final DateTime endTime;
-  final String accessToken;
 
   BookingRequested(this.subscriberId, this.note, this.counterId, this.startTime,
-      this.endTime, this.accessToken)
+      this.endTime)
       : assert(counterId != null &&
             subscriberId != null &&
             startTime != null &&
-            endTime != null &&
-            accessToken != null);
+            endTime != null );
 
   @override
   List<Object> get props =>
-      [subscriberId, note, counterId, startTime, endTime, accessToken];
+      [subscriberId, note, counterId, startTime, endTime];
 }
 
 class BookingRefreshRequested extends BookingEvent {
@@ -36,13 +34,13 @@ class BookingExists extends BookingEvent {
   List<Object> get props => [];
 }
 
-class CancelRequested extends BookingEvent {
-  final String counterId;
-  final String accessToken;
+// class CancelRequested extends BookingEvent {
+//   final String counterId;
+//   final String accessToken;
 
-  CancelRequested(this.counterId, this.accessToken)
-      : assert(accessToken != null && counterId != null);
+//   CancelRequested(this.counterId, this.accessToken)
+//       : assert(accessToken != null && counterId != null);
 
-  @override
-  List<Object> get props => [counterId, accessToken];
-}
+//   @override
+//   List<Object> get props => [counterId, accessToken];
+// }
