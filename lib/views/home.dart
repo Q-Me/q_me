@@ -11,6 +11,7 @@ import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointmentHistory.dart';
+import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/categories.dart';
@@ -60,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
     logger.i("verify fcm: $fcmToken\nverify _fcm: $_fcmToken");
     if (fcmToken != _fcmToken) {
       // TODO FIX ME unset the session here
-      Navigator.pushNamed(context, SignInScreen.id);
+      // Navigator.pushNamed(context, SignInScreen.id);
     }
   }
 
@@ -217,19 +218,21 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           // AppointmentsHistoryScreen()
-          BookingsScreen()
+          BookingsScreen(),
           // Column(
           //   children: <Widget>[
           //     Text('Your appointment history'),
           //     Text('Hello'),
           //   ],
           // ),
+          MenuScreen(),
         ].elementAt(_selectedIndex),
         bottomNavigationBar: CupertinoTabBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(icon: Icon(Icons.home)),
+            BottomNavigationBarItem(icon: Icon(Icons.timer)),
             BottomNavigationBarItem(icon: Icon(Icons.person)),
           ],
         ),

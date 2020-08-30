@@ -51,7 +51,7 @@ class Appointment extends Equatable {
   final String slotStatus;
   final String note;
   final otp;
-  final String rating;
+  final rating;
 
   @override
   List<Object> get props => [
