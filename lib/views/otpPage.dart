@@ -1,17 +1,15 @@
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
-import 'package:pin_entry_text_field/pin_entry_text_field.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
-
 import '../api/app_exceptions.dart';
 import '../repository/user.dart';
 import 'signup.dart';
@@ -29,6 +27,7 @@ class _OtpPageState extends State<OtpPage> {
   final formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
   var _fcmToken;
+  String mobileNumber = "Mobile number";
   fcmTokenApiCall() async {
     Box box = await Hive.openBox("user");
     _fcmToken = await box.get('fcmToken');
@@ -42,34 +41,28 @@ class _OtpPageState extends State<OtpPage> {
   signInUser(BuildContext context) async {
     Map response;
     try {
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text('Processing Data')));
       response = await UserRepository().signInWithOtp(idToken);
 
-      if (response['status'] == 200) {
+      if (response['accessToken'] != null) {
         logger.d(response);
+       Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);
+
         fcmTokenApiCall();
 
-        Navigator.pushNamed(context, HomeScreen.id);
       } else {
-        logger.d(response);
+         logger.d("response of signin Otp: $response");
         Scaffold.of(context)
             .showSnackBar(SnackBar(content: Text(response['eror'].toString())));
         return logger.d("error in api hit");
       }
     } catch (e) {
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text(e.toMap()["msg"].toString())));
       log('Error in signIn API: ' + e.toString());
       return;
     }
   }
 
   signUpUser(BuildContext context) async {
-    Scaffold.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Processing Data'),
-      ),
-    );
     Box box = await Hive.openBox("user");
     formData['firstName'] = await box.get('userFirstNameSignup');
     formData['lastName'] = await box.get('userLastNameSignup');
@@ -92,7 +85,7 @@ class _OtpPageState extends State<OtpPage> {
       log('BadRequestException on SignUp:' + e.toString());
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(
-          e.toString(),
+          e.toMap()["msg"].toString(),
         ),
       ));
     } catch (e) {
@@ -107,17 +100,17 @@ class _OtpPageState extends State<OtpPage> {
     if (response != null && response['msg'] == 'Registation successful') {
       // Make SignIn call
       try {
-        Scaffold.of(context)
-            .showSnackBar(SnackBar(content: Text('Processing Data')));
+       
         response = await UserRepository().signInWithOtp(idToken);
 
-        if (response['status'] == 200) {
-          logger.d("respose of ${response['status']}");
-          logger.d(response);
+        if (response['accessToken'] != null) {
 
-          Navigator.pushNamed(context, HomeScreen.id);
+         Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);
           fcmTokenApiCall();
         } else {
+          logger.d("response of signin Otp: $response");
+           Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text(response['eror'].toString())));
           return logger.d("error in api hit");
         }
       } catch (e) {
@@ -131,6 +124,19 @@ class _OtpPageState extends State<OtpPage> {
       //Navigator.pushNamed(context, SignInScreen.id);
       return;
     }
+  }
+  fetchPhoneNumber()async{
+    Box box = await Hive.openBox("user");
+    setState(() {
+      mobileNumber = box.get('userPhoneSignup');
+    });
+     
+
+  }
+  @override
+  void initState(){
+    fetchPhoneNumber();
+    super.initState();
   }
 
   @override
@@ -178,17 +184,57 @@ class _OtpPageState extends State<OtpPage> {
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.03,
                         ),
-                        Text("Enter OTP sent to mobile number"),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Enter OTP sent to: "),
+                            Text("$mobileNumber", style: TextStyle(fontWeight: FontWeight.bold),),
+                          ],
+                        ),
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.05,
                         ),
-                        PinEntryTextField(
-                          fieldWidth: MediaQuery.of(context).size.width * 0.1,
-                          fields: 6,
-                          onSubmit: (String pin) {
-                            _codeController.text = pin;
-                          }, // end onSubmit
-                        ),
+
+                        PinCodeTextField(
+                      appContext: context,
+                      pastedTextStyle: TextStyle(
+                        color: Colors.green.shade600,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      length: 6,
+                      obsecureText: false,
+                      animationType: AnimationType.fade,
+                      validator: (v) {
+                        if (v.length != 6) {
+                          return "Please enter valid otp";
+                        } else {
+                          return null;
+                        }
+                      },
+                      pinTheme: PinTheme(
+                        inactiveFillColor: Colors.white,
+                        activeFillColor:Colors.white,
+                        inactiveColor: Theme.of(context).primaryColor,
+                        activeColor: Theme.of(context).primaryColor
+                      ),
+                      animationDuration: Duration(milliseconds: 300),
+                      enableActiveFill: true,
+                      onCompleted: (pin) {
+                        _codeController.text = pin;
+                      },
+                      // onTap: () {
+                      //   print("Pressed");
+                      // },
+                      onChanged: (pin) {
+                        setState(() {
+                           _codeController.text = pin;
+                        });
+                      },
+                      beforeTextPaste: (text) {
+                        print("Allowing to paste $text");
+                        return true;
+                      },
+                    ),
                         SizedBox(height: 50.0),
                         Container(
                           height: 50.0,
@@ -201,6 +247,8 @@ class _OtpPageState extends State<OtpPage> {
                               onTap: () async {
                                 final code = _codeController.text.trim();
                                 try {
+                                  Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text('Processing Data')));
                                   AuthCredential credential =
                                       PhoneAuthProvider.getCredential(
                                           verificationId: verificationIdOtp,
@@ -216,6 +264,8 @@ class _OtpPageState extends State<OtpPage> {
                                   FirebaseUser userFireBAse = result.user;
 
                                   if (userFireBAse != null) {
+                                     Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text('Processing Data')));
                                     var token = await userFireBAse
                                         .getIdToken()
                                         .then((result) {
@@ -223,6 +273,7 @@ class _OtpPageState extends State<OtpPage> {
                                       formData['token'] = idToken;
                                       logger.d("@@ $idToken @@");
                                     });
+                                    
                                     if (loginPage == "SignUp") {
                                       signUpUser(context);
                                     } else {

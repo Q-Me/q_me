@@ -10,9 +10,11 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:provider/provider.dart';
+import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/constants.dart';
+import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
-import 'package:qme/constants.dart';
+import 'package:qme/views/home.dart';
 import 'package:qme/views/otpPage.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
@@ -42,8 +44,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _codeController = TextEditingController();
   String _fcmToken;
   Future<void> _launched;
-  bool showOtpTextfield = false;
   final FirebaseMessaging _messaging = FirebaseMessaging();
+  String idToken;
+  fcmTokenApiCall() async {
+    Box box = await Hive.openBox("user");
+    _fcmToken = await box.get('fcmToken');
+    var responsefcm = await UserRepository().fcmTokenSubmit(_fcmToken);
+    logger.d("fcm token Api: $responsefcm");
+    await box.put('fcmToken', _fcmToken);
+  }
 
   // otp verification with firebase
   Future<bool> loginUser(String phone, BuildContext context) async {
@@ -52,170 +61,179 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _auth.verifyPhoneNumber(
         phoneNumber: phone,
         timeout: Duration(seconds: 60),
-        /*
-         verificationCompleted: (AuthCredential credential) async {
-           AuthResult result = await _auth.signInWithCredential(credential);
+        verificationCompleted: (AuthCredential credential) async {
+          AuthResult result = await _auth.signInWithCredential(credential);
 
-           FirebaseUser user = result.user;
+          FirebaseUser user = result.user;
 
-           if (user != null) {
-             var token = await user.getIdToken().then((result) {
-               idToken = result.token;
-               formData['token'] = idToken;
-               print(" $idToken ");
-             });
-             final code = _codeController.text.trim();
-             try {
-               log('$formData');
-               SharedPreferences prefs = await SharedPreferences.getInstance();
+          if (user != null) {
+            var token = await user.getIdToken().then((result) {
+              idToken = result.token;
+              formData['token'] = idToken;
+              logger.d(" $idToken ");
+            });
+            final code = _codeController.text.trim();
+            try {
+              Box box = await Hive.openBox("user");
+              formData['firstName'] = await box.get('userFirstNameSignup');
+              formData['lastName'] = await box.get('userLastNameSignup');
+              formData['phone'] = await box.get('userPhoneSignup');
+              formData['password'] = await box.get('userPasswordSignup');
+              formData['cpassword'] = await box.get('userCpasswordSignup');
+              formData['email'] = await box.get('userEmailSignup');
 
-               formData['firstName'] = prefs.getString('userFirstNameSignup');
-               formData['lastName'] = prefs.getString('userLastNameSignup');
-               formData['phone'] = prefs.getString('userPhoneSignup');
-               formData['password'] = prefs.getString('userPasswordSignup');
-               formData['cpassword'] = prefs.getString('userCpasswordSignup');
-               formData['email'] = prefs.getString(
-                 'userEmailSignup',
-               );
-               formData['name'] =
-                   formData['firstName'] + " " + formData['lastName'];
+              log('$formData');
+              formData['name'] =
+                  formData['firstName'] + " " + formData['lastName'];
 
-               Scaffold.of(context).showSnackBar(
-                 SnackBar(
-                   content: Text('Processing Data'),
-                 ),
-               );
+              UserRepository user = UserRepository();
+              formData['name'] =
+                  '${formData['firstName']}|${formData['lastName']}';
+              // Make SignUp API call
+              Map response;
+              try {
+                logger.d(formData);
+                response = await user.signUp(formData);
+              } on BadRequestException catch (e) {
+                log('BadRequestException on SignUp:' + e.toString());
+                Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                    e.toMap()["msg"].toString(),
+                  ),
+                ));
+              } catch (e) {
+                showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("SignUn Failed"),
+                        content: Text(e.toMap()["msg"].toString()),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text("OK"),
+                            textColor: Colors.white,
+                            color: Theme.of(context).primaryColor,
+                            onPressed: () {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SignInScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            },
+                          )
+                        ],
+                      );
+                    });
+              }
+              log('SignUp response:${response.toString()}');
 
-               UserRepository user = UserRepository();
-               formData['name'] =
-                   '${formData['firstName']}|${formData['lastName']}';
-               // Make SignUp API call
-               Map response;
-               try {
-                 print("signUpData");
-                 print(formData['phone']);
-                 print(formData['name']);
-                 print(formData);
-                 response = await user.signUp(formData);
-                 print(response['status']);
-                 print(response);
-               } on BadRequestException catch (e) {
-                 log('BadRequestException on SignUp:' + e.toString());
-                 Scaffold.of(context).showSnackBar(SnackBar(
-                   content: Text(
-                     e.toString(),
-                   ),
-                 ));
-               } catch (e) {
-                 log('SignUp failed:' + e.toString());
-                 Scaffold.of(context).showSnackBar(
-                   SnackBar(
-                     content: Text(e.toString()),
-                   ),
-                 );
-               }
-               log('SignUp response:${response.toString()}');
+              if (response != null &&
+                  response['msg'] == 'Registation successful') {
+                // Make SignIn call
+                try {
+                  response = await UserRepository().signInWithOtp(idToken);
+                  if (response['accessToken'] != null) {
+                    logger.d("respose of ${response['status']}");
+                    logger.d(response);
 
-               if (response != null &&
-                   response['msg'] == 'Registation successful') {
-                 // Make SignIn call
-                 try {
-                   response =
-                       // Make LOGIN API call
-                       response = await signInWithOtp(idToken);
-                   print("reponse Status ");
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, HomeScreen.id, (route) => false);
+                    fcmTokenApiCall();
+                  } else {
+                    return logger.d("error in api hit");
+                  }
+                } catch (e) {
+                  showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("SignUn Failed"),
+                          content: Text(e.toMap()["msg"].toString()),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text("OK"),
+                              textColor: Colors.white,
+                              color: Theme.of(context).primaryColor,
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            )
+                          ],
+                        );
+                      });
+                  log('Error in signIn API: ' + e.toString());
+                  return;
+                }
+              } else {
+                logger.d("SignUp failed");
+                return;
+              }
+            } on PlatformException catch (e) {
+              print("Looking for Error code");
+              print(e.message);
+              Navigator.of(context).pop();
 
-                   if (response['status'] == 200) {
-                     print("respose of ${response['status']}");
-                     print(response);
-                     SharedPreferences prefs =
-                         await SharedPreferences.getInstance();
-                     Scaffold.of(context).showSnackBar(
-                         SnackBar(content: Text('Processing Data')));
+              showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text("Verification Failed"),
+                      content: Text(e.code.toString()),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text("OK"),
+                          textColor: Colors.white,
+                          color: Theme.of(context).primaryColor,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    );
+                  });
+              print(e.code);
+            } on Exception catch (e) {
+              Navigator.of(context).pop();
 
-                     Navigator.pushNamed(context, NearbyScreen.id);
+              showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text("Verification Failed"),
+                      content: Text(e.toString()),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text("OK"),
+                          textColor: Colors.white,
+                          color: Theme.of(context).primaryColor,
+                          onPressed: () async {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignInScreen(),
+                              ),
+                              (route) => false,
+                            );
+                          },
+                        )
+                      ],
+                    );
+                  });
+              print("Looking for Error message");
+              print(e);
+            }
+          } else {
+            print("Error");
+          }
 
-                     var responsefcm = await fcmTokenSubmit(_fcmToken);
-                     print("fcm token Api: $responsefcm");
-                     print("fcm token api status: ${responsefcm['status']}");
-                     prefs.setString('fcmToken', _fcmToken);
-                     Navigator.pushNamed(context, NearbyScreen.id);
-                   } else {
-                     return print("error in api hit");
-                   }
-                 } catch (e) {
-                   Scaffold.of(context)
-                       .showSnackBar(SnackBar(content: Text(e.toString())));
-                   // _showSnackBar(e.toString());
-                   log('Error in signIn API: ' + e.toString());
-                   return;
-                 }
-                 // if (response['name'] != null) {
-                 //   // SignIn successful
-                 //   Navigator.pushNamed(
-                 //       context, NearbyScreen.id);
-                 // }
-               } else {
-                 print("SignUp failed");
-                 return;
-               }
-             } on PlatformException catch (e) {
-               print("Looking for Error code");
-               print(e.message);
-               Navigator.of(context).pop();
-
-               showDialog(
-                   context: context,
-                   barrierDismissible: false,
-                   builder: (context) {
-                     return AlertDialog(
-                       title: Text("Verification Failed"),
-                       content: Text(e.code.toString()),
-                       actions: <Widget>[
-                         FlatButton(
-                           child: Text("OK"),
-                           textColor: Colors.white,
-                           color: Theme.of(context).primaryColor,
-                           onPressed: () {
-                             Navigator.of(context).pop();
-                           },
-                         )
-                       ],
-                     );
-                   });
-               print(e.code);
-             } on Exception catch (e) {
-               Navigator.of(context).pop();
-
-               showDialog(
-                   context: context,
-                   barrierDismissible: false,
-                   builder: (context) {
-                     return AlertDialog(
-                       title: Text("Verification Failed"),
-                       content: Text(e.toString()),
-                       actions: <Widget>[
-                         FlatButton(
-                           child: Text("OK"),
-                           textColor: Colors.white,
-                           color: Theme.of(context).primaryColor,
-                           onPressed: () async {
-                             Navigator.of(context).pop();
-                           },
-                         )
-                       ],
-                     );
-                   });
-               print("Looking for Error message");
-               print(e);
-             }
-           } else {
-             print("Error");
-           }
-
-           //This callback would gets called when verification is done auto maticlly
-         },
-        */
+          //This callback would gets called when verification is done auto maticlly
+        },
         verificationFailed: (AuthException exception) {
           logger.e(exception.message);
           Scaffold.of(context).showSnackBar(
@@ -338,8 +356,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             validator: (value) {
                               if (value.isEmpty) {
                                 return 'This field cannot be left blank';
-                              } else if (value.startsWith("+91")) {
-                                return 'Phone number must start with +91';
+                                // } else if (value.startsWith("+91")) {
+                                //   return 'Phone number must start with +91';
+
                               } else if (value.length != 13) {
                                 return 'Phone number must be 10 digits after +91';
                               } else {
@@ -557,7 +576,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                               color: Theme.of(context)
                                                   .primaryColor,
                                               onPressed: () async {
-                                                // Navigator.of(context).pop();
+                                                Navigator.of(context)
+                                                    .pushNamed(OtpPage.id);
                                                 loginUser(phone, context);
                                               },
                                             ),
