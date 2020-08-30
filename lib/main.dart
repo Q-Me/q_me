@@ -20,9 +20,8 @@ import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
 
 
-String firstInitialHome = IntroScreen.id;
-String initialHome = SignInScreen.id;
-bool firstLogin = true;
+String initialHome = IntroScreen.id;
+bool firstLogin;
 
 void main() async {
   Bloc.observer = SimpleBlocObserver();
@@ -32,7 +31,8 @@ void main() async {
   // await Hive.openBox("user");
   Box box = await Hive.openBox("user");
   firstLogin = await box.get('firstLogin');
-      if (firstLogin != false) firstLogin = true;
+      if (firstLogin == false)
+      initialHome = SignInScreen.id;
       
       // Logger.level = Level.warning;
       // TODO show splash screen
@@ -41,9 +41,8 @@ void main() async {
 
 
       // await setSession();
-      await clearSession();
+      //await clearSession();
   if (await UserRepository().isSessionReady()) {
-    initialHome = HomeScreen.id;
     initialHome = HomeScreen.id;
   }
   runApp(MyApp());
@@ -58,7 +57,7 @@ class MyApp extends StatelessWidget {
       theme: myTheme,
       debugShowCheckedModeBanner: false,
       onGenerateRoute: router.generateRoute,
-      initialRoute: firstLogin ? firstInitialHome : initialHome,
+      initialRoute:  initialHome,
       navigatorObservers: <NavigatorObserver>[
         AnalyticsService().getAnalyticsObserver(),
       ],
