@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointmentHistory.dart';
 import 'package:qme/views/signin.dart';
@@ -57,9 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
     Box box = await Hive.openBox("user");
     String fcmToken = await box.get('fcmToken');
     logger.i("verify fcm: $fcmToken\nverify _fcm: $_fcmToken");
-    if (fcmToken != _fcmToken) {
-      // TODO FIX ME unset the session here
-      Navigator.pushNamed(context, SignInScreen.id);
+    if (fcmToken != _fcmToken) { 
+    await UserRepository().fcmTokenSubmit(_fcmToken);
+    await box.put('fcmToken' , _fcmToken);
+
     }
   }
 
