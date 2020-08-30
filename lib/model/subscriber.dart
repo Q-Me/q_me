@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:qme/api/kAPI.dart';
 
 Subscribers subscribersFromJson(String str) =>
@@ -26,7 +25,7 @@ class Subscribers {
       };
 }
 
-class Subscriber extends ChangeNotifier {
+class Subscriber {
   String id,
       name,
       description,
@@ -63,20 +62,18 @@ class Subscriber extends ChangeNotifier {
 
   factory Subscriber.fromJson(Map<String, dynamic> json) {
     String distance;
-    List<String> displayImages;
     if (json['distance'] != null) {
       distance = double.parse(json['distance']) > 1
           ? "${double.parse(json['distance'])} km"
           : "${double.parse(json['distance']) * 1000} m";
     }
-    String profileImage = 'json["imgUrl"]';
-    if (json["displayImages"] != null && json["imgUrl"] != null) {
-      displayImages = List<String>.from(json["displayImages"]);
-      displayImages.insert(0, profileImage);
-    } else if (json["displayImages"] != null) {
-      displayImages = List<String>.from(json["displayImages"]);
-    }
-
+    final String imgUrl = '$baseURL/user/profileimage/${json["profileImage"]}';
+    List<String> displayImages = [imgUrl];
+    displayImages.addAll(
+      List<String>.from(json["displayImages"])
+          .map((imgName) => '$baseURL/user/displayimage/$imgName')
+          .toList(),
+    );
     return Subscriber(
       id: json["id"],
       name: json["name"],
@@ -84,7 +81,7 @@ class Subscriber extends ChangeNotifier {
       email: json["email"],
       phone: json["phone"],
       address: json["address"],
-      imgURL: json["profileImage"],
+      imgURL: imgUrl,
       latitude: json["latitude"] != null
           ? double.parse(json["latitude"].toString())
           : null,
@@ -97,7 +94,7 @@ class Subscriber extends ChangeNotifier {
           : json["description"],
       category: json["category"],
       distance: distance,
-      displayImages: json["displayImages"] != null ? displayImages : null,
+      displayImages: displayImages,
       // tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
       rating: json["rating"],
     );
