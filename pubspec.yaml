@@ -44,7 +44,7 @@ dependencies:
   flutter_svg:
   ordered_set: ^2.0.0
   equatable: ^1.2.0
-  pin_entry_text_field: ^0.1.4
+  pin_code_fields: ^5.0.1
   intro_slider: ^2.3.1
   bloc: ^6.0.0
   flutter_bloc: ^6.0.0
