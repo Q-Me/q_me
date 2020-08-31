@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart';
 import 'package:qme/model/review.dart';
 import 'package:qme/utilities/logger.dart';
 
@@ -86,5 +87,25 @@ class SubscriberRepository {
       headers: {'Authorization': 'Bearer $accessToken'},
     );
     return Subscribers.fromJson(response).list;
+  }
+
+  Future<String> rateSubscriber({
+    String counterId,
+    String subscriberId,
+    String review,
+    String rating,
+  }) async {
+    final String accessToken = await getAccessTokenFromStorage();
+    final response = await _helper.post(
+      reviewUrl,
+      req: {
+        "counter_id": counterId,
+        "subscriber_id": subscriberId,
+        "review": review, //OPTIONAL
+        "rating": rating,
+      },
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+    return response;
   }
 }

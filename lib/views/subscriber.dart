@@ -23,7 +23,6 @@ import 'package:qme/model/user.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/time.dart';
-import 'package:qme/views/appointment.dart';
 import 'package:qme/views/slot_view.dart';
 import 'package:qme/views/token.dart';
 import 'package:qme/widgets/error.dart';
@@ -108,97 +107,94 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                     }
                   },
                 ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: h * 0.6,
+                Container(
+                  height: h * 0.4,
+                  padding: EdgeInsets.only(left: 20, right: 20, top: 20),
+                  width: w,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20)),
                   ),
-                  child: IntrinsicHeight(
-                    child: Container(
-                      // height: h*0.6,
-                      padding: EdgeInsets.all(20),
-                      width: w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20)),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SubscriberHeaderInfo(
-                                subscriber: widget.subscriber,
-                              ),
-                              Container(
-                                padding: EdgeInsets.all(5),
-                                width: w / 3.5,
-                                height: w / 13,
-                                child: SubscriberStarRating(
-                                  subscriber: widget.subscriber,
-                                ),
-                              )
-                            ],
+                          SubscriberHeaderInfo(
+                            subscriber: widget.subscriber,
                           ),
-                          SubscriberServices(subscriber: widget.subscriber),
-                          CheckAvailableSlotsButton(
-                              subscriber: widget.subscriber, w: w),
-                          // Spacer(
-                          //   flex: 1,
-                          // ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Ratings and Reviews',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16)),
-                            ],
-                          ),
-                          // Spacer(
-                          //   flex: 1,
-                          // ),
-                          BlocBuilder<SubscriberBloc, SubscriberState>(
-                            builder: (context, state) {
-                              if (state is SubscriberLoading) {
-                                return Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Center(
-                                      child: CircularProgressIndicator()),
-                                );
-                              } else if (state is SubscriberReady) {
-                                return Container(
-                                  height: 50,
-                                  width: 50,
-                                  child: Center(
-                                      child: CircularProgressIndicator()),
-                                );
-                              } else if (state is SubscriberScreenReady) {
-                                return SubscriberReviews(
-                                  reviews: state.review,
-                                );
-                              } else if (state is SubscriberError) {
-                                return Error(
-                                  errorMessage: "Could Not Load Reviews",
-                                  onRetryPressed: () {
-                                    BlocProvider.of<SubscriberBloc>(context)
-                                        .add(ProfileInitialEvent(
-                                            subscriber: widget.subscriber));
-                                  },
-                                );
-                              } else {
-                                return Text("Undefined State");
-                              }
-                            },
+                          Container(
+                            padding: EdgeInsets.all(5),
+                            width: w / 3.5,
+                            height: w / 13,
+                            child: SubscriberStarRating(
+                              subscriber: widget.subscriber,
+                            ),
                           )
                         ],
                       ),
-                    ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      SubscriberServices(subscriber: widget.subscriber),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      CheckAvailableSlotsButton(
+                          subscriber: widget.subscriber, w: w),
+                      Spacer(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Ratings and Reviews',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
+                Container(
+                  padding: EdgeInsets.only(left: 20, right: 20),
+                  width: w,
+                  color: Colors.white,
+                  child: BlocBuilder<SubscriberBloc, SubscriberState>(
+                    builder: (context, state) {
+                      if (state is SubscriberLoading) {
+                        return Container(
+                          height: 50,
+                          width: 50,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      } else if (state is SubscriberReady) {
+                        return Container(
+                          height: 50,
+                          width: 50,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      } else if (state is SubscriberScreenReady) {
+                        return SubscriberReviews(
+                          h: h,
+                          reviews: state.review,
+                        );
+                      } else if (state is SubscriberError) {
+                        return Error(
+                          errorMessage: "Could Not Load Reviews",
+                          onRetryPressed: () {
+                            BlocProvider.of<SubscriberBloc>(context).add(
+                                ProfileInitialEvent(
+                                    subscriber: widget.subscriber));
+                          },
+                        );
+                      } else {
+                        return Text("Undefined State");
+                      }
+                    },
+                  ),
+                )
               ]),
             )));
   }
@@ -321,9 +317,11 @@ class SubscriberImages extends StatelessWidget {
     //   logger.i('No images to display');
     //   return Container();
     // }
-    List<String> imgs = images.length == 1
+    List<String> imgs = images.length == 0
         ? ["https://dontwaitapp.co/img/bank1080.png"]
         : images.map((e) => '$baseURL/user/displayimage/' + e).toList();
+    // List<String> imgs =
+    //     images.map((e) => '$baseURL/user/displayimage/' + e).toList();
     logger.i('SubscriberBloc Access Token:$accessToken');
     return SizedBox(
       width: 10,
@@ -378,18 +376,19 @@ class SubscriberReviews extends StatelessWidget {
   const SubscriberReviews({
     this.reviews,
     Key key,
+    @required this.h,
   }) : super(key: key);
   final List<Review> reviews;
+  final double h;
   @override
   Widget build(BuildContext context) {
     print(reviews.length);
     return reviews.length == 0
-        ? Center(
-            child: Text('No ratings to show'),
-          )
+        ? Container(
+            height: h * 0.2, child: Center(child: Text('No ratings to show')))
         : ListView.builder(
             scrollDirection: Axis.vertical,
-            shrinkWrap: false,
+            shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemCount: reviews.length,
             itemBuilder: (context, index) {
