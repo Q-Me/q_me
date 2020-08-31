@@ -264,6 +264,7 @@ class SubscriberHeaderInfo extends StatelessWidget {
         Text(
           "${subscriber.address}",
           textAlign: TextAlign.left,
+          style: TextStyle(color: Colors.grey),
         ),
       ],
     );
