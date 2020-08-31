@@ -55,10 +55,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void verifyFcmTokenChange(String _fcmToken) async {
     Box box = await Hive.openBox("user");
     String fcmToken = await box.get('fcmToken');
-    logger.i("verify fcm: $fcmToken\nverify _fcm: $_fcmToken");
     if (fcmToken != _fcmToken) {
       await UserRepository().fcmTokenSubmit(_fcmToken);
       await box.put('fcmToken', _fcmToken);
+      logger.i("FCM toke updated from $fcmToken\nto: $_fcmToken");
     }
   }
 
