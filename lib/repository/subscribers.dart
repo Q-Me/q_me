@@ -28,7 +28,12 @@ class SubscriberRepository {
     }
     logger.d('fetchSubscriberList repository: ${response.toString()}');
 //    log("${Subscribers.fromJson(response).list[0].toJson()}");
-    return Subscribers.fromJson(response).list;
+
+    return List<Subscriber>.from(
+      List.from(response["subscriber"])
+          .map((e) => Subscriber.fromJson(e))
+          .toList(),
+    );
   }
 
   Future<Subscriber> fetchSubscriberDetails(
@@ -70,7 +75,9 @@ class SubscriberRepository {
       headers: {'Authorization': 'Bearer $accessToken'},
       authToken: accessToken,
     );
-    return Subscribers.fromJson(response).list;
+    return List.from(response["subscriber"])
+        .map((e) => Subscriber.fromJson(e))
+        .toList();
   }
 
   Future<List<Subscriber>> subscriberByCategory({
@@ -86,7 +93,9 @@ class SubscriberRepository {
       },
       headers: {'Authorization': 'Bearer $accessToken'},
     );
-    return Subscribers.fromJson(response).list;
+    return List.from(response["subscriber"])
+        .map((e) => Subscriber.fromJson(e))
+        .toList();
   }
 
   Future<String> rateSubscriber({

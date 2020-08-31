@@ -1,29 +1,10 @@
 import 'dart:convert';
 
 import 'package:qme/api/kAPI.dart';
+import 'package:qme/utilities/logger.dart';
 
-Subscribers subscribersFromJson(String str) =>
-    Subscribers.fromJson(json.decode(str));
-
-class Subscribers {
-  Subscribers({
-    this.list,
-  });
-
-  List<Subscriber> list;
-
-  factory Subscribers.fromJson(Map<String, dynamic> json) {
-    return Subscribers(
-      list: List<Subscriber>.from(json["subscriber"].map((x) {
-        return Subscriber.fromJson(Map<String, dynamic>.from(x));
-      })),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        "subscriber": List<dynamic>.from(list.map((x) => x.toJson())),
-      };
-}
+Subscriber subscriberFromJson(String str) =>
+    Subscriber.fromJson(json.decode(str));
 
 class Subscriber {
   String id,
@@ -67,13 +48,16 @@ class Subscriber {
           ? "${double.parse(json['distance'])} km"
           : "${double.parse(json['distance']) * 1000} m";
     }
+    // logger.d(json);
     final String imgUrl = '$baseURL/user/profileimage/${json["profileImage"]}';
     List<String> displayImages = [imgUrl];
-    displayImages.addAll(
-      List<String>.from(json["displayImages"])
+
+    if (json['displayImages'] != null) {
+      displayImages.addAll(List.from(json["displayImages"])
           .map((imgName) => '$baseURL/user/displayimage/$imgName')
-          .toList(),
-    );
+          .toList());
+    }
+    // logger.d(displayImages.toString());
     return Subscriber(
       id: json["id"],
       name: json["name"],
