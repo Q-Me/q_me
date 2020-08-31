@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/utilities/logger.dart';
@@ -24,9 +23,10 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       yield* _mapBookingRequested(event);
     } else if (event is BookingRefreshRequested) {
       yield* _mapBookingRefreshRequested(event);
-    } else if (event is CancelRequested) {
-      yield* _mapCancelRequestEventToState(event);
     }
+    //  else if (event is CancelRequested) {
+    //   yield* _mapCancelRequestEventToState(event);
+    // }
   }
 
   Stream<BookingState> _mapBookingRequested(BookingRequested event) async* {
@@ -35,12 +35,12 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
 
     try {
       final bookingResponse = await appointmentRepository.book(
-          counterId: event.counterId,
-          subscriberId: event.subscriberId,
-          startTime: event.startTime,
-          endTime: event.endTime,
-          note: event.note,
-          accessToken: event.accessToken);
+        counterId: event.counterId,
+        subscriberId: event.subscriberId,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        note: event.note,
+      );
       logger.i(bookingResponse);
       final msg = bookingResponse["msg"];
       final details = Appointment.fromMap(bookingResponse["slot"]);
@@ -48,21 +48,9 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       detail = details;
       logger.i(msg, details);
       yield BookingLoadSuccess(msg, details);
-    } on BadRequestException catch (e) {
-      Map errorMap = e.toMap();
-      String error;
-      if (errorMap.containsKey('err')) {
-        error = errorMap['err'];
-      } else if (errorMap.containsKey('error')) {
-        error = errorMap['error'];
-      } else {
-        error = e.toString();
-      }
-      logger.e(error);
-      BookingLoadFailure(message: error);
     } catch (error) {
       logger.e(error.toString());
-      yield BookingLoadFailure();
+      yield BookingLoadFailure(message: 'Oops something unexpected happened');
     }
   }
 
@@ -71,18 +59,18 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     yield BookingInitial(false);
   }
 
-  Stream<BookingState> _mapCancelRequestEventToState(
-      CancelRequested event) async* {
-    yield BookingLoadInProgress();
-    try {
-      final bookingResponse = await appointmentRepository.cancel(
-          counterId: event.counterId, accessToken: event.accessToken);
-      final msg = bookingResponse["msg"];
-      logger.i(msg);
-      yield BookingInitial(false);
-    } catch (error) {
-      logger.e(error);
-      yield BookingInitial(true);
-    }
-  }
+  // Stream<BookingState> _mapCancelRequestEventToState(
+  //     CancelRequested event) async* {
+  //   yield BookingLoadInProgress();
+  //   try {
+  //     final bookingResponse = await appointmentRepository.cancel(
+  //         counterId: event.counterId, accessToken: event.accessToken);
+  //     final msg = bookingResponse["msg"];
+  //     logger.i(msg);
+  //     yield BookingInitial(false);
+  //   } catch (error) {
+  //     logger.e(error);
+  //     yield BookingInitial(true);
+  //   }
+  // }
 }

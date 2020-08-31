@@ -33,7 +33,7 @@ class SubscriberListItem extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   child: CachedNetworkImage(
                     imageUrl: subscriber.imgURL != null
-                        ? '$baseURL/user/profileimage/${subscriber.imgURL}'
+                        ? subscriber.imgURL
                         : 'https://dontwaitapp.co/img/bank1080.png',
                     httpHeaders: {
                       HttpHeaders.authorizationHeader:
