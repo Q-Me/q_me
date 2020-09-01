@@ -8,7 +8,9 @@
 .buildlog/
 .history
 .svn/
-
+--obfuscate
+--split-per-abi
+android\key.properties
 # IntelliJ related
 *.iml
 *.ipr
@@ -46,4 +48,3 @@ API\ FORMAT.json
 /.dart_tool/
 /.idea/
 /.vscode/* 
-/android/key.properties
