@@ -17,11 +17,13 @@ class UserRepository {
     final String accessToken = await getAccessTokenFromStorage();
     final response = await _helper.post(kProfile,
         headers: {HttpHeaders.authorizationHeader: bearerToken(accessToken)});
-    return UserData(
+    final userData = UserData(
       name: response["name"],
       phone: response["phone"],
       email: response["email"],
     );
+    await storeUserData(userData);
+    return userData;
   }
 
   Future<String> accessTokenFromApi() async {
@@ -44,7 +46,7 @@ class UserRepository {
   Future<Map<String, dynamic>> signIn(Map<String, String> formData) async {
     final response = await _helper.post(kSignIn, req: formData);
     await storeUserData(UserData.fromJson(response));
-
+    await fetchProfile();
     return response;
   }
 
@@ -57,12 +59,14 @@ class UserRepository {
       },
     );
     await storeUserData(UserData.fromJson(response));
+    await fetchProfile();
     return response;
   }
 
   Future<Map> signInWithOtp(String idToken) async {
     final response = await _helper.post(signInOtpUrl, req: {'token': idToken});
     await storeUserData(UserData.fromJson(response));
+    await fetchProfile();
     return response;
   }
 
