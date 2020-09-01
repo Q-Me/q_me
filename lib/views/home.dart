@@ -25,6 +25,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  PageController pageController ;
   SubscribersBloc _bloc;
   bool _enabled;
   int _selectedIndex = 0;
@@ -32,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      pageController.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.ease);
       logger.d('Navigation bar index: $_selectedIndex');
     });
   }
@@ -41,6 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    pageController = PageController(
+    initialPage: 0,
+);
     _bloc = SubscribersBloc();
     _enabled = true;
     super.initState();
@@ -98,7 +103,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final offset = MediaQuery.of(context).size.width / 20;
     return SafeArea(
       child: Scaffold(
-        body: [
+        body: PageView(
+           controller: pageController,
+      onPageChanged: (index) {
+         setState(() {
+      _selectedIndex = index;
+    });},
+          children: <Widget>
+        [
           SingleChildScrollView(
             physics: ScrollPhysics(),
             child: Padding(
@@ -223,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
           //   ],
           // ),
           MenuScreen(),
-        ].elementAt(_selectedIndex),
+        ]),
         bottomNavigationBar: CupertinoTabBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
