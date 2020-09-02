@@ -1,31 +1,12 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:qme/api/kAPI.dart';
+import 'package:qme/utilities/logger.dart';
 
-Subscribers subscribersFromJson(String str) =>
-    Subscribers.fromJson(json.decode(str));
+Subscriber subscriberFromJson(String str) =>
+    Subscriber.fromJson(json.decode(str));
 
-class Subscribers {
-  Subscribers({
-    this.list,
-  });
-
-  List<Subscriber> list;
-
-  factory Subscribers.fromJson(Map<String, dynamic> json) {
-    return Subscribers(
-      list: List<Subscriber>.from(json["subscriber"].map((x) {
-        return Subscriber.fromJson(Map<String, dynamic>.from(x));
-      })),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        "subscriber": List<dynamic>.from(list.map((x) => x.toJson())),
-      };
-}
-
-class Subscriber extends ChangeNotifier {
+class Subscriber {
   String id,
       name,
       description,
@@ -39,7 +20,7 @@ class Subscriber extends ChangeNotifier {
   double latitude, longitude;
   bool verified;
   List<String> displayImages, tags;
-  int rating;
+  double rating;
 
   Subscriber({
     this.id,
@@ -67,6 +48,16 @@ class Subscriber extends ChangeNotifier {
           ? "${double.parse(json['distance'])} km"
           : "${double.parse(json['distance']) * 1000} m";
     }
+    logger.d(json);
+    final String imgUrl = '$baseURL/user/profileimage/${json["profileImage"]}';
+    List<String> displayImages = [imgUrl];
+
+    if (json['displayImages'] != null) {
+      displayImages.addAll(List.from(json["displayImages"])
+          .map((imgName) => '$baseURL/user/displayimage/$imgName')
+          .toList());
+    }
+    // logger.d(displayImages.toString());
     return Subscriber(
       id: json["id"],
       name: json["name"],
@@ -74,7 +65,7 @@ class Subscriber extends ChangeNotifier {
       email: json["email"],
       phone: json["phone"],
       address: json["address"],
-      imgURL: json["profileImage"],
+      imgURL: imgUrl,
       latitude: json["latitude"] != null
           ? double.parse(json["latitude"].toString())
           : null,
@@ -87,9 +78,7 @@ class Subscriber extends ChangeNotifier {
           : json["description"],
       category: json["category"],
       distance: distance,
-      displayImages: json["displayImages"] != null
-          ? List<String>.from(json["displayImages"])
-          : null,
+      displayImages: displayImages,
       // tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
       rating: json["rating"],
     );
