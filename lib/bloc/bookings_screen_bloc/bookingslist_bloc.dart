@@ -43,7 +43,7 @@ class BookingslistBloc extends Bloc<BookingslistEvent, BookingslistState> {
       final List<Appointment> response =
           await UserRepository().fetchAppointments(statusList);
       if (response.length != 0) {
-        logger.i(response[response.length - 1].counterId);
+        // logger.i(response[response.length - 1].counterId);
       }
       yield BookingsListSuccess(response);
     } catch (e) {
