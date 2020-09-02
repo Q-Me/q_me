@@ -31,17 +31,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
     double w = MediaQuery.of(context).size.width;
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-      floatingActionButton: IconButton(
-          icon: IconShadowWidget(
-            Icon(
-              Icons.arrow_back,
-              color: Colors.black,
-            ),
-            shadowColor: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          }),
+      floatingActionButton: BackButton(),
       body: BlocProvider<SubscriberBloc>(
         create: (context) {
           SubscriberBloc _bloc = SubscriberBloc(widget.subscriber);
@@ -69,13 +59,13 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
                   );
                 }
                 if (state is SubscriberScreenReady) {
-                  print('images length : ${state.images.length}');
-
                   return Container(
                     height: h * 0.4,
                     width: MediaQuery.of(context).size.width,
                     child: SubscriberImages(
-                        images: state.images, accessToken: state.accessToken),
+                      images: state.images,
+                      accessToken: state.accessToken,
+                    ),
                   );
                 }
                 if (state is SubscriberError) {
@@ -91,9 +81,7 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
               },
             ),
             Container(
-              height: h * 0.4,
               padding: EdgeInsets.only(left: 20, right: 20, top: 20),
-              width: w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
@@ -101,66 +89,46 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
               ),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SubscriberHeaderInfo(
-                        subscriber: widget.subscriber,
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(5),
-                        child: SubscriberStarRating(
-                          subscriber: widget.subscriber,
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  SubscriberServices(
-                    description: widget.subscriber.description,
-                  ),
-                  SizedBox(height: 10),
-                  CheckAvailableSlotsButton(
-                    subscriber: widget.subscriber,
-                  ),
+                  SubscriberHeaderInfo(widget.subscriber),
+                  CheckAvailableSlotsButton(subscriber: widget.subscriber),
                   SizedBox(height: 10),
                   Divider(thickness: 3),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Ratings and Reviews',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(
+                        'Ratings and Reviews',
+                        textAlign: TextAlign.left,
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
                     ],
                   ),
-                  Expanded(
-                    child: BlocBuilder<SubscriberBloc, SubscriberState>(
-                      builder: (context, state) {
-                        if (state is SubscriberLoading ||
-                            state is SubscriberReady) {
-                          return Container(
-                            height: 50,
-                            width: 50,
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        } else if (state is SubscriberScreenReady) {
-                          return SubscriberReviews(
-                            reviews: state.review,
-                          );
-                        } else if (state is SubscriberError) {
-                          return Error(
-                            errorMessage: "Could Not Load Reviews",
-                            onRetryPressed: () {
-                              BlocProvider.of<SubscriberBloc>(context).add(
-                                  ProfileInitialEvent(
-                                      subscriber: widget.subscriber));
-                            },
-                          );
-                        } else {
-                          return Text("Undefined State");
-                        }
-                      },
-                    ),
+                  BlocBuilder<SubscriberBloc, SubscriberState>(
+                    builder: (context, state) {
+                      if (state is SubscriberLoading ||
+                          state is SubscriberReady) {
+                        return Container(
+                          height: 50,
+                          width: 50,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      } else if (state is SubscriberScreenReady) {
+                        return SubscriberReviews(
+                          reviews: state.review,
+                        );
+                      } else if (state is SubscriberError) {
+                        return Error(
+                          errorMessage: "Could Not Load Reviews",
+                          onRetryPressed: () {
+                            BlocProvider.of<SubscriberBloc>(context).add(
+                                ProfileInitialEvent(
+                                    subscriber: widget.subscriber));
+                          },
+                        );
+                      } else {
+                        return Text("Undefined State");
+                      }
+                    },
                   )
                 ],
               ),
@@ -169,6 +137,27 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
         ),
       ),
     );
+  }
+}
+
+class BackButton extends StatelessWidget {
+  const BackButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        icon: IconShadowWidget(
+          Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+          ),
+          shadowColor: Colors.white,
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        });
   }
 }
 
@@ -213,24 +202,45 @@ class CheckAvailableSlotsButton extends StatelessWidget {
 
 class SubscriberHeaderInfo extends StatelessWidget {
   final Subscriber subscriber;
-  SubscriberHeaderInfo({this.subscriber});
+  SubscriberHeaderInfo(this.subscriber);
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "${subscriber.name}",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${subscriber.name}",
+                  // style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                SizedBox(height: 5),
+                Container(
+                  child: Text(
+                    "${subscriber.address}",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              padding: EdgeInsets.all(5),
+              child: SubscriberStarRating(
+                subscriber: subscriber,
+              ),
+            )
+          ],
         ),
-        SizedBox(
-          height: 5,
+        SizedBox(height: 10),
+        SubscriberServices(
+          description: subscriber.description,
         ),
-        Text(
-          "${subscriber.address}",
-          textAlign: TextAlign.left,
-          style: TextStyle(color: Colors.grey),
-        ),
+        SizedBox(height: 10),
       ],
     );
   }
@@ -244,17 +254,16 @@ class SubscriberServices extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Divider(thickness: 3),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              children: [Text(description == "NULL" ? " " : "$description")],
-            ),
-            // Text("learn more")
-          ],
-        ),
+        description == ""
+            ? Text(
+                description,
+                textAlign: TextAlign.left,
+              )
+            : Container(),
+        // TODO Add services based on tags here
       ],
     );
   }
@@ -268,7 +277,7 @@ class SubscriberImages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('SubscriberBloc Access Token:$accessToken');
+    // logger.i('SubscriberBloc Access Token:$accessToken');
     return SizedBox(
       width: 10,
       height: 50,
