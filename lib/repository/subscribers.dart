@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
 import 'package:qme/model/review.dart';
 import 'package:qme/utilities/logger.dart';
 
@@ -54,7 +53,7 @@ class SubscriberRepository {
     final response = await _helper.post(
       '/user/rating/subscriberrating',
       req: {"subscriber_id": subscriberId},
-      headers: {'Authorization': 'Bearer $accessToken'},
+      authToken: accessToken,
     );
     List<Review> reviews =
         List.from(response["rating"]).map((e) => Review.fromJson(e)).toList();
