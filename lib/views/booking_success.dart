@@ -1,5 +1,6 @@
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:qme/widgets/button.dart';
 
 class SuccessScreenArguments {
   final String otp;
@@ -55,7 +56,15 @@ class _BookingSuccessState extends State<BookingSuccess> {
               letterSpacing: 12,
               fontWeight: FontWeight.w800,
             ),
-          )
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          ThemedSolidButton(
+              text: "Nice!",
+              buttonFunction: () {
+                Navigator.pop(context);
+              })
         ],
       ),
     ));

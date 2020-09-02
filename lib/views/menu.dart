@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hive/hive.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    Box box = Hive.box("user");
     return SafeArea(
         child: Scaffold(
       backgroundColor: Color.fromRGBO(9, 79, 239, 1),
@@ -40,7 +42,7 @@ class MenuScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      "Dhushyanth",
+                      "${box.get("name")}",
                       style: TextStyle(fontSize: 30),
                     ),
                     _listItem(
