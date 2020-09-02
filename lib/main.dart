@@ -60,6 +60,13 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       onGenerateRoute: router.generateRoute,
       initialRoute: initialHome,
+      routes: {
+        HomeScreen.id: (context) => HomeScreen(
+              args: HomeScreenArguments(
+                selectedIndex: 0,
+              ),
+            ),
+      },
       navigatorObservers: <NavigatorObserver>[
         AnalyticsService().getAnalyticsObserver(),
       ],

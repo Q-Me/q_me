@@ -43,8 +43,9 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
 
     case HomeScreen.id:
+      final HomeScreenArguments arguments = settings.arguments;
       return MaterialPageRoute(
-        builder: (context) => HomeScreen(),
+        builder: (context) => HomeScreen(args: arguments,),
         settings: RouteSettings(name: HomeScreen.id),
       );
 

@@ -8,6 +8,7 @@ import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointment.dart';
+import 'package:qme/views/home.dart';
 import 'package:qme/widgets/calenderStrip.dart';
 import 'package:intl/intl.dart';
 
@@ -268,7 +269,9 @@ class ActionButton extends StatelessWidget {
             onPressed: state is SelectedSlot || state is BookedSlot
                 ? () {
                     if (state is BookedSlot) {
-                      // TODO Go to my bookings view with this slot
+                      logger.d("pushing to homescreen");
+                      Navigator.pushNamed(context, HomeScreen.id,
+                          arguments: HomeScreenArguments(selectedIndex: 2));
                       logger.d("${Hive.box("user").get("name")}");
                       return;
                     }

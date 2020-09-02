@@ -18,8 +18,16 @@ import '../widgets/error.dart';
 import '../widgets/headerHome.dart';
 import '../widgets/loader.dart';
 
+class HomeScreenArguments {
+  final int selectedIndex;
+
+  HomeScreenArguments({this.selectedIndex});
+}
+
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
+  final HomeScreenArguments args;
+  const HomeScreen({Key key, this.args}) : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -27,7 +35,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   SubscribersBloc _bloc;
   bool _enabled;
-  int _selectedIndex = 0;
+  int get index => widget.args.selectedIndex;
+  int _selectedIndex;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -50,6 +59,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _fcmToken = token;
       verifyFcmTokenChange(_fcmToken);
     });
+    logger.i("index : " + index.toString());
+    if (index == null) {
+      _selectedIndex = 0;
+    } else {
+      _selectedIndex = index;
+    }
   }
 
   void verifyFcmTokenChange(String _fcmToken) async {
