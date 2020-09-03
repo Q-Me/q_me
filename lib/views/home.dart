@@ -18,18 +18,10 @@ import '../widgets/error.dart';
 import '../widgets/headerHome.dart';
 import '../widgets/loader.dart';
 
-class HomeScreenArguments {
-  final int selectedIndex;
-
-  const HomeScreenArguments({this.selectedIndex});
-}
-
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
-  final HomeScreenArguments args;
   const HomeScreen({
     Key key,
-    this.args = const HomeScreenArguments(selectedIndex: 0),
   }) : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -40,10 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
   SubscribersBloc _bloc;
   bool _enabled;
   int _selectedIndex;
+  Box indexOfPage;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      indexOfPage.put("index", index);
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
       logger.d('Navigation bar index: $_selectedIndex');
@@ -55,7 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    _selectedIndex = widget.args.selectedIndex;
+    indexOfPage = Hive.box("index");
+    _selectedIndex = indexOfPage.get("index");
     pageController = PageController(
       initialPage: _selectedIndex,
     );

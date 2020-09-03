@@ -43,10 +43,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
 
     case HomeScreen.id:
-      final HomeScreenArguments arguments = settings.arguments;
-      logger.d('Home with index:${arguments.selectedIndex}');
       return MaterialPageRoute(
-        builder: (context) => HomeScreen(args: arguments),
+        builder: (context) => HomeScreen(),
         settings: RouteSettings(name: HomeScreen.id),
       );
 
@@ -112,9 +110,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
 
     default:
-      final HomeScreenArguments arguments = settings.arguments;
       return MaterialPageRoute(
-        builder: (context) => HomeScreen(args: arguments,),
+        builder: (context) => HomeScreen(),
         settings: RouteSettings(name: HomeScreen.id),
       );
   }

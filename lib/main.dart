@@ -23,12 +23,15 @@ import 'package:qme/views/noInternet.dart';
 
 String initialHome = IntroScreen.id;
 bool firstLogin;
+Box indexOfHomeScreen;
 
 void main() async {
   // Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Box box = await Hive.openBox("user");
+  indexOfHomeScreen = await Hive.openBox("index");
+  indexOfHomeScreen.put("index", 0);
   firstLogin = await box.get('firstLogin');
   if (firstLogin == false) initialHome = SignInScreen.id;
 
@@ -61,11 +64,7 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: router.generateRoute,
       initialRoute: initialHome,
       routes: {
-        HomeScreen.id: (context) => HomeScreen(
-              args: HomeScreenArguments(
-                selectedIndex: 0,
-              ),
-            ),
+        HomeScreen.id: (context) => HomeScreen(),
       },
       navigatorObservers: <NavigatorObserver>[
         AnalyticsService().getAnalyticsObserver(),

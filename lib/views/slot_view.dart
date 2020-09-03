@@ -270,9 +270,12 @@ class ActionButton extends StatelessWidget {
                 ? () {
                     if (state is BookedSlot) {
                       logger.d("pushing to homescreen");
-                      Navigator.pushNamed(context, HomeScreen.id,
-                          arguments: HomeScreenArguments(selectedIndex: 2));
-                      logger.d("${Hive.box("user").get("name")}");
+                      Box index = Hive.box("index");
+                      index.put("index", 1);
+                      Navigator.pushNamed(
+                        context,
+                        HomeScreen.id,
+                      );
                       return;
                     }
                     if (state is SelectedSlot) {
