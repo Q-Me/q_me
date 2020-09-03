@@ -109,10 +109,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: NoInternetView.id),
       );
 
-    default:
+/*    default:
       return MaterialPageRoute(
         builder: (context) => UndefinedView(name: settings.name),
         settings: RouteSettings(name: '/undefined'),
       );
+      */
   }
 }

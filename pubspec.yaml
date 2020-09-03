@@ -69,6 +69,7 @@ dev_dependencies:
   build_runner: ^1.10.1
   bloc_test: ^7.0.2
 
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -97,6 +98,11 @@ flutter:
    - assets/blue-tick.flr
    - assets/my-bookings.png
    - assets/no-bookings.jpg
+   - assets/images/wantlist.svg  #Business enquiry screen Image
+   - assets/images/gb.svg  #My Profile Screen Image
+   - assets/images/aboutus.svg #About Screen Image
+   - assets/images/contactus.svg #Contact Us Screen Image
+   
   #  - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

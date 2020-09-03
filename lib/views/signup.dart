@@ -88,7 +88,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               UserRepository user = UserRepository();
               formData['name'] =
-                  '${formData['firstName']}|${formData['lastName']}';
+                  '${formData['firstName']}' + " " + '${formData['lastName']}';
               // Make SignUp API call
               Map response;
               try {

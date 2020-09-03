@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/utilities/logger.dart';
+import 'package:qme/utilities/session.dart';
 
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
@@ -40,6 +41,12 @@ class UserRepository {
 
   Future<Map<String, dynamic>> signUp(Map<String, String> formData) async {
     final response = await _helper.post(kSignUp, req: formData);
+    return response;
+  }
+
+  Future<Map> signOut() async {
+    final response = await _helper.post(kSignOut);
+    await clearSession();
     return response;
   }
 
