@@ -29,8 +29,8 @@ class BookingslistBloc extends Bloc<BookingslistEvent, BookingslistState> {
       BookingsListRequested event) async* {
     yield BookingsListLoading();
     List<String> statusList = [];
-    if (event.statusRequired != null) {
-      statusList.add(event.statusRequired);
+    if (event.statusRequired != null && event.statusRequired.length != 0) {
+      statusList = event.statusRequired;
     } else {
       statusList = [
         "CANCELLED ",

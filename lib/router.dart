@@ -111,9 +111,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
 
     default:
+      final HomeScreenArguments arguments = settings.arguments;
       return MaterialPageRoute(
-        builder: (context) => UndefinedView(name: settings.name),
-        settings: RouteSettings(name: '/undefined'),
+        builder: (context) => HomeScreen(args: arguments,),
+        settings: RouteSettings(name: HomeScreen.id),
       );
   }
 }

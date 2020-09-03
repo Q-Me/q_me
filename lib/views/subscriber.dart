@@ -177,7 +177,7 @@ class CheckAvailableSlotsButton extends StatelessWidget {
       ),
       onPressed: () {
         log('Navigating to subscriber id:${subscriber.id}');
-        Navigator.pushNamed(context, SlotView.id,
+        Navigator.pushReplacementNamed(context, SlotView.id,
             arguments: SlotViewArguments(subscriber: subscriber));
       },
       icon: Icon(

@@ -38,24 +38,28 @@ class MenuScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Padding(
-                padding: EdgeInsets.only(top: 55),
-                child: Column(
-                  children: [
-                    Text(
-                      "${box.get("name")}",
-                      style: TextStyle(fontSize: 30),
-                    ),
-                    _listItem(
-                        "My Profile", FontAwesomeIcons.addressCard, "profile"),
-                    _listItem(
-                        "My Bookings", FontAwesomeIcons.userCheck, "bookings"),
-                    _listItem(
-                        "Need Support?", FontAwesomeIcons.phoneAlt, "support"),
-                    _listItem("Log Out", FontAwesomeIcons.signOutAlt, "logout"),
-                    _listItem("Buisness Enquiry",
-                        FontAwesomeIcons.projectDiagram, "buisness"),
-                    _listItem("About Us", FontAwesomeIcons.infoCircle, "about"),
-                  ],
+                padding: EdgeInsets.only(top: 55, bottom: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(
+                        "${box.get("name")}",
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      _listItem("My Profile", FontAwesomeIcons.addressCard,
+                          "profile"),
+                      _listItem("My Bookings", FontAwesomeIcons.userCheck,
+                          "bookings"),
+                      _listItem("Need Support?", FontAwesomeIcons.phoneAlt,
+                          "support"),
+                      _listItem(
+                          "Log Out", FontAwesomeIcons.signOutAlt, "logout"),
+                      _listItem("Buisness Enquiry",
+                          FontAwesomeIcons.projectDiagram, "buisness"),
+                      _listItem(
+                          "About Us", FontAwesomeIcons.infoCircle, "about"),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -35,7 +35,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   SubscribersBloc _bloc;
   bool _enabled;
-  int get index => widget.args.selectedIndex;
+  int get index => widget.args != null ? widget.args.selectedIndex : 0;
   int _selectedIndex;
 
   void _onItemTapped(int index) {
@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _fcmToken = token;
       verifyFcmTokenChange(_fcmToken);
     });
-    logger.i("index : " + index.toString());
+    // logger.i("index : " + index.toString());
     if (index == null) {
       _selectedIndex = 0;
     } else {

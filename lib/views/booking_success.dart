@@ -60,11 +60,22 @@ class _BookingSuccessState extends State<BookingSuccess> {
           SizedBox(
             height: 15,
           ),
-          ThemedSolidButton(
-              text: "Nice!",
-              buttonFunction: () {
-                Navigator.pop(context);
-              })
+          RaisedButton(
+            splashColor: Colors.white,
+            color: Theme.of(context).primaryColor,
+            onPressed: () => Navigator.pop(context),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+              child: Text(
+                "Nice!",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          )
         ],
       ),
     ));
