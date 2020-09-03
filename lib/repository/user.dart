@@ -44,12 +44,18 @@ class UserRepository {
     return response;
   }
 
-  Future<Map> signOut() async {
-    final response = await _helper.post(kSignOut);
+/*
+  Future<String> signOut() async {
+    final String token = await getAccessTokenFromStorage();
+    print("authToken: $token");
+    final response = await _helper.post(
+      kSignOut,
+      authToken: token,
+    );
     await clearSession();
-    return response;
+    return response["msg"];
   }
-
+*/
   Future<Map<String, dynamic>> signIn(Map<String, String> formData) async {
     final response = await _helper.post(kSignIn, req: formData);
     await storeUserData(UserData.fromJson(response));

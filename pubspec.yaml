@@ -98,10 +98,7 @@ flutter:
    - assets/blue-tick.flr
    - assets/my-bookings.png
    - assets/no-bookings.jpg
-   - assets/images/wantlist.svg  #Business enquiry screen Image
-   - assets/images/gb.svg  #My Profile Screen Image
-   - assets/images/aboutus.svg #About Screen Image
-   - assets/images/contactus.svg #Contact Us Screen Image
+
    
   #  - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see

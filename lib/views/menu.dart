@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:qme/api/app_exceptions.dart';
+import 'package:qme/repository/user.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/about_us.dart';
 import 'package:qme/views/business_enquiry.dart';
@@ -43,25 +46,27 @@ class MenuScreen extends StatelessWidget {
               ),
               child: Padding(
                 padding: EdgeInsets.only(top: 55),
-                child: Column(
-                  children: [
-                    Text(
-                      "Dhushyanth",
-                      style: TextStyle(fontSize: 30),
-                    ),
-                    _listItem("My Profile", FontAwesomeIcons.addressCard,
-                        "profile", context),
-                    _listItem("My Bookings", FontAwesomeIcons.userCheck,
-                        "bookings", context),
-                    _listItem("Need Support?", FontAwesomeIcons.phoneAlt,
-                        "support", context),
-                    _listItem("Buisness Enquiry",
-                        FontAwesomeIcons.projectDiagram, "buisness", context),
-                    _listItem("About Us", FontAwesomeIcons.infoCircle, "about",
-                        context),
-                    _listItem("Log Out", FontAwesomeIcons.signOutAlt, "logout",
-                        context),
-                  ],
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(
+                        "Dhushyanth",
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      _listItem("My Profile", FontAwesomeIcons.addressCard,
+                          "profile", context),
+                      _listItem("My Bookings", FontAwesomeIcons.userCheck,
+                          "bookings", context),
+                      _listItem("Need Support?", FontAwesomeIcons.phoneAlt,
+                          "support", context),
+                      _listItem("Buisness Enquiry",
+                          FontAwesomeIcons.projectDiagram, "buisness", context),
+                      _listItem("About Us", FontAwesomeIcons.infoCircle,
+                          "about", context),
+                      _listItem("Log Out", FontAwesomeIcons.signOutAlt,
+                          "logout", context),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -119,7 +124,11 @@ class MenuScreen extends StatelessWidget {
                     //TODO navigate to corresponding screen
                     break;
                   case "logout":
-                    showDialog(context: context, child: AlertDialogRefactor());
+                    showDialog(
+                        context: context,
+                        child: AlertDialogRefactor(
+                          scaffoldContext: context,
+                        ));
                     break;
                   case "buisness":
                     Navigator.push(context,
@@ -172,8 +181,9 @@ class MenuScreen extends StatelessWidget {
 class AlertDialogRefactor extends StatelessWidget {
   const AlertDialogRefactor({
     Key key,
+    this.scaffoldContext,
   }) : super(key: key);
-
+  final BuildContext scaffoldContext;
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -188,7 +198,22 @@ class AlertDialogRefactor extends StatelessWidget {
               style: TextStyle(color: Colors.redAccent),
             ),
             onPressed: () async {
+              await clearSession();
               Navigator.pushReplacementNamed(context, SignInScreen.id);
+
+              /* try {
+                await UserRepository().signOut();
+                Navigator.pushReplacementNamed(context, SignInScreen.id);
+              } catch (e) {
+                logger.e(e.toString());
+                Navigator.pop(context);
+                Scaffold.of(scaffoldContext).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString()),
+                  ),
+                );
+                return;
+              } */
             }),
         FlatButton(
             onPressed: () {

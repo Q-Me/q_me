@@ -220,8 +220,8 @@ class PinkContainer extends StatelessWidget {
         child: Container(
           height: h * 0.3 * 0.85,
           width: w / 2,
-          child: SvgPicture.asset(
-            "assets/images/wantlist.svg",
+          child: SvgPicture.network(
+            "https://firebasestorage.googleapis.com/v0/b/q-me-user.appspot.com/o/assets%2Fimages%2Fwantlist.svg?alt=media&token=8371ca6e-34c4-4b9a-ac36-09f051ce0428",
           ),
         ),
       ),

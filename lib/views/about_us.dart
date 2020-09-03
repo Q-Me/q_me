@@ -26,8 +26,8 @@ class AboutUsView extends StatelessWidget {
             Container(
               width: w,
               height: h * 0.4,
-              child: SvgPicture.asset(
-                "assets/images/aboutus.svg",
+              child: SvgPicture.network(
+                "https://firebasestorage.googleapis.com/v0/b/q-me-user.appspot.com/o/assets%2Fimages%2Faboutus.svg?alt=media&token=58e74fc7-197e-4c0e-b868-8f499724d378",
               ),
             ),
             SizedBox(

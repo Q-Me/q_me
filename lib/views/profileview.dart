@@ -42,17 +42,17 @@ class ProfileView extends StatelessWidget {
               width: w,
               child: Column(
                 children: [
-                  ProfileScreenInfoTab(
-                    infoDescription: "Username",
-                    info: "$userName",
+                  FieldValue(
+                    label: "Username",
+                    text: "$userName",
                   ),
-                  ProfileScreenInfoTab(
-                    infoDescription: "Phone Number",
-                    info: "$userPhone",
+                  FieldValue(
+                    label: "Phone Number",
+                    text: "$userPhone",
                   ),
-                  ProfileScreenInfoTab(
-                    infoDescription: "Email",
-                    info: "$userEmail",
+                  FieldValue(
+                    label: "Email",
+                    text: "$userEmail",
                   ),
                 ],
               ),
@@ -110,9 +110,8 @@ class BlueTileItems extends StatelessWidget {
             alignment: Alignment.topRight,
             child: Container(
               width: w * 0.28,
-              child: SvgPicture.asset(
-                "assets/images/gb.svg",
-              ),
+              child: SvgPicture.network(
+                  "https://firebasestorage.googleapis.com/v0/b/q-me-user.appspot.com/o/assets%2Fimages%2Fgb.svg?alt=media&token=17889efe-b8b5-4523-9d4c-f2f31df0f2b2"),
             ),
           ),
           //TODO: IMAGE
@@ -122,46 +121,33 @@ class BlueTileItems extends StatelessWidget {
   }
 }
 
-class ProfileScreenInfoTab extends StatelessWidget {
-  const ProfileScreenInfoTab({
+class FieldValue extends StatelessWidget {
+  final String label;
+  final String text;
+
+  FieldValue({
     Key key,
-    @required this.infoDescription,
-    @required this.info,
+    @required this.label,
+    this.text,
   }) : super(key: key);
-  final String infoDescription;
-  final String info;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 5,
+    return TextFormField(
+      controller: TextEditingController(text: text),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.bold,
+          color: Colors.grey,
         ),
-        Text(infoDescription,
-            style: TextStyle(
-                color: Color(0xFFc4c4c4),
-                fontSize: 14,
-                fontWeight: FontWeight.bold)),
-        SizedBox(
-          height: 5,
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).primaryColor),
         ),
-        Text(
-          info,
-          style: TextStyle(
-              color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Divider(
-          height: 2,
-        ),
-        SizedBox(
-          height: 5,
-        ),
-      ],
+        focusColor: Colors.lightBlue,
+        enabled: text != null ? false : true,
+      ),
     );
   }
 }
