@@ -13,13 +13,11 @@ import 'package:qme/views/signup.dart';
 import 'package:qme/views/slot_view.dart';
 import 'package:qme/views/subscriber.dart';
 import 'package:qme/views/booking_success.dart';
-import 'package:qme/views/unknown.dart';
 
 import 'model/subscriber.dart';
 import 'views/profile.dart';
 import 'views/signin.dart';
 import 'views/signup.dart';
-import 'views/unknown.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   logger.d(settings.name);

@@ -1,9 +1,7 @@
-import 'package:bloc/bloc.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:qme/api/app_exceptions.dart';
@@ -11,7 +9,6 @@ import 'package:qme/api/kAPI.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/router.dart' as router;
 import 'package:qme/services/analytics.dart';
-import 'package:qme/simple_bloc_observer.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
@@ -47,6 +44,7 @@ void main() async {
       initialHome = HomeScreen.id;
     }
   } on FetchDataException catch (e) {
+    logger.e(e.toString());
     initialHome = NoInternetView.id;
   }
 

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:qme/api/kAPI.dart';
-import 'package:qme/utilities/logger.dart';
 
 Subscriber subscriberFromJson(String str) =>
     Subscriber.fromJson(json.decode(str));

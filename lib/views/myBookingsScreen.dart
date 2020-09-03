@@ -289,6 +289,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       }, childCount: list.length));
                     }
                   }
+                  return Container();
                 },
               ),
             ],
