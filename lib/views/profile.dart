@@ -148,10 +148,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 itemBuilder: (context, index) {
                                   return CustomListTile(
                                     title: tokens[index].subscriber,
-                                    subtitle: tokens[index]
-                                        .startDateTime
-                                        .toLocal()
-                                        .toString(),
+                                    subtitle:
+                                        tokens[index].startDateTime.toString(),
                                     isOpened: false,
                                     onTap: () {},
                                     w: double.infinity,
