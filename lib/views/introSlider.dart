@@ -45,7 +45,7 @@ class IntroScreenState extends State<IntroScreen> {
     );
     slides.add(
       new Slide(
-          title: "Precation & Time Saving!",
+          title: "Precaution & Time Saving!",
           marginTitle: EdgeInsets.only(top: 400.0),
           styleTitle: TextStyle(
             color: Colors.brown[900],
@@ -53,7 +53,7 @@ class IntroScreenState extends State<IntroScreen> {
             fontSize: 25.0,
           ),
           description:
-              "Avoid the risk of getting infected and safe your precious time by never having to bear the hassle of a queue in this all-in-one App.",
+              "Avoid the risk of getting infected and save your precious time by never having to bear the hassle of a queue in this all-in-one App.",
           marginDescription: EdgeInsets.all(16.0),
           styleDescription: TextStyle(
               color: Colors.brown[900],

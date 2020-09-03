@@ -115,9 +115,36 @@ class _SignInScreenState extends State<SignInScreen>
         verificationFailed: (AuthException exception) {
           logger.d("here is exception error");
           logger.d(exception.message);
-          Scaffold.of(context).showSnackBar(SnackBar(
-              content: Text("Phone number verification failed\n" +
-                  exception.message.toString())));
+          showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text("Alert"),
+                                          content: Text(exception.message.toString()),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                              child: Text("OK"),
+                                              textColor: Colors.white,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              onPressed: () {
+                                                Navigator.pushAndRemoveUntil(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        SignInScreen(),
+                                                  ),
+                                                  (route) => false,
+                                                );
+                                              },
+                                            )
+                                          ],
+                                        );
+                                      });
+          // Scaffold.of(context).showSnackBar(SnackBar(
+          //     content: Text("Phone number verification failed\n" +
+          //         exception.message.toString())));
         },
         codeSent: (String verificationId, [int forceResendingToken]) async {
           // _authVar = _auth;
@@ -324,15 +351,16 @@ class _SignInScreenState extends State<SignInScreen>
                                                               Theme.of(context)
                                                                   .primaryColor,
                                                           onPressed: () async {
+                                                             Navigator.pushNamed(
+                                                                context,
+                                                                OtpPage.id);
                                                             loginUser(
                                                               context,
                                                               countryCodeVal +
                                                                   phone,
                                                             );
 
-                                                            Navigator.pushNamed(
-                                                                context,
-                                                                OtpPage.id);
+                                                           
                                                           },
                                                         ),
                                                       ],
@@ -404,7 +432,7 @@ class _SignInScreenState extends State<SignInScreen>
                                           hintText: "Mobile Number",
                                         ),
                                         keyboardType: TextInputType.number,
-                                        controller: _phoneController,
+                                       // controller: _phoneController,
                                         validator: (value) {
                                           if (value.isEmpty) {
                                             return 'This field cannot be left blank';
