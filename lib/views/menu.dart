@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:qme/views/home.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({Key key}) : super(key: key);
@@ -40,29 +41,29 @@ class MenuScreen extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(top: 55, bottom: 20),
                 child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Text(
-                        "${box.get("name")}",
-                        style: TextStyle(fontSize: 30),
-                      ),
-                      _listItem("My Profile", FontAwesomeIcons.addressCard,
-                          "profile"),
-                      _listItem("My Bookings", FontAwesomeIcons.userCheck,
-                          "bookings"),
-                      _listItem("Need Support?", FontAwesomeIcons.phoneAlt,
-                          "support"),
-                      _listItem(
-                          "Log Out", FontAwesomeIcons.signOutAlt, "logout"),
-                      _listItem("Buisness Enquiry",
-                          FontAwesomeIcons.projectDiagram, "buisness"),
-                      _listItem(
-                          "About Us", FontAwesomeIcons.infoCircle, "about"),
-                    ],
-                  ),
+                 
+                child: Column(
+                  children: [
+                    Text(
+                      "${box.get("name")}",
+                      style: TextStyle(fontSize: 30),
+                    ),
+                    MenuListItem(
+                        "My Profile", FontAwesomeIcons.addressCard, "profile"),
+                    MenuListItem(
+                        "My Bookings", FontAwesomeIcons.userCheck, "bookings"),
+                    MenuListItem(
+                        "Need Support?", FontAwesomeIcons.phoneAlt, "support"),
+                    MenuListItem(
+                        "Log Out", FontAwesomeIcons.signOutAlt, "logout"),
+                    MenuListItem("Buisness Enquiry",
+                        FontAwesomeIcons.projectDiagram, "buisness"),
+                    MenuListItem(
+                        "About Us", FontAwesomeIcons.infoCircle, "about"),
+                  ],
                 ),
               ),
-            ),
+            ),),
             Positioned(
               top: -55,
               child: Container(
@@ -83,8 +84,16 @@ class MenuScreen extends StatelessWidget {
       ),
     ));
   }
+}
 
-  Widget _listItem(String title, IconData icon, String index) {
+class MenuListItem extends StatelessWidget {
+  const MenuListItem(this.title, this.icon, this.index);
+  final String title;
+  final IconData icon;
+  final String index;
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -102,7 +111,9 @@ class MenuScreen extends StatelessWidget {
                     print("profile page");
                     //TODO navigate to corresponding screen
                     break;
-                  case "booking":
+                  case "bookings":
+                    Navigator.pushNamed(context, HomeScreen.id,
+                        arguments: HomeScreenArguments(selectedIndex: 1));
                     //TODO navigate to corresponding screen
                     break;
                   case "support":
