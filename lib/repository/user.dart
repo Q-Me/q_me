@@ -13,14 +13,17 @@ import '../model/user.dart';
 class UserRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
 
-  Future<UserData> fetchProfile(String accessToken) async {
+  Future<UserData> fetchProfile() async {
+    final String accessToken = await getAccessTokenFromStorage();
     final response = await _helper.post(kProfile,
         headers: {HttpHeaders.authorizationHeader: bearerToken(accessToken)});
-    return UserData(
+    final userData = UserData(
       name: response["name"],
       phone: response["phone"],
       email: response["email"],
     );
+    await storeUserData(userData);
+    return userData;
   }
 
   Future<String> accessTokenFromApi() async {
@@ -43,7 +46,7 @@ class UserRepository {
   Future<Map<String, dynamic>> signIn(Map<String, String> formData) async {
     final response = await _helper.post(kSignIn, req: formData);
     await storeUserData(UserData.fromJson(response));
-
+    await fetchProfile();
     return response;
   }
 
@@ -56,12 +59,14 @@ class UserRepository {
       },
     );
     await storeUserData(UserData.fromJson(response));
+    await fetchProfile();
     return response;
   }
 
   Future<Map> signInWithOtp(String idToken) async {
     final response = await _helper.post(signInOtpUrl, req: {'token': idToken});
     await storeUserData(UserData.fromJson(response));
+    await fetchProfile();
     return response;
   }
 
@@ -77,7 +82,7 @@ class UserRepository {
     final msg = response["msg"];
     Box box = await Hive.openBox("user");
     await box.put('fcmToken', msg);
-    
+
     return msg;
   }
 

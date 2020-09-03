@@ -22,6 +22,7 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
+
   cupertino_icons: ^0.1.2
   assorted_layout_widgets: ^1.0.18
   cached_network_image: ^2.2.0+1
@@ -43,7 +44,7 @@ dependencies:
   flutter_svg:
   ordered_set: ^2.0.0
   equatable: ^1.2.0
-  pin_entry_text_field: ^0.1.4
+  pin_code_fields: ^5.0.1
   intro_slider: ^2.3.1
   bloc: ^6.0.0
   flutter_bloc: ^6.0.0
@@ -53,8 +54,11 @@ dependencies:
   checkbox_formfield: ^0.1.0+3
   logger: ^0.9.1
   google_fonts: ^1.1.0
+  font_awesome_flutter: ^8.8.1
+  flare_flutter: ^2.0.6
   icon_shadow: ^1.0.1
   intl: ^0.16.1
+  flutter_rating_bar: ^3.0.1+1
 
 
 dev_dependencies:
@@ -70,6 +74,13 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
+  fonts:
+    - family: Avenir
+      fonts:
+        - asset: fonts/Avenir-85-Heavy.ttf
+    - family: AvenirLight
+      fonts:
+        - asset: fonts/Avenir-35-Light.ttf
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -77,12 +88,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/icons/
-    - assets/temp/otpSvg.svg
-    - assets/temp/users.svg
-    - assets/temp/introSlider1.png
-    - assets/temp/introSlider2.png
-    - assets/temp/introSlider3.png
+   - assets/icons/
+   - assets/temp/otpSvg.svg
+   - assets/temp/users.svg
+   - assets/temp/introSlider1.png
+   - assets/temp/introSlider2.png
+   - assets/temp/introSlider3.png
+   - assets/blue-tick.flr
+   - assets/my-bookings.png
+   - assets/no-bookings.jpg
   #  - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

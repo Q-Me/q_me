@@ -1,11 +1,13 @@
 import 'package:calendar_strip/calendar_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
 import 'package:qme/bloc/slotview_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
+import 'package:qme/views/appointment.dart';
 import 'package:qme/widgets/calenderStrip.dart';
 import 'package:intl/intl.dart';
 
@@ -32,6 +34,7 @@ class _SlotViewState extends State<SlotView> {
   Slot selectedSlot;
   ScrollController gridScroll = ScrollController();
   bool backArrowEnabled = false;
+  Box box = Hive.box("user");
 
   double get h => MediaQuery.of(context).size.height;
   double get w => MediaQuery.of(context).size.width;
@@ -43,30 +46,30 @@ class _SlotViewState extends State<SlotView> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black,
           ),
-          title: Text(
-            'Book a Slot',
-            style: TextStyle(color: Colors.black),
-          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        body: BlocProvider(
-          create: (context) => SlotViewBloc(
-            subscriber: subscriber,
-            selectedDate: DateTime.now(),
-          ),
+        title: Text(
+          'Book a Slot',
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
+      body: BlocProvider(
+        create: (context) => SlotViewBloc(
+          subscriber: subscriber,
+          selectedDate: DateTime.now(),
+        ),
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -74,7 +77,7 @@ class _SlotViewState extends State<SlotView> {
                 height: 100,
                 child: BlocBuilder<SlotViewBloc, SlotViewState>(
                   builder: (context, state) => CalendarStrip(
-                    startDate: DateTime.now().subtract(Duration(days: 2)),
+                    startDate: DateTime.now(),
                     endDate: DateTime.now().add(Duration(days: 7)),
                     onDateSelected: (date) {
                       logger.d('Selected date ${date.toString()}');
@@ -129,7 +132,7 @@ class _SlotViewState extends State<SlotView> {
                           BlocProvider.of<SlotViewBloc>(context)
                               .datedReceptions;
                       if (receptions.length == 0) {
-                        return Center(child: Text('Unavialable'));
+                        return Center(child: Text('Unavailable'));
                       } else if (receptions.length == 1) {}
                       List<Widget> boxesOfSlot = [];
 
@@ -144,7 +147,7 @@ class _SlotViewState extends State<SlotView> {
                               color = Colors.red;
                             } else if (state is SelectedSlot &&
                                 state.slot == slot) {
-                              color = Colors.blue;
+                              color = Theme.of(context).primaryColor;
                             } else if (!reception.availableForBooking) {
                               color = Colors.grey;
                             } else {
@@ -200,64 +203,124 @@ class _SlotViewState extends State<SlotView> {
                   listener: (context, state) {},
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 20),
-                    Text(
-                      'Appointment for',
-                      style: Theme.of(context).textTheme.subtitle1,
-                      textAlign: TextAlign.left,
-                    ),
-                    SizedBox(height: 10),
-                    FieldValue(label: 'Full Name', text: 'Piyush Chauhan'),
-                    FieldValue(label: 'Contact No.', text: '+919673582517'),
-                  ],
-                ),
-              ),
+              AppointmentForDetails(box: box),
               SizedBox(height: 20),
-              Center(
-                child: BlocBuilder<SlotViewBloc, SlotViewState>(
-                  builder: (context, state) {
-                    return RaisedButton(
-                      onPressed: state is SelectedSlot || state is BookedSlot
-                          ? () {
-                              if (state is BookedSlot) {
-                                // TODO Go to my bookings view with this slot
-                                return;
-                              }
-                              if (state is SelectedSlot) {
-                                // TODO Go to appointment view
-                                Slot slot = state.slot;
-                                Reception recepion = state.reception;
-                                Subscriber subscriber = state.subcriber;
-                                return;
-                              }
-                            }
-                          : null,
-                      color: state is BookedSlot
-                          ? Colors.green
-                          : Theme.of(context).primaryColor,
-                      child: !(state is BookedSlot)
-                          ? Container(
-                              width: MediaQuery.of(context).size.width - 100,
-                              height: 40,
-                              child: Center(child: Text('Book Appointment')),
-                            )
-                          : Container(
-                              width: MediaQuery.of(context).size.width - 100,
-                              height: 40,
-                              child: Center(child: Text('Already Booked')),
-                            ),
-                    );
-                  },
-                ),
-              ),
+              ActionButton(),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AppointmentForDetails extends StatelessWidget {
+  const AppointmentForDetails({
+    Key key,
+    @required this.box,
+  }) : super(key: key);
+
+  final Box box;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 20),
+          Text(
+            'Appointment for',
+            style: Theme.of(context).textTheme.subtitle1,
+            textAlign: TextAlign.left,
+          ),
+          SizedBox(height: 10),
+          FieldValue(
+            label: 'Full Name',
+            text: "${box.get("name")}",
+          ),
+          FieldValue(
+            label: 'Contact No.',
+            text: '${box.get("phone")}',
+          ),
+          // TODO FieldValue(label: 'Note'),
+        ],
+      ),
+    );
+  }
+}
+
+class ActionButton extends StatelessWidget {
+  const ActionButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: BlocBuilder<SlotViewBloc, SlotViewState>(
+        builder: (context, state) {
+          return RaisedButton(
+            splashColor: Colors.white,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: state is SelectedSlot || state is BookedSlot
+                ? () {
+                    if (state is BookedSlot) {
+                      // TODO Go to my bookings view with this slot
+                      logger.d("${Hive.box("user").get("name")}");
+                      return;
+                    }
+                    if (state is SelectedSlot) {
+                      // Go to appointment view
+                      Slot slot = state.slot;
+                      Reception reception = state.reception;
+                      Subscriber subscriber = state.subcriber;
+                      Navigator.pushReplacementNamed(
+                        context,
+                        AppointmentScreen.id,
+                        arguments: ApppointmentScreenArguments(
+                          reception: reception,
+                          slot: slot,
+                          subscriber: subscriber,
+                        ),
+                      );
+                    }
+                  }
+                : null,
+            color: state is BookedSlot
+                ? Colors.green
+                : Theme.of(context).primaryColor,
+            child: !(state is BookedSlot)
+                ? Container(
+                    width: MediaQuery.of(context).size.width - 100,
+                    height: 60,
+                    child: Center(
+                      child: Text(
+                        'Book Appointment',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(
+                    width: MediaQuery.of(context).size.width - 100,
+                    height: 60,
+                    child: Center(
+                      child: Text(
+                        'Already Booked',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+          );
+        },
       ),
     );
   }
@@ -270,7 +333,7 @@ class FieldValue extends StatelessWidget {
   FieldValue({
     Key key,
     @required this.label,
-    @required this.text,
+    this.text,
   }) : super(key: key);
 
   @override
@@ -285,10 +348,10 @@ class FieldValue extends StatelessWidget {
           color: Colors.grey,
         ),
         focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.green),
+          borderSide: BorderSide(color: Theme.of(context).primaryColor),
         ),
         focusColor: Colors.lightBlue,
-        enabled: false,
+        enabled: text != null ? false : true,
       ),
     );
   }
@@ -306,12 +369,13 @@ class SlotBox extends StatelessWidget {
       child: Center(
         child: Text(
           DateFormat.jm().format(slot.startTime),
-          style: Theme.of(context).textTheme.bodyText1,
+          style: TextStyle(
+              color: color == Colors.white ? Colors.black : Colors.white),
         ),
       ),
       decoration: BoxDecoration(
         color: color ?? Colors.white,
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Color(0x29000000),
