@@ -246,9 +246,12 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       return SliverFillRemaining(
                         hasScrollBody: false,
                         child: Center(
-                          child: Text(
-                            "No Entries available for your request",
-                            style: TextStyle(fontSize: 20),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "No Entries available for your request",
+                              style: TextStyle(fontSize: 20),
+                            ),
                           ),
                         ),
                       );
