@@ -46,27 +46,25 @@ class MenuScreen extends StatelessWidget {
               ),
               child: Padding(
                 padding: EdgeInsets.only(top: 55),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Text(
-                        "Dhushyanth",
-                        style: TextStyle(fontSize: 30),
-                      ),
-                      _listItem("My Profile", FontAwesomeIcons.addressCard,
-                          "profile", context),
-                      _listItem("My Bookings", FontAwesomeIcons.userCheck,
-                          "bookings", context),
-                      _listItem("Need Support?", FontAwesomeIcons.phoneAlt,
-                          "support", context),
-                      _listItem("Buisness Enquiry",
-                          FontAwesomeIcons.projectDiagram, "buisness", context),
-                      _listItem("About Us", FontAwesomeIcons.infoCircle,
-                          "about", context),
-                      _listItem("Log Out", FontAwesomeIcons.signOutAlt,
-                          "logout", context),
-                    ],
-                  ),
+                child: Column(
+                  children: [
+                    Text(
+                      "Dhushyanth",
+                      style: TextStyle(fontSize: 30),
+                    ),
+                    _listItem("My Profile", FontAwesomeIcons.addressCard,
+                        "profile", context),
+                    _listItem("My Bookings", FontAwesomeIcons.userCheck,
+                        "bookings", context),
+                    _listItem("Need Support?", FontAwesomeIcons.phoneAlt,
+                        "support", context),
+                    _listItem("Buisness Enquiry",
+                        FontAwesomeIcons.projectDiagram, "buisness", context),
+                    _listItem("About Us", FontAwesomeIcons.infoCircle, "about",
+                        context),
+                    _listItem("Log Out", FontAwesomeIcons.signOutAlt, "logout",
+                        context),
+                  ],
                 ),
               ),
             ),

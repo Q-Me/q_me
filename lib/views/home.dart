@@ -25,6 +25,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  PageController pageController;
   SubscribersBloc _bloc;
   bool _enabled;
   int _selectedIndex = 0;
@@ -32,6 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      pageController.animateToPage(index,
+          duration: Duration(milliseconds: 500), curve: Curves.ease);
       logger.d('Navigation bar index: $_selectedIndex');
     });
   }
@@ -41,6 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    pageController = PageController(
+      initialPage: 0,
+    );
     _bloc = SubscribersBloc();
     _enabled = true;
     super.initState();
@@ -98,132 +104,143 @@ class _HomeScreenState extends State<HomeScreen> {
     final offset = MediaQuery.of(context).size.width / 20;
     return SafeArea(
       child: Scaffold(
-        body: [
-          SingleChildScrollView(
-            physics: ScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: offset),
-              child: ChangeNotifierProvider.value(
-                value: _bloc,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Header(),
-                    Column(
+        body: PageView(
+            controller: pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            children: <Widget>[
+              SingleChildScrollView(
+                physics: ScrollPhysics(),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: offset),
+                  child: ChangeNotifierProvider.value(
+                    value: _bloc,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
+                        const Header(),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            const Text(
-                              'Hello!',
-                              style: TextStyle(
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Text(
-                                'Let\'s save some of your time and effort.'),
-                            const SizedBox(height: 10),
-                            /*SearchBox(),*/
-                            /*
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                const Text(
+                                  'Hello!',
+                                  style: TextStyle(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Text(
+                                    'Let\'s save some of your time and effort.'),
+                                const SizedBox(height: 10),
+                                /*SearchBox(),*/
+                                /*
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 15),
                         child: Badges(),
                       ),
                       */
+                              ],
+                            ),
+                            Container(
+                              child: const Text(
+                                'Saloons in Patna',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            _bloc.subscriberList != null &&
+                                    _bloc.subscriberList.length != 0
+                                ? ListView.builder(
+                                    itemCount: _bloc.subscriberList.length,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      return SubscriberListItem(
+                                          subscriber:
+                                              _bloc.subscriberList[index]);
+                                    },
+                                  )
+                                : StreamBuilder<ApiResponse<List<Subscriber>>>(
+                                    stream: _bloc.subscribersListStream,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        switch (snapshot.data.status) {
+                                          case Status.LOADING:
+                                            return ShimmerListLoader(_enabled);
+                                            break;
+                                          case Status.COMPLETED:
+                                            _enabled = false;
+                                            if (_bloc.subscriberList.length ==
+                                                0) {
+                                              return Text(
+                                                'Sorry. We found nothing as per your search.',
+                                                maxLines: 3,
+                                                overflow: TextOverflow.clip,
+                                                style: TextStyle(fontSize: 18),
+                                              );
+                                            } else {
+                                              return ListView.builder(
+                                                itemCount:
+                                                    _bloc.subscriberList.length,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                shrinkWrap: true,
+                                                itemBuilder: (context, index) {
+                                                  return Provider.value(
+                                                    value: _bloc.accessToken,
+                                                    child: SubscriberListItem(
+                                                      subscriber:
+                                                          _bloc.subscriberList[
+                                                              index],
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            }
+                                            break;
+                                          case Status.ERROR:
+                                            return Error(
+                                              errorMessage:
+                                                  snapshot.data.message,
+                                              onRetryPressed: () =>
+                                                  _bloc.fetchSubscribersList(),
+                                            );
+                                            break;
+                                          default:
+                                            return Text(
+                                                'Has data but it is invalid');
+                                        }
+                                      } else {
+                                        return Text('No snapshot data');
+                                      }
+                                    }),
                           ],
                         ),
-                        Container(
-                          child: const Text(
-                            'Saloons in Patna',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        _bloc.subscriberList != null &&
-                                _bloc.subscriberList.length != 0
-                            ? ListView.builder(
-                                itemCount: _bloc.subscriberList.length,
-                                physics: NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemBuilder: (context, index) {
-                                  return SubscriberListItem(
-                                      subscriber: _bloc.subscriberList[index]);
-                                },
-                              )
-                            : StreamBuilder<ApiResponse<List<Subscriber>>>(
-                                stream: _bloc.subscribersListStream,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    switch (snapshot.data.status) {
-                                      case Status.LOADING:
-                                        return ShimmerListLoader(_enabled);
-                                        break;
-                                      case Status.COMPLETED:
-                                        _enabled = false;
-                                        if (_bloc.subscriberList.length == 0) {
-                                          return Text(
-                                            'Sorry. We found nothing as per your search.',
-                                            maxLines: 3,
-                                            overflow: TextOverflow.clip,
-                                            style: TextStyle(fontSize: 18),
-                                          );
-                                        } else {
-                                          return ListView.builder(
-                                            itemCount:
-                                                _bloc.subscriberList.length,
-                                            physics:
-                                                NeverScrollableScrollPhysics(),
-                                            shrinkWrap: true,
-                                            itemBuilder: (context, index) {
-                                              return Provider.value(
-                                                value: _bloc.accessToken,
-                                                child: SubscriberListItem(
-                                                  subscriber: _bloc
-                                                      .subscriberList[index],
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        }
-                                        break;
-                                      case Status.ERROR:
-                                        return Error(
-                                          errorMessage: snapshot.data.message,
-                                          onRetryPressed: () =>
-                                              _bloc.fetchSubscribersList(),
-                                        );
-                                        break;
-                                      default:
-                                        return Text(
-                                            'Has data but it is invalid');
-                                    }
-                                  } else {
-                                    return Text('No snapshot data');
-                                  }
-                                }),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-          // AppointmentsHistoryScreen()
-          BookingsScreen(),
-          // Column(
-          //   children: <Widget>[
-          //     Text('Your appointment history'),
-          //     Text('Hello'),
-          //   ],
-          // ),
-          MenuScreen(),
-        ].elementAt(_selectedIndex),
+              // AppointmentsHistoryScreen()
+              BookingsScreen(),
+              // Column(
+              //   children: <Widget>[
+              //     Text('Your appointment history'),
+              //     Text('Hello'),
+              //   ],
+              // ),
+              MenuScreen(),
+            ]),
         bottomNavigationBar: CupertinoTabBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
