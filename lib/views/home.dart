@@ -244,7 +244,9 @@ class _HomeScreenState extends State<HomeScreen> {
               //     Text('Hello'),
               //   ],
               // ),
-              MenuScreen(),
+              MenuScreen(
+                controller: pageController,
+              ),
             ]),
         bottomNavigationBar: CupertinoTabBar(
           currentIndex: _selectedIndex,

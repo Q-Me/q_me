@@ -4,8 +4,11 @@ import 'package:hive/hive.dart';
 import 'package:qme/views/home.dart';
 
 class MenuScreen extends StatelessWidget {
-  const MenuScreen({Key key}) : super(key: key);
-
+  const MenuScreen({
+    Key key,
+    @required this.controller,
+  }) : super(key: key);
+  final PageController controller;
   @override
   Widget build(BuildContext context) {
     Box box = Hive.box("user");
@@ -41,29 +44,53 @@ class MenuScreen extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(top: 55, bottom: 20),
                 child: SingleChildScrollView(
-                 
-                child: Column(
-                  children: [
-                    Text(
-                      "${box.get("name")}",
-                      style: TextStyle(fontSize: 30),
-                    ),
-                    MenuListItem(
-                        "My Profile", FontAwesomeIcons.addressCard, "profile"),
-                    MenuListItem(
-                        "My Bookings", FontAwesomeIcons.userCheck, "bookings"),
-                    MenuListItem(
-                        "Need Support?", FontAwesomeIcons.phoneAlt, "support"),
-                    MenuListItem(
-                        "Log Out", FontAwesomeIcons.signOutAlt, "logout"),
-                    MenuListItem("Buisness Enquiry",
-                        FontAwesomeIcons.projectDiagram, "buisness"),
-                    MenuListItem(
-                        "About Us", FontAwesomeIcons.infoCircle, "about"),
-                  ],
+                  child: Column(
+                    children: [
+                      Text(
+                        "${box.get("name")}",
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      MenuListItem(
+                        "My Profile",
+                        FontAwesomeIcons.addressCard,
+                        "profile",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "My Bookings",
+                        FontAwesomeIcons.userCheck,
+                        "bookings",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "Need Support?",
+                        FontAwesomeIcons.phoneAlt,
+                        "support",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "Log Out",
+                        FontAwesomeIcons.signOutAlt,
+                        "logout",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "Buisness Enquiry",
+                        FontAwesomeIcons.projectDiagram,
+                        "buisness",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "About Us",
+                        FontAwesomeIcons.infoCircle,
+                        "about",
+                        controller,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),),
+            ),
             Positioned(
               top: -55,
               child: Container(
@@ -87,10 +114,11 @@ class MenuScreen extends StatelessWidget {
 }
 
 class MenuListItem extends StatelessWidget {
-  const MenuListItem(this.title, this.icon, this.index);
+  const MenuListItem(this.title, this.icon, this.index, this.controller);
   final String title;
   final IconData icon;
   final String index;
+  final PageController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -112,8 +140,9 @@ class MenuListItem extends StatelessWidget {
                     //TODO navigate to corresponding screen
                     break;
                   case "bookings":
-                    Navigator.pushNamed(context, HomeScreen.id,
-                        arguments: HomeScreenArguments(selectedIndex: 1));
+                    controller.animateToPage(1,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.ease);
                     //TODO navigate to corresponding screen
                     break;
                   case "support":
