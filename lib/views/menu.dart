@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:qme/api/app_exceptions.dart';
+import 'package:qme/repository/user.dart';
+import 'package:qme/utilities/logger.dart';
+import 'package:qme/utilities/session.dart';
+import 'package:qme/views/about_us.dart';
+import 'package:qme/views/business_enquiry.dart';
+import 'package:qme/views/contact_us.dart';
+import 'package:qme/views/profileview.dart';
+import 'package:qme/views/signin.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({Key key}) : super(key: key);
@@ -43,16 +52,18 @@ class MenuScreen extends StatelessWidget {
                       "Dhushyanth",
                       style: TextStyle(fontSize: 30),
                     ),
-                    _listItem(
-                        "My Profile", FontAwesomeIcons.addressCard, "profile"),
-                    _listItem(
-                        "My Bookings", FontAwesomeIcons.userCheck, "bookings"),
-                    _listItem(
-                        "Need Support?", FontAwesomeIcons.phoneAlt, "support"),
-                    _listItem("Log Out", FontAwesomeIcons.signOutAlt, "logout"),
+                    _listItem("My Profile", FontAwesomeIcons.addressCard,
+                        "profile", context),
+                    _listItem("My Bookings", FontAwesomeIcons.userCheck,
+                        "bookings", context),
+                    _listItem("Need Support?", FontAwesomeIcons.phoneAlt,
+                        "support", context),
                     _listItem("Buisness Enquiry",
-                        FontAwesomeIcons.projectDiagram, "buisness"),
-                    _listItem("About Us", FontAwesomeIcons.infoCircle, "about"),
+                        FontAwesomeIcons.projectDiagram, "buisness", context),
+                    _listItem("About Us", FontAwesomeIcons.infoCircle, "about",
+                        context),
+                    _listItem("Log Out", FontAwesomeIcons.signOutAlt, "logout",
+                        context),
                   ],
                 ),
               ),
@@ -78,7 +89,8 @@ class MenuScreen extends StatelessWidget {
     ));
   }
 
-  Widget _listItem(String title, IconData icon, String index) {
+  Widget _listItem(
+      String title, IconData icon, String index, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -94,22 +106,39 @@ class MenuScreen extends StatelessWidget {
                 switch (index) {
                   case "profile":
                     print("profile page");
-                    //TODO navigate to corresponding screen
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return ProfileView();
+                    }));
                     break;
                   case "booking":
                     //TODO navigate to corresponding screen
                     break;
                   case "support":
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return ContactUsView();
+                    }));
                     //TODO navigate to corresponding screen
                     break;
                   case "logout":
-                    //TODO navigate to corresponding screen
+                    showDialog(
+                        context: context,
+                        child: AlertDialogRefactor(
+                          scaffoldContext: context,
+                        ));
                     break;
                   case "buisness":
-                    //TODO navigate to corresponding screen
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return BusinessEnquiryView();
+                    }));
                     break;
                   case "about":
-                    //TODO navigate to corresponding screen
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return AboutUsView();
+                    }));
                     break;
                 }
               },
@@ -143,6 +172,56 @@ class MenuScreen extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+class AlertDialogRefactor extends StatelessWidget {
+  const AlertDialogRefactor({
+    Key key,
+    this.scaffoldContext,
+  }) : super(key: key);
+  final BuildContext scaffoldContext;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'Do you want to Log out?',
+        style: TextStyle(color: Color(0xFF49565e)),
+      ),
+      actions: [
+        FlatButton(
+            child: Text(
+              'YES',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+            onPressed: () async {
+              await clearSession();
+              Navigator.pushReplacementNamed(context, SignInScreen.id);
+
+              /* try {
+                await UserRepository().signOut();
+                Navigator.pushReplacementNamed(context, SignInScreen.id);
+              } catch (e) {
+                logger.e(e.toString());
+                Navigator.pop(context);
+                Scaffold.of(scaffoldContext).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString()),
+                  ),
+                );
+                return;
+              } */
+            }),
+        FlatButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              'NO',
+              style: TextStyle(color: Color(0xFF49565e)),
+            ))
+      ],
     );
   }
 }
