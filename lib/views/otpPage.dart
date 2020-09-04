@@ -308,18 +308,13 @@ class _OtpPageState extends State<OtpPage> {
                                       });
                                   logger.d(e.code);
                                 } on Exception catch (e) {
-
-                                  String errorMessage;
-                                  e.toString() == "ERROR_INVALID_VERIFICATION_CODE"
-                                  ?errorMessage = "Invalid OTP was entered"
-                                  :errorMessage = errorMessage.toString();
                                   showDialog(
                                       context: context,
                                       barrierDismissible: false,
                                       builder: (context) {
                                         return AlertDialog(
                                           title: Text("Verification Failed"),
-                                          content: Text(errorMessage),
+                                          content: Text(e.toString()),
                                           actions: <Widget>[
                                             FlatButton(
                                               child: Text("OK"),
