@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:qme/api/kAPI.dart';
+import 'package:meta/meta.dart';
 import 'package:qme/utilities/logger.dart';
 
 Subscriber subscriberFromJson(String str) =>
@@ -41,6 +42,16 @@ class Subscriber {
     this.rating,
   });
 
+  double get quantizedRating {
+    final round = rating.round().toDouble();
+    final lowerInt = rating.toInt().toDouble();
+    if (round - lowerInt > 0.5) {
+      return lowerInt + 0.5;
+    } else {
+      return lowerInt;
+    }
+  }
+
   factory Subscriber.fromJson(Map<String, dynamic> json) {
     String distance;
     if (json['distance'] != null) {
@@ -80,7 +91,7 @@ class Subscriber {
       distance: distance,
       displayImages: displayImages,
       // tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
-      rating: json["rating"],
+      rating: json["rating"] == null ? -1.0 : json["rating"],
     );
   }
   Map<String, dynamic> toJson() => {
@@ -100,4 +111,14 @@ class Subscriber {
         "displayImages": [displayImages],
         "tags": [tags],
       };
+}
+
+class CategorySubscriberList {
+  final String categoryName;
+  final List<Subscriber> subscribers;
+
+  CategorySubscriberList({
+    @required this.categoryName,
+    @required this.subscribers,
+  });
 }

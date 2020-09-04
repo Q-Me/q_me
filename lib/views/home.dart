@@ -6,12 +6,33 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:hive/hive.dart';
+import 'package:qme/api/base_helper.dart';
+import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/widgets/searchBox.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+final jsonString = {
+  "id": "nplhS-7cJ",
+  "name": "Piyush Saloon",
+  "description": "NULL",
+  "owner": "Mr. A",
+  "email": "piyush@gmail.com",
+  "phone": "+919876543210",
+  "address": "Mumbai",
+  "longitude": 0,
+  "latitude": 0,
+  "category": "Beauty & Wellness",
+  "tags": null,
+  "profileImage": "Beauty & Wellness.png",
+  "verified": 0,
+  "rating": 3.7,
+  "displayImages": ["nplhS-7cJ_1.jpeg"]
+};
+final subscriber = Subscriber.fromJson(jsonString);
 
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
@@ -119,7 +140,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         color: Colors.white,
-                        child: CategoryBox(),
+                        child: CategoryBox(
+                          CategorySubscriberList(
+                            categoryName: 'Premium Salons',
+                            subscribers: [
+                              subscriber,
+                              subscriber,
+                              subscriber,
+                              subscriber,
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -144,10 +175,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class CategoryBox extends StatelessWidget {
-  const CategoryBox({
+class CategoryBox extends StatefulWidget {
+  const CategoryBox(
+    this.categorySubscriberList, {
     Key key,
   }) : super(key: key);
+
+  final CategorySubscriberList categorySubscriberList;
+
+  @override
+  _CategoryBoxState createState() => _CategoryBoxState();
+}
+
+class _CategoryBoxState extends State<CategoryBox> {
+  ScrollController scrollController;
+
+  @override
+  void initState() {
+    scrollController = ScrollController();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,119 +206,139 @@ class CategoryBox extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Premium Salons',
+                widget.categorySubscriberList.categoryName,
                 style: Theme.of(context).textTheme.headline6,
               ),
-              Icon(Icons.arrow_forward)
+              GestureDetector(
+                onTap: () {
+                  logger.d('Tapped');
+                  /* scrollController.animateTo(
+                    300,
+                    duration: Duration(milliseconds: 200),
+                    curve: Curves.ease,
+                  ); */
+                },
+                child: Icon(Icons.arrow_forward),
+              )
             ],
           ),
         ),
         Expanded(
           child: Container(
             child: ListView.builder(
-              itemCount: 6,
+              itemCount: widget.categorySubscriberList.subscribers.length,
               scrollDirection: Axis.horizontal,
               shrinkWrap: true,
+              controller: scrollController,
               itemBuilder: (context, index) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  // width: 100,
-                  // height: 50,
-                  // color: Colors.red,
-                  decoration: BoxDecoration(
-                      /* boxShadow: [
-                      BoxShadow(
-                        offset: Offset(10, 0),
-                        spreadRadius: 10,
-                        blurRadius: 5,
-                        color: Colors.black26,
-                      )
-                    ], */
-                      ),
-                  child: Column(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                        child: CachedNetworkImage(
-                          imageUrl:
-                              'https://firebasestorage.googleapis.com/v0/b/q-me-user.appspot.com/o/assets%2Fimages%2Flogo512x512.jpeg?alt=media&token=020809bb-b845-4d42-8f3c-f401560db688',
-                          fit: BoxFit.cover,
-                          width: 230,
-                          height: 180,
-                        ),
-                      ),
-                      Container(
-                        width: 230,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(
-                            color: Colors.black26,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(10.0),
-                            bottomRight: Radius.circular(10.0),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(
-                              'sfgsgdgsg',
-                              style: Theme.of(context).textTheme.subtitle1,
-                            ),
-                            Text(
-                              '1234567890123456789012345678901234567890',
-                              maxLines: 1,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .subtitle2
-                                  .copyWith(color: Colors.grey),
-                            ),
-                            // Text('sdgg'),
-                            Row(
-                              children: [
-                                RatingBarIndicator(
-                                  itemSize: 15,
-                                  direction: Axis.horizontal,
-                                  itemCount: 5,
-                                  rating: 3.0,
-                                  itemPadding:
-                                      EdgeInsets.symmetric(horizontal: 1.0),
-                                  itemBuilder: (context, _) => Icon(
-                                    Icons.star,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                  // onRatingUpdate: (double value) {},
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  '4.5/5',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                  ),
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                return SubscriberBox(
+                    widget.categorySubscriberList.subscribers[index]);
               },
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class SubscriberBox extends StatelessWidget {
+  const SubscriberBox(
+    this.subscriber, {
+    Key key,
+  }) : super(key: key);
+  final Subscriber subscriber;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            child: ValueListenableBuilder(
+              valueListenable: Hive.box('user').listenable(),
+              builder: (context, box, widget) => CachedNetworkImage(
+                imageUrl: subscriber.imgURL,
+                fit: BoxFit.cover,
+                httpHeaders: {
+                  HttpHeaders.authorizationHeader:
+                      bearerToken(box.get('accessToken'))
+                },
+                width: 230,
+                height: 180,
+              ),
+            ),
+          ),
+          Container(
+            width: 230,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 2,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: Colors.black26,
+                width: 1.0,
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20.0),
+                bottomRight: Radius.circular(20.0),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  subscriber.name,
+                  maxLines: 1,
+                  style: Theme.of(context).textTheme.subtitle1,
+                ),
+                Text(
+                  subscriber.address,
+                  maxLines: 1,
+                  style: Theme.of(context)
+                      .textTheme
+                      .subtitle2
+                      .copyWith(color: Colors.grey),
+                ),
+                Opacity(
+                  opacity: subscriber.rating <= 0.0 ? 0 : 1,
+                  child: Row(
+                    children: [
+                      RatingBarIndicator(
+                        itemSize: 15,
+                        direction: Axis.horizontal,
+                        itemCount: 5,
+                        rating: subscriber.quantizedRating,
+                        itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                        itemBuilder: (context, _) => Icon(
+                          Icons.star,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        // onRatingUpdate: (double value) {},
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        '${subscriber.rating}/5',
+                        style: TextStyle(
+                          fontSize: 11,
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -291,13 +358,20 @@ class HomeHeader extends StatelessWidget {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: const Text(
-                'Hi!',
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              child: ValueListenableBuilder(
+                valueListenable: Hive.box('user').listenable(keys: ['name']),
+                builder: (context, box, widget) {
+                  final String fullName = box.get('name');
+                  return Text(
+                    'Hi ${fullName.split(" ").elementAt(0)}!',
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 20),
@@ -318,54 +392,6 @@ class HomeHeader extends StatelessWidget {
           child: SearchBox(),
         ),
       ],
-    );
-  }
-}
-
-class DateTile extends StatelessWidget {
-  final int index;
-  final context;
-
-  DateTile(this.context, this.index);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: Colors.grey[100],
-      ),
-      height: 80,
-      width: 60,
-      margin: EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Spacer(
-            flex: 1,
-          ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              'Tue',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              '${index % 31 + 1}',
-              style: TextStyle(
-                fontSize: 42,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
