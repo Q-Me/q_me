@@ -50,7 +50,7 @@ class EmailAndPhoneNumberTiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String phone1 = "+919931059201";
+    const String phone1 = "+91 9931059201";
     const String phone2 = "+91 8340342582";
     const String beEmail = "aman.ks0224@gmail.com";
     _launchURL({String phoneNum, String email}) async {
