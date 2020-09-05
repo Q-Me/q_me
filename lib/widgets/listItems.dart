@@ -3,11 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:qme/bloc/booking_bloc.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
 import 'package:qme/model/user.dart';
-import 'package:qme/repository/appointment.dart';
-import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/review.dart';
 
 class ListItemBooked extends StatelessWidget {

@@ -3,10 +3,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:qme/api/kAPI.dart';
-import 'package:qme/bloc/subscriber_bloc/subscriber_bloc.dart';
 import 'package:qme/bloc/subscribersHome.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/views/subscriber.dart';

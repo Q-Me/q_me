@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart';
 import 'package:qme/repository/subscribers.dart';
 import 'package:qme/utilities/logger.dart';
 
@@ -32,6 +31,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
         review: event.review,
         rating: event.rating,
       );
+      logger.d(response.toString());
       yield ReviewSuccessful();
     } catch (e) {
       logger.e(e.toString());
