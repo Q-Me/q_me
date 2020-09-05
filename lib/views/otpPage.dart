@@ -56,18 +56,17 @@ class _OtpPageState extends State<OtpPage> {
         return logger.d("error in api hit");
       }
     } catch (e) {
-      String errorMessage = e.toMap()["msg"].toString();
-                if(errorMessage == "Invalid Credentials"){
-                  errorMessage = "This number isn't registered. Please register!";
-                }
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text(errorMessage), action:SnackBarAction(
-    label: 'Dismiss',
-    onPressed: () {
-      Navigator.pushNamedAndRemoveUntil(
-              context, SignInScreen.id, (route) => false);
-    },
-  ),));
+      final errorMessage = e.toMap()["msg"].toString();
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(errorMessage),
+        action: SnackBarAction(
+          label: 'Dismiss',
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+                context, SignInScreen.id, (route) => false);
+          },
+        ),
+      ));
       log('Error in signIn API: ' + e.toString());
       return;
     }
@@ -297,10 +296,11 @@ class _OtpPageState extends State<OtpPage> {
                                     logger.d("Some Error occured");
                                   }
                                 } on PlatformException catch (e) {
-                                   String errorMessage;
-                                  e.code.toString() == "ERROR_INVALID_VERIFICATION_CODE"
-                                  ?errorMessage = "Invalid OTP was entered"
-                                  :errorMessage = e.code.toString();
+                                  String errorMessage;
+                                  e.code.toString() ==
+                                          "ERROR_INVALID_VERIFICATION_CODE"
+                                      ? errorMessage = "Invalid OTP was entered"
+                                      : errorMessage = e.code.toString();
                                   showDialog(
                                       context: context,
                                       barrierDismissible: false,
