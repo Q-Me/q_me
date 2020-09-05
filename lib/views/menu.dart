@@ -15,17 +15,20 @@ class MenuScreen extends StatelessWidget {
         child: Scaffold(
       backgroundColor: Color.fromRGBO(9, 79, 239, 1),
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            controller.animateToPage(0,
+                duration: Duration(milliseconds: 500), curve: Curves.ease);
+          },
+          child: Center(
+            child: FaIcon(FontAwesomeIcons.arrowLeft),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
           "Menu",
           style: TextStyle(color: Colors.white),
-        ),
-        leading: GestureDetector(
-          onTap: () {},
-          child: Center(
-            child: FaIcon(FontAwesomeIcons.arrowLeft),
-          ),
         ),
       ),
       body: Container(

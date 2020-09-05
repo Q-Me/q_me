@@ -252,10 +252,11 @@ class _HomeScreenState extends State<HomeScreen> {
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.home)),
-            BottomNavigationBarItem(icon: Icon(Icons.timer)),
-            BottomNavigationBarItem(icon: Icon(Icons.person)),
+            BottomNavigationBarItem(icon: Icon(Icons.home,),),
+            BottomNavigationBarItem(icon: Icon(Icons.timer,),),
+            BottomNavigationBarItem(icon: Icon(Icons.person,),),
           ],
+          activeColor: Theme.of(context).primaryColor,
         ),
       ),
     );

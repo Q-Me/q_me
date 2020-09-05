@@ -6,13 +6,14 @@ import 'package:qme/model/appointment.dart';
 import 'package:qme/widgets/listItems.dart';
 
 class BookingsScreen extends StatefulWidget {
-  BookingsScreen({Key key}) : super(key: key);
-
+  BookingsScreen({Key key, this.controller}) : super(key: key);
+  final PageController controller;
   @override
   _BookingsScreenState createState() => _BookingsScreenState();
 }
 
 class _BookingsScreenState extends State<BookingsScreen> {
+  PageController get controller => widget.controller;
   @override
   Widget build(BuildContext context) {
     var list = List<Appointment>();
@@ -24,15 +25,14 @@ class _BookingsScreenState extends State<BookingsScreen> {
           child: CustomScrollView(
             slivers: <Widget>[
               SliverAppBar(
-                leading: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Center(
-                    child: FaIcon(
-                      FontAwesomeIcons.arrowLeft,
-                      color: Colors.black,
-                    ),
+                leading: Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      controller.animateToPage(0,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.ease);
+                    },
+                    child: FaIcon(FontAwesomeIcons.arrowLeft, color: Colors.black,),
                   ),
                 ),
                 expandedHeight: 200,
@@ -267,23 +267,30 @@ class _BookingsScreenState extends State<BookingsScreen> {
                             slot: list[index].slot.startTime,
                             otp: list[index].otp.toString(),
                             counterId: list[index].counterId,
+                            latitude: list[index].latitude,
+                            longitude: list[index].longitude,
                           );
                         } else if (list[index].slotStatus == "DONE") {
                           return ListItemFinished(
                             name: list[index].subscriberName,
                             location: list[index].address,
                             slot: list[index].slot.startTime,
-                            rating: list[index].rating * 1.0,
+                            rating: list[index].reviewedByUser == 1 ? list[index].userRating * 1.0 : 0.0,
                             counterId: list[index].counterId,
                             subscriberId: list[index].subscriberId,
                             subscriberName: list[index].subscriberName,
                             primaryContext: context,
+                            latitude: list[index].latitude,
+                            longitude: list[index].longitude,
+                            review: list[index].userReview,
                           );
                         } else {
                           return ListItemCancelled(
                             name: list[index].subscriberName,
                             location: list[index].address,
                             slot: list[index].slot.startTime,
+                            latitude: list[index].latitude,
+                            longitude: list[index].longitude,
                           );
                         }
                       }, childCount: list.length));

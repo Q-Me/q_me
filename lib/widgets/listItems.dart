@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/views/review.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ListItemBooked extends StatelessWidget {
   const ListItemBooked({
@@ -16,6 +17,8 @@ class ListItemBooked extends StatelessWidget {
     @required this.otp,
     @required this.counterId,
     @required this.primaryContext,
+    @required this.latitude,
+    @required this.longitude,
   }) : super(key: key);
 
   final String name;
@@ -24,6 +27,8 @@ class ListItemBooked extends StatelessWidget {
   final String otp;
   final String counterId;
   final BuildContext primaryContext;
+  final double latitude;
+  final double longitude;
 
   @override
   Widget build(BuildContext context) {
@@ -32,23 +37,54 @@ class ListItemBooked extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Column(
+          child: Row(
             children: [
-              Text(
-                "$name",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    children: [
+                      Text(
+                        "$name",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "$location",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              Text(
-                "$location",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold),
-              ),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          launch(
+                              'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+                        },
+                        icon: Icon(Icons.pin_drop),
+                        color: Theme.of(context).primaryColor,
+                        iconSize: 30,
+                      ),
+                      Text("View map"),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
@@ -152,16 +188,22 @@ class ListItemFinished extends StatelessWidget {
     @required this.counterId,
     @required this.subscriberName,
     @required this.primaryContext,
+    @required this.latitude,
+    @required this.longitude,
+    @required this.review,
   }) : super(key: key);
 
   final String name;
   final String location;
   final DateTime slot;
   final double rating;
+  final String review;
   final String subscriberId;
   final String counterId;
   final String subscriberName;
   final BuildContext primaryContext;
+  final double latitude;
+  final double longitude;
 
   @override
   Widget build(BuildContext context) {
@@ -170,23 +212,54 @@ class ListItemFinished extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Column(
+          child: Row(
             children: [
-              Text(
-                "$name",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    children: [
+                      Text(
+                        "$name",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "$location",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              Text(
-                "$location",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold),
-              ),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          launch(
+                              'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+                        },
+                        icon: Icon(Icons.pin_drop),
+                        color: Theme.of(context).primaryColor,
+                        iconSize: 30,
+                      ),
+                      Text("View map"),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
@@ -201,7 +274,24 @@ class ListItemFinished extends StatelessWidget {
         ),
         Material(
           child: InkWell(
-            onTap: () {},
+            onTap: () async {
+              await Navigator.pushNamed(
+                context,
+                ReviewScreen.id,
+                arguments: ReviewScreenArguments(
+                  counterId,
+                  subscriberId,
+                  name,
+                  subscriberName,
+                  slot,
+                  rating,
+                  review,
+                  location,
+                ),
+              );
+              BlocProvider.of<BookingslistBloc>(primaryContext)
+                  .add(BookingsListRequested());
+            },
             child: Padding(
               padding: EdgeInsets.all(10),
               child: Row(
@@ -238,21 +328,9 @@ class ListItemFinished extends StatelessWidget {
                             ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        ReviewScreen.id,
-                        arguments: ReviewScreenArguments(
-                            counterId, subscriberId, name, subscriberName, slot),
-                      );
-                      BlocProvider.of<BookingslistBloc>(primaryContext)
-                          .add(BookingsListRequested());
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: FaIcon(FontAwesomeIcons.angleRight),
-                    ),
+                  Padding(
+                    padding: EdgeInsets.all(8),
+                    child: FaIcon(FontAwesomeIcons.angleRight),
                   )
                 ],
               ),
@@ -273,11 +351,15 @@ class ListItemCancelled extends StatelessWidget {
     @required this.name,
     @required this.location,
     @required this.slot,
+    @required this.latitude,
+    @required this.longitude,
   }) : super(key: key);
 
   final String name;
   final String location;
   final DateTime slot;
+  final double latitude;
+  final double longitude;
 
   @override
   Widget build(BuildContext context) {
@@ -286,23 +368,54 @@ class ListItemCancelled extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Column(
+          child: Row(
             children: [
-              Text(
-                "$name",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    children: [
+                      Text(
+                        "$name",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "$location",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              Text(
-                "$location",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold),
-              ),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          launch(
+                              'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+                        },
+                        icon: Icon(Icons.pin_drop),
+                        color: Theme.of(context).primaryColor,
+                        iconSize: 30,
+                      ),
+                      Text("View map"),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
