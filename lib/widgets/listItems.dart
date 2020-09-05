@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/views/review.dart';
@@ -73,8 +74,7 @@ class ListItemBooked extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          launch(
-                              'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+                          MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
                         color: Theme.of(context).primaryColor,
@@ -130,8 +130,7 @@ class ListItemBooked extends StatelessWidget {
                         title: Text("Whoa, Hold On..."),
                         content: Text(
                             "Do you really want to cancel your appointment?"),
-                        actions: <Widget>[
-                          new RaisedButton(
+                        actions: <Widget>[new FlatButton(
                             onPressed: () async {
                               BlocProvider.of<BookingslistBloc>(primaryContext)
                                   .add(
@@ -142,16 +141,17 @@ class ListItemBooked extends StatelessWidget {
                               );
                               Navigator.pop(context);
                             },
-                            child: Text("Yep, I'm sure"),
-                            color: Colors.red[600],
+                            child: Text("Yes", style: TextStyle(color: Theme.of(context).primaryColor,),),
                           ),
                           new RaisedButton(
-                            onPressed: () {
+                            color: Theme.of(context).primaryColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),),
+                            onPressed: () async {
                               Navigator.pop(context);
                             },
-                            child: Text("No, I want my appointment"),
-                            color: Colors.green[600],
-                          )
+                            child: Text("Cancel", style: TextStyle(color: Colors.white,),),
+                          ),
+                          
                         ],
                       );
                     });
@@ -248,8 +248,7 @@ class ListItemFinished extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          launch(
-                              'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+                          MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
                         color: Theme.of(context).primaryColor,
@@ -310,7 +309,7 @@ class ListItemFinished extends StatelessWidget {
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: rating == null
+                      child: rating == null || rating == 0.0
                           ? Text(
                               "You have not rated yet",
                               style: TextStyle(
@@ -318,7 +317,7 @@ class ListItemFinished extends StatelessWidget {
                               ),
                             )
                           : RatingBarIndicator(
-                              itemSize: 30,
+                              itemSize: 20,
                               rating: rating,
                               itemBuilder: (BuildContext context, int index) =>
                                   FaIcon(
@@ -404,8 +403,7 @@ class ListItemCancelled extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          launch(
-                              'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+                          MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
                         color: Theme.of(context).primaryColor,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qme/views/home.dart';
-import 'package:qme/views/profile.dart';
+// import 'package:qme/views/profile.dart';
 import 'package:qme/views/signin.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -16,12 +16,12 @@ class AppDrawer extends StatelessWidget {
             text: 'Home',
             onTap: () => Navigator.pushReplacementNamed(context, HomeScreen.id),
           ),
-          _createDrawerItem(
-            icon: Icons.person,
-            text: 'Profile',
-            onTap: () =>
-                Navigator.pushReplacementNamed(context, ProfileScreen.id),
-          ),
+          // _createDrawerItem(
+          //   icon: Icons.person,
+          //   text: 'Profile',
+          //   onTap: () =>
+          //       Navigator.pushReplacementNamed(context, ProfileScreen.id),
+          // ),
           _createDrawerItem(
               icon: Icons.card_giftcard,
               text: 'Log out',

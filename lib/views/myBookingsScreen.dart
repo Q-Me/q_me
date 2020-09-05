@@ -32,7 +32,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           duration: Duration(milliseconds: 500),
                           curve: Curves.ease);
                     },
-                    child: FaIcon(FontAwesomeIcons.arrowLeft, color: Colors.black,),
+                    child: FaIcon(
+                      FontAwesomeIcons.arrowLeft,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
                 expandedHeight: 200,
@@ -72,12 +75,12 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           ),
                           onSelected: (bool value) {
                             if (value) {
-                              reqList.add("UPCOMING");
+                              reqList = ["UPCOMING"];
                               BlocProvider.of<BookingslistBloc>(context).add(
                                   BookingsListRequested(
                                       statusRequired: reqList));
                             } else {
-                              reqList.remove("UPCOMING");
+                              reqList = [];
                               BlocProvider.of<BookingslistBloc>(context).add(
                                   BookingsListRequested(
                                       statusRequired: reqList));
@@ -98,14 +101,15 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           ),
                           onSelected: (value) {
                             if (value) {
-                              reqList.add("CANCELLED");
-                              reqList.add("CANCELLED BY SUBSCRIBER");
+                              reqList = [
+                                "CANCELLED",
+                                "CANCELLED BY SUBSCRIBER"
+                              ];
                               BlocProvider.of<BookingslistBloc>(context).add(
                                   BookingsListRequested(
                                       statusRequired: reqList));
                             } else {
-                              reqList.remove("CANCELLED");
-                              reqList.remove("CANCELLED BY SUBSCRIBER");
+                              reqList = [];
                               BlocProvider.of<BookingslistBloc>(context).add(
                                   BookingsListRequested(
                                       statusRequired: reqList));
@@ -128,12 +132,12 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           ),
                           onSelected: (value) {
                             if (value) {
-                              reqList.add("DONE");
+                              reqList = ["DONE"];
                               BlocProvider.of<BookingslistBloc>(context).add(
                                   BookingsListRequested(
                                       statusRequired: reqList));
                             } else {
-                              reqList.remove("DONE");
+                              reqList = [];
                               BlocProvider.of<BookingslistBloc>(context).add(
                                   BookingsListRequested(
                                       statusRequired: reqList));
@@ -275,7 +279,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
                             name: list[index].subscriberName,
                             location: list[index].address,
                             slot: list[index].slot.startTime,
-                            rating: list[index].reviewedByUser == 1 ? list[index].userRating * 1.0 : 0.0,
+                            rating: list[index].reviewedByUser == 1
+                                ? list[index].userRating * 1.0
+                                : 0.0,
                             counterId: list[index].counterId,
                             subscriberId: list[index].subscriberId,
                             subscriberName: list[index].subscriberName,
