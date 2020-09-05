@@ -115,10 +115,10 @@ class Subscriber {
 
 class CategorySubscriberList {
   final String categoryName;
-  final List<Subscriber> subscribers;
+  List<Subscriber> subscribers;
 
   CategorySubscriberList({
     @required this.categoryName,
-    @required this.subscribers,
+    this.subscribers = const [],
   });
 }

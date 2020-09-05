@@ -13,10 +13,10 @@ import '../repository/user.dart';
 class SubscriberRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
   String localAccessToken;
-  Future<String> get accessToken async => await getAccessTokenFromStorage();
+  String get accessToken => localAccessToken;
 
   setAccessToken() async {
-    localAccessToken ?? await accessToken;
+    localAccessToken ??= await getAccessTokenFromStorage();
   }
 
   SubscriberRepository({this.localAccessToken}) {
@@ -51,7 +51,7 @@ class SubscriberRepository {
     final response = await _helper.post(
       '/user/getsubscriber',
       req: {"subscriber_id": subscriberId},
-      authToken: await accessToken,
+      authToken: accessToken,
     );
 
     return Subscriber.fromJson(response);
