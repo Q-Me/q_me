@@ -107,10 +107,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: NoInternetView.id),
       );
 
-    default:
+/*    default:
       return MaterialPageRoute(
         builder: (context) => HomeScreen(),
         settings: RouteSettings(name: HomeScreen.id),
       );
+      */
   }
 }
