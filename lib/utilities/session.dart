@@ -15,6 +15,8 @@ Future<void> setSession() async {
 Future<void> clearSession() async {
   Box box = await Hive.openBox("user");
   await box.clear();
+  Box indexBox = await Hive.openBox("index");
+  await indexBox.clear();
 }
 
 void setSessionFromRefreshToken() async {

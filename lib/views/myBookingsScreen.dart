@@ -184,13 +184,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       child: Center(
                         child: Column(
                           children: [
-                            Row(
-                              children: [
-                                Icon(Icons.cancel),
-                                Text(
-                                  "Oops, something went wrong.\nTry retrying...",
-                                ),
-                              ],
+                            Icon(Icons.cancel),
+                            Text(
+                              "Oops, something went wrong.\nTry retrying...\n${state.errorMessage}",
+                              textAlign: TextAlign.center,
                             ),
                             SizedBox(
                               height: 15,
