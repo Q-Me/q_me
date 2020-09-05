@@ -20,6 +20,9 @@ import '../widgets/loader.dart';
 
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
+  const HomeScreen({
+    Key key,
+  }) : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -28,11 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
   PageController pageController;
   SubscribersBloc _bloc;
   bool _enabled;
-  int _selectedIndex = 0;
+  int _selectedIndex;
+  Box indexOfPage;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      indexOfPage.put("index", index);
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
       logger.d('Navigation bar index: $_selectedIndex');
@@ -44,15 +49,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    indexOfPage = Hive.box("index");
+    _selectedIndex = indexOfPage.get("index");
     pageController = PageController(
-      initialPage: 0,
+      initialPage: _selectedIndex,
     );
+
     _bloc = SubscribersBloc();
     _enabled = true;
     super.initState();
     firebaseCloudMessagingListeners();
     _messaging.getToken().then((token) {
-      logger.i("fcmToken: $token");
       _fcmToken = token;
       verifyFcmTokenChange(_fcmToken);
     });
@@ -164,11 +171,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     itemCount: _bloc.subscriberList.length,
                                     physics: NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
-                                    itemBuilder: (context, index) {
-                                      return SubscriberListItem(
-                                          subscriber:
-                                              _bloc.subscriberList[index]);
-                                    },
+                                    itemBuilder: (context, index) =>
+                                        SubscriberListItem(
+                                      subscriber: _bloc.subscriberList[index],
+                                    ),
                                   )
                                 : StreamBuilder<ApiResponse<List<Subscriber>>>(
                                     stream: _bloc.subscribersListStream,
@@ -195,16 +201,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 physics:
                                                     NeverScrollableScrollPhysics(),
                                                 shrinkWrap: true,
-                                                itemBuilder: (context, index) {
-                                                  return Provider.value(
-                                                    value: _bloc.accessToken,
-                                                    child: SubscriberListItem(
-                                                      subscriber:
-                                                          _bloc.subscriberList[
-                                                              index],
-                                                    ),
-                                                  );
-                                                },
+                                                itemBuilder: (context, index) =>
+                                                    Provider.value(
+                                                  value: _bloc.accessToken,
+                                                  child: SubscriberListItem(
+                                                    subscriber: _bloc
+                                                        .subscriberList[index],
+                                                  ),
+                                                ),
                                               );
                                             }
                                             break;
@@ -223,7 +227,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       } else {
                                         return Text('No snapshot data');
                                       }
-                                    }),
+                                    },
+                                  ),
                           ],
                         ),
                       ],
@@ -239,7 +244,9 @@ class _HomeScreenState extends State<HomeScreen> {
               //     Text('Hello'),
               //   ],
               // ),
-              MenuScreen(),
+              MenuScreen(
+                controller: pageController,
+              ),
             ]),
         bottomNavigationBar: CupertinoTabBar(
           currentIndex: _selectedIndex,

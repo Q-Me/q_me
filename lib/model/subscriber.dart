@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:qme/api/kAPI.dart';
-import 'package:qme/utilities/logger.dart';
 
 Subscriber subscriberFromJson(String str) =>
     Subscriber.fromJson(json.decode(str));
@@ -48,7 +47,7 @@ class Subscriber {
           ? "${double.parse(json['distance'])} km"
           : "${double.parse(json['distance']) * 1000} m";
     }
-    logger.d(json);
+    // logger.d(json);
     final String imgUrl = '$baseURL/user/profileimage/${json["profileImage"]}';
     List<String> displayImages = [imgUrl];
 

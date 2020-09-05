@@ -87,10 +87,10 @@ class Appointment extends Equatable {
             json["profileImage"] == null ? null : json["profileImage"],
         counterStartTime: json["counter_starttime"] == null
             ? null
-            : DateTime.parse(json["counter_starttime"]).toLocal(),
+            : DateTime.parse(json["counter_starttime"]),
         counterEndTime: json["counter_endtime"] == null
             ? null
-            : DateTime.parse(json["counter_endtime"]).toLocal(),
+            : DateTime.parse(json["counter_endtime"]),
         counterStatus:
             json["counter_status"] == null ? null : json["counter_status"],
         subscriberId:
@@ -99,10 +99,10 @@ class Appointment extends Equatable {
         slot: Slot(
           startTime: json["slot_starttime"] == null
               ? null
-              : DateTime.parse(json["slot_starttime"]).toLocal(),
+              : DateTime.parse(json["slot_starttime"]),
           endTime: json["slot_endtime"] == null
               ? null
-              : DateTime.parse(json["slot_endtime"]).toLocal(),
+              : DateTime.parse(json["slot_endtime"]),
         ),
         slotStatus: json["slot_status"] == null ? null : json["slot_status"],
         note: json["note"] == null ? null : json["note"],

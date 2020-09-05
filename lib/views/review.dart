@@ -4,8 +4,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:qme/bloc/review_bloc/review_bloc.dart';
-import 'package:qme/model/slot.dart';
-import 'package:qme/utilities/logger.dart';
 
 class ReviewScreenArguments {
   final String receptionId;
@@ -40,7 +38,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   final TextEditingController controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
+    // double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return SafeArea(
       child: Scaffold(
