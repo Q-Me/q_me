@@ -8,6 +8,7 @@ import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
 import '../api/app_exceptions.dart';
 import '../repository/user.dart';
@@ -55,8 +56,18 @@ class _OtpPageState extends State<OtpPage> {
         return logger.d("error in api hit");
       }
     } catch (e) {
+      String errorMessage = e.toMap()["msg"].toString();
+                if(errorMessage == "Invalid Credentials"){
+                  errorMessage = "This number isn't registered. Please register!";
+                }
       Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toMap()["msg"].toString())));
+          .showSnackBar(SnackBar(content: Text(errorMessage), action:SnackBarAction(
+    label: 'Dismiss',
+    onPressed: () {
+      Navigator.pushNamedAndRemoveUntil(
+              context, SignInScreen.id, (route) => false);
+    },
+  ),));
       log('Error in signIn API: ' + e.toString());
       return;
     }
@@ -161,9 +172,12 @@ class _OtpPageState extends State<OtpPage> {
                         child: Hero(
                           tag: 'hero',
                           child: new CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            radius: 60.0,
-                            child: SvgPicture.asset("assets/temp/users.svg"),
+                            backgroundColor: Colors.blue,
+                            radius: 80.0,
+                            child: Padding(
+                              padding: const EdgeInsets.all(1.5),
+                              child: SvgPicture.asset("assets/temp/otpSvg.svg"),
+                            ),
                           ),
                         ),
                       ),

@@ -78,14 +78,19 @@ class _SignInScreenState extends State<SignInScreen>
                   return;
                 }
               } catch (e) {
-                logger.d(" !!$e !!");
+                logger.d(" !!${e.toMap()["msg"].toString() }!!");
+                String errorMessage = e.toMap()["msg"].toString();
+                if(errorMessage == "Invalid Credentials"){
+                  errorMessage = "This number isn't registered. Please register!";
+
+                }
                 showDialog(
                     context: context,
                     barrierDismissible: false,
                     builder: (context) {
                       return AlertDialog(
-                        title: Text("SignIn Failed"),
-                        content: Text(e.toMap()["msg"].toString()),
+                        title: Text("SignIn Failed!"),
+                        content: Text(errorMessage),
                         actions: <Widget>[
                           FlatButton(
                             child: Text("OK"),
