@@ -150,8 +150,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                 size: 50,
                                 color: Colors.grey,
                               ),
-                              Text(
-                                  "${DateFormat("jm").format(slot.startTime)}",
+                              Text("${DateFormat("jm").format(slot.startTime)}",
                                   style: TextStyle(fontSize: 25)),
                             ],
                           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:qme/views/contact_us.dart';
 
 class AboutUsView extends StatelessWidget {
   @override
@@ -26,8 +27,8 @@ class AboutUsView extends StatelessWidget {
             Container(
               width: w,
               height: h * 0.4,
-              child: SvgPicture.network(
-                "https://firebasestorage.googleapis.com/v0/b/q-me-user.appspot.com/o/assets%2Fimages%2Faboutus.svg?alt=media&token=58e74fc7-197e-4c0e-b868-8f499724d378",
+              child: SvgPicture.asset(
+                "assets/images/aboutus.svg",
               ),
             ),
             SizedBox(
@@ -64,6 +65,33 @@ Also, we would love to hear a feedback from you regarding your current experienc
 Please feel free to contact or email us. """,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    width: w,
+                    child: Center(
+                      child: RaisedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return ContactUsView();
+                          }));
+                        },
+                        color: Theme.of(context).primaryColor,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 20),
+                          child: Text(
+                            "Contact Us",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                  )
                 ],
               ),
             )

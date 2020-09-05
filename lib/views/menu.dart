@@ -7,6 +7,7 @@ import 'package:qme/utilities/session.dart';
 import 'package:qme/views/about_us.dart';
 import 'package:qme/views/business_enquiry.dart';
 import 'package:qme/views/contact_us.dart';
+import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/profileview.dart';
 import 'package:qme/views/signin.dart';
 
@@ -112,14 +113,12 @@ class MenuScreen extends StatelessWidget {
                     }));
                     break;
                   case "booking":
-                    //TODO navigate to corresponding screen
                     break;
                   case "support":
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return ContactUsView();
                     }));
-                    //TODO navigate to corresponding screen
                     break;
                   case "logout":
                     showDialog(
@@ -198,20 +197,6 @@ class AlertDialogRefactor extends StatelessWidget {
             onPressed: () async {
               await clearSession();
               Navigator.pushReplacementNamed(context, SignInScreen.id);
-
-              /* try {
-                await UserRepository().signOut();
-                Navigator.pushReplacementNamed(context, SignInScreen.id);
-              } catch (e) {
-                logger.e(e.toString());
-                Navigator.pop(context);
-                Scaffold.of(scaffoldContext).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString()),
-                  ),
-                );
-                return;
-              } */
             }),
         FlatButton(
             onPressed: () {

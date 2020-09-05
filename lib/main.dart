@@ -77,7 +77,7 @@ Future<RemoteConfig> setupRemoteConfig() async {
   return remoteConfig;
 }
 
-Widget SettingValue(RemoteConfig remoteConfig) {
+Widget settingValue(RemoteConfig remoteConfig) {
   logger.d("value of firebase config: ${remoteConfig.getString('apiBaseUrl')}");
   logger.i("before: $baseURL");
   baseURL = remoteConfig.getString('apiBaseUrl');

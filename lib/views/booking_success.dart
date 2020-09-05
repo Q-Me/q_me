@@ -55,7 +55,11 @@ class _BookingSuccessState extends State<BookingSuccess> {
               letterSpacing: 12,
               fontWeight: FontWeight.w800,
             ),
-          )
+          ),
+          Text(
+            "Please try to reach at least 5 minutes before the scheduled time and show this OTP at the store.",
+            style: TextStyle(color: Colors.grey),
+          ),
         ],
       ),
     ));

@@ -98,6 +98,9 @@ flutter:
    - assets/blue-tick.flr
    - assets/my-bookings.png
    - assets/no-bookings.jpg
+   - assets/images/aboutus.svg
+   - assets/images/contactus.svg
+   - assets/images/wantlist.svg
 
    
   #  - images/a_dot_ham.jpeg
