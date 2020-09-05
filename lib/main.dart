@@ -12,13 +12,14 @@ import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/initialScreen.dart';
 import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
 
 import 'package:qme/views/noInternet.dart';
 
-String initialHome = IntroScreen.id;
+String initialHome = InitialScreen.id;
 bool firstLogin;
 Box indexOfHomeScreen;
 
