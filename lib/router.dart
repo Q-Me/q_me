@@ -6,7 +6,6 @@ import 'package:qme/views/home.dart';
 import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/noInternet.dart';
 import 'package:qme/views/otpPage.dart';
-import 'package:qme/views/profile.dart';
 import 'package:qme/views/review.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
@@ -15,7 +14,6 @@ import 'package:qme/views/subscriber.dart';
 import 'package:qme/views/booking_success.dart';
 
 import 'model/subscriber.dart';
-import 'views/profile.dart';
 import 'views/signin.dart';
 import 'views/signup.dart';
 
@@ -77,12 +75,6 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: AppointmentScreen.id),
       );
 
-    case ProfileScreen.id:
-      return MaterialPageRoute(
-        builder: (context) => ProfileScreen(),
-        settings: RouteSettings(name: ProfileScreen.id),
-      );
-
     case IntroScreen.id:
       return MaterialPageRoute(
         builder: (context) => IntroScreen(),
@@ -107,10 +99,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: NoInternetView.id),
       );
 
-    default:
+/*    default:
       return MaterialPageRoute(
         builder: (context) => HomeScreen(),
         settings: RouteSettings(name: HomeScreen.id),
       );
+      */
   }
 }

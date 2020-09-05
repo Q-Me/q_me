@@ -8,7 +8,6 @@ import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
-import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
 import '../api/app_exceptions.dart';
 import '../repository/user.dart';
@@ -284,15 +283,17 @@ class _OtpPageState extends State<OtpPage> {
                                     logger.d("Some Error occured");
                                   }
                                 } on PlatformException catch (e) {
-                                  Navigator.of(context).pop();
-
+                                   String errorMessage;
+                                  e.code.toString() == "ERROR_INVALID_VERIFICATION_CODE"
+                                  ?errorMessage = "Invalid OTP was entered"
+                                  :errorMessage = e.code.toString();
                                   showDialog(
                                       context: context,
                                       barrierDismissible: false,
                                       builder: (context) {
                                         return AlertDialog(
                                           title: Text("Verification Failed"),
-                                          content: Text(e.code.toString()),
+                                          content: Text(errorMessage),
                                           actions: <Widget>[
                                             FlatButton(
                                               child: Text("OK"),
@@ -300,14 +301,7 @@ class _OtpPageState extends State<OtpPage> {
                                               color: Theme.of(context)
                                                   .primaryColor,
                                               onPressed: () {
-                                                Navigator.pushAndRemoveUntil(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SignInScreen(),
-                                                  ),
-                                                  (route) => false,
-                                                );
+                                                Navigator.pop(context);
                                               },
                                             )
                                           ],
@@ -315,8 +309,6 @@ class _OtpPageState extends State<OtpPage> {
                                       });
                                   logger.d(e.code);
                                 } on Exception catch (e) {
-                                  Navigator.of(context).pop();
-
                                   showDialog(
                                       context: context,
                                       barrierDismissible: false,
@@ -331,14 +323,7 @@ class _OtpPageState extends State<OtpPage> {
                                               color: Theme.of(context)
                                                   .primaryColor,
                                               onPressed: () async {
-                                                Navigator.pushAndRemoveUntil(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SignInScreen(),
-                                                  ),
-                                                  (route) => false,
-                                                );
+                                                Navigator.pop(context);
                                               },
                                             )
                                           ],
