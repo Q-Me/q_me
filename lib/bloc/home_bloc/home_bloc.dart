@@ -35,16 +35,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         logger.e(e.toString());
         yield HomeFail(e.toString());
       }
-      categorizedSubscribers = Map<String, List<Subscriber>>.fromIterable(
-        categories,
-        key: (e) => e,
-        value: (e) => List<Subscriber>(),
-      );
-
-      // TODO Make a api call for each category.
-      categorizedSubscribers.keys.forEach((element) {
-        
-      });
-    } else {}
+    } else if (event is GetSubscribersByCategory){
+      
+    }
   }
 }

@@ -26,6 +26,14 @@ class HomeFail extends HomeState {
   List<Object> get props => [msg];
 }
 
+class HomeLoading extends HomeState {
+  final String msg;
+
+  HomeLoading(this.msg);
+  @override
+  List<Object> get props => [msg];
+}
+
 class CategoriesReady extends HomeState {
   final List<String> categories;
 
