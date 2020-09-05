@@ -65,37 +65,49 @@ Also, we would love to hear a feedback from you regarding your current experienc
 Please feel free to contact or email us. """,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    width: w,
-                    child: Center(
-                      child: RaisedButton(
-                        onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return ContactUsView();
-                          }));
-                        },
-                        color: Theme.of(context).primaryColor,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 20),
-                          child: Text(
-                            "Contact Us",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                      ),
-                    ),
-                  )
+                  SizedBox(height: 20),
+                  ConnectWithUsBtn()
                 ],
               ),
             )
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class ConnectWithUsBtn extends StatelessWidget {
+  const ConnectWithUsBtn({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: RaisedButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return ContactUsView();
+          }));
+        },
+        color: Theme.of(context).primaryColor,
+        splashColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          width: MediaQuery.of(context).size.width - 100,
+          height: 60,
+          child: Center(
+            child: Text(
+              'Connect with us',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline6
+                  .copyWith(color: Colors.white),
+            ),
+          ),
         ),
       ),
     );

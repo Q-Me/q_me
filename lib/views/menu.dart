@@ -113,6 +113,10 @@ class MenuScreen extends StatelessWidget {
                     }));
                     break;
                   case "booking":
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return BookingsScreen();
+                    }));
                     break;
                   case "support":
                     Navigator.push(context,

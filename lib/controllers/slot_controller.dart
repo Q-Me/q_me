@@ -21,7 +21,6 @@ List<Slot> createSlotsFromDuration(Reception reception) {
   return slots;
 }
 
-
 List<Slot> orderSlotsByStartTime(List<Slot> slots) {
   SplayTreeSet<Slot> overrides =
       SplayTreeSet<Slot>(Comparing.on((slot) => slot.startTime));
@@ -90,7 +89,7 @@ List<Slot> modifyBookings(List<Slot> slots, List bookings) {
     for (int i = 0; i < slots.length; i++) {
       if (slots[i]
           .startTime
-          .isAtSameMomentAs(DateTime.parse(map['starttime']).toLocal())) {
+          .isAtSameMomentAs(DateTime.parse(map['starttime']))) {
         slots[i].upcoming = map['count'];
 //        logger.d('${slots[i].toJson()}');
       }
@@ -106,11 +105,10 @@ List<Slot> modifyDoneSlots(List<Slot> slots, List bookings) {
     for (int i = 0; i < slots.length; i++) {
       if (slots[i]
           .startTime
-          .isAtSameMomentAs(DateTime.parse(map['starttime']).toLocal())) {
+          .isAtSameMomentAs(DateTime.parse(map['starttime']))) {
         slots[i].done = map['count'];
       }
     }
   }
   return slots;
 }
-

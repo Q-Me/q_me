@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 import 'package:ordered_set/comparing.dart';
 import 'package:qme/controllers/slot_controller.dart';
 import 'package:qme/model/slot.dart';
-import 'package:qme/utilities/logger.dart';
 
 Reception receptionFromJson(String str) => Reception.fromJson(json.decode(str));
 

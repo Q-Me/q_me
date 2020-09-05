@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:qme/utilities/logger.dart';
 
 class NoInternetView extends StatefulWidget {
   static const String id = '/noInternet';

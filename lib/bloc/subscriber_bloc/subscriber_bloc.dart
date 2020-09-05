@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:qme/api/base_helper.dart';
-import 'package:qme/api/kAPI.dart';
 import 'package:qme/model/review.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/model/user.dart';
