@@ -3,6 +3,7 @@ import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/initialScreen.dart';
 import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/noInternet.dart';
 import 'package:qme/views/otpPage.dart';
@@ -89,6 +90,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => IntroScreen(),
         settings: RouteSettings(name: IntroScreen.id),
+      );
+    case InitialScreen.id:
+      return MaterialPageRoute(
+        builder: (context) => InitialScreen(),
+        settings: RouteSettings(name: InitialScreen.id),
       );
     case ReviewScreen.id:
       final ReviewScreenArguments arguments = settings.arguments;
