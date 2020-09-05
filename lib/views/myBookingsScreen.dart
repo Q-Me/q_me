@@ -16,6 +16,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
   @override
   Widget build(BuildContext context) {
     var list = List<Appointment>();
+    List<String> reqList = [];
     return SafeArea(
       child: Scaffold(
         body: BlocProvider(
@@ -43,9 +44,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     collapseMode: CollapseMode.parallax,
                     centerTitle: false,
                     title: Text(
-                      "My Bookings:",
+                      "Your Bookings :",
                       style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           color: Colors.black,
                           fontFamily: "Avenir"),
                     ),
@@ -55,11 +56,105 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     )),
               ),
               BlocBuilder<BookingslistBloc, BookingslistState>(
+                  builder: (context, state) {
+                return SliverToBoxAdapter(
+                  child: Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 10,
+                        ),
+                        FilterChip(
+                          label: Text(
+                            "Booked",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onSelected: (bool value) {
+                            if (value) {
+                              reqList.add("UPCOMING");
+                              BlocProvider.of<BookingslistBloc>(context).add(
+                                  BookingsListRequested(
+                                      statusRequired: reqList));
+                            } else {
+                              reqList.remove("UPCOMING");
+                              BlocProvider.of<BookingslistBloc>(context).add(
+                                  BookingsListRequested(
+                                      statusRequired: reqList));
+                            }
+                          },
+                          selected: reqList.contains("UPCOMING"),
+                          selectedColor: Theme.of(context).primaryColor,
+                          backgroundColor: Colors.grey,
+                          checkmarkColor: Colors.white,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        FilterChip(
+                          label: Text(
+                            "Cancelled",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onSelected: (value) {
+                            if (value) {
+                              reqList.add("CANCELLED");
+                              reqList.add("CANCELLED BY SUBSCRIBER");
+                              BlocProvider.of<BookingslistBloc>(context).add(
+                                  BookingsListRequested(
+                                      statusRequired: reqList));
+                            } else {
+                              reqList.remove("CANCELLED");
+                              reqList.remove("CANCELLED BY SUBSCRIBER");
+                              BlocProvider.of<BookingslistBloc>(context).add(
+                                  BookingsListRequested(
+                                      statusRequired: reqList));
+                            }
+                          },
+                          backgroundColor: Colors.grey,
+                          selected: reqList.contains("CANCELLED"),
+                          selectedColor: Theme.of(context).primaryColor,
+                          checkmarkColor: Colors.white,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        FilterChip(
+                          label: Text(
+                            "Completed",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                          onSelected: (value) {
+                            if (value) {
+                              reqList.add("DONE");
+                              BlocProvider.of<BookingslistBloc>(context).add(
+                                  BookingsListRequested(
+                                      statusRequired: reqList));
+                            } else {
+                              reqList.remove("DONE");
+                              BlocProvider.of<BookingslistBloc>(context).add(
+                                  BookingsListRequested(
+                                      statusRequired: reqList));
+                            }
+                          },
+                          selected: reqList.contains("DONE"),
+                          selectedColor: Theme.of(context).primaryColor,
+                          backgroundColor: Colors.grey,
+                          checkmarkColor: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              BlocBuilder<BookingslistBloc, BookingslistState>(
                 builder: (context, state) {
                   if (state is BookingslistInitial) {
                     BlocProvider.of<BookingslistBloc>(context)
                         .add(BookingsListRequested());
-                    return SliverToBoxAdapter(
+                    return SliverFillRemaining(
                       child: Center(
                         child: CircularProgressIndicator(
                           backgroundColor: Theme.of(context).primaryColor,
@@ -67,9 +162,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       ),
                     );
                   } else if (state is BookingsListLoading) {
-                    return SliverToBoxAdapter(
+                    return SliverFillRemaining(
                       child: Center(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Padding(
                               padding: EdgeInsets.all(10),
@@ -84,7 +180,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       ),
                     );
                   } else if (state is BookingsListFailure) {
-                    return SliverToBoxAdapter(
+                    return SliverFillRemaining(
                       child: Center(
                         child: Column(
                           children: [
@@ -114,7 +210,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     );
                   } else if (state is BookingsListSuccess) {
                     list = state.appointmentsList;
-                    if (list.length == 0) {
+                    if (list.length == 0 && reqList.length == 0) {
                       return SliverFillRemaining(
                         hasScrollBody: false,
                         child: Container(
@@ -146,38 +242,54 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           ),
                         ),
                       );
+                    } else if (reqList.length != 0 && list.length == 0) {
+                      return SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "No Entries available for your request",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      return SliverList(
+                          delegate:
+                              SliverChildBuilderDelegate((context, index) {
+                        if (list[index].slotStatus == "UPCOMING") {
+                          return ListItemBooked(
+                            primaryContext: context,
+                            name: list[index].subscriberName,
+                            location: list[index].address,
+                            slot: list[index].slot.startTime,
+                            otp: list[index].otp.toString(),
+                            counterId: list[index].counterId,
+                          );
+                        } else if (list[index].slotStatus == "DONE") {
+                          return ListItemFinished(
+                            name: list[index].subscriberName,
+                            location: list[index].address,
+                            slot: list[index].slot.startTime,
+                            rating: list[index].rating * 1.0,
+                            counterId: list[index].counterId,
+                            subscriberId: list[index].subscriberId,
+                            subscriberName: list[index].subscriberName,
+                            primaryContext: context,
+                          );
+                        } else {
+                          return ListItemCancelled(
+                            name: list[index].subscriberName,
+                            location: list[index].address,
+                            slot: list[index].slot.startTime,
+                          );
+                        }
+                      }, childCount: list.length));
                     }
-                    return SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                      if (list[index].slotStatus == "UPCOMING") {
-                        return ListItemBooked(
-                          primaryContext: context,
-                          name: list[index].subscriberName,
-                          location: list[index].address,
-                          slot: list[index].slot.startTime,
-                          otp: list[index].otp.toString(),
-                          counterId: list[index].counterId,
-                        );
-                      } else if (list[index].slotStatus == "DONE") {
-                        return ListItemFinished(
-                          name: list[index].subscriberName,
-                          location: list[index].address,
-                          slot: list[index].slot.startTime,
-                          rating: list[index].rating * 1.0,
-                          counterId: list[index].counterId,
-                          subscriberId: list[index].subscriberId,
-                          subscriberName: list[index].subscriberName,
-                          primaryContext: context,
-                        );
-                      } else {
-                        return ListItemCancelled(
-                          name: list[index].subscriberName,
-                          location: list[index].address,
-                          slot: list[index].slot.startTime,
-                        );
-                      }
-                    }, childCount: list.length));
                   }
+                  return Container();
                 },
               ),
             ],

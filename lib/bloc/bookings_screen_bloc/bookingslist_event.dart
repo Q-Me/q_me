@@ -8,7 +8,7 @@ abstract class BookingslistEvent extends Equatable {
 }
 
 class BookingsListRequested extends BookingslistEvent {
-  final String statusRequired;
+  final List<String> statusRequired;
   BookingsListRequested({this.statusRequired});
 
   @override

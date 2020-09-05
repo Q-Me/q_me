@@ -10,7 +10,6 @@ import 'package:icon_shadow/icon_shadow.dart';
 import 'package:qme/bloc/subscriber_bloc/subscriber_bloc.dart';
 import 'package:qme/model/review.dart';
 import 'package:qme/model/subscriber.dart';
-import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/slot_view.dart';
 import 'package:qme/widgets/error.dart';
 
@@ -177,7 +176,7 @@ class CheckAvailableSlotsButton extends StatelessWidget {
       ),
       onPressed: () {
         log('Navigating to subscriber id:${subscriber.id}');
-        Navigator.pushNamed(context, SlotView.id,
+        Navigator.pushReplacementNamed(context, SlotView.id,
             arguments: SlotViewArguments(subscriber: subscriber));
       },
       icon: Icon(
@@ -263,7 +262,7 @@ class SubscriberServices extends StatelessWidget {
                 textAlign: TextAlign.left,
               )
             : Container(),
-        // TODO Add services based on tags here
+        // TODO Add services based on tags here 
       ],
     );
   }
