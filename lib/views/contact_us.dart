@@ -25,8 +25,8 @@ class ContactUsView extends StatelessWidget {
           children: [
             Container(
               height: h * 0.4,
-              child: SvgPicture.network(
-                "https://firebasestorage.googleapis.com/v0/b/q-me-user.appspot.com/o/assets%2Fimages%2Fcontactus.svg?alt=media&token=126e1e24-b4c5-4e1e-9b3d-8d26ea0e5df9",
+              child: SvgPicture.asset(
+                "assets/images/contactus.svg",
               ),
             ),
             NameAndPost(

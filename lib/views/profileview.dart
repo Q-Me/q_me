@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive/hive.dart';
 
@@ -110,8 +109,6 @@ class BlueTileItems extends StatelessWidget {
             alignment: Alignment.topRight,
             child: Container(
               width: w * 0.28,
-              child: SvgPicture.network(
-                  "https://firebasestorage.googleapis.com/v0/b/q-me-user.appspot.com/o/assets%2Fimages%2Fgb.svg?alt=media&token=17889efe-b8b5-4523-9d4c-f2f31df0f2b2"),
             ),
           ),
           //TODO: IMAGE
