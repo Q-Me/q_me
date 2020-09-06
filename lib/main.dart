@@ -38,7 +38,7 @@ void main() async {
   // TODO setConfigs();
   // TODO fetch user related information
   try {
-    // await setSession();
+    await setSession();
     // await clearSession();
 
     if (await UserRepository().isSessionReady()) {
@@ -82,7 +82,7 @@ Future<RemoteConfig> setupRemoteConfig() async {
   return remoteConfig;
 }
 
-Widget SettingValue(RemoteConfig remoteConfig) {
+Widget settingValue(RemoteConfig remoteConfig) {
   logger.d("value of firebase config: ${remoteConfig.getString('apiBaseUrl')}");
   logger.i("before: $baseURL");
   baseURL = remoteConfig.getString('apiBaseUrl');
