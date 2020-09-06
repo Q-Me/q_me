@@ -175,17 +175,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               ),
-                              _bloc.subscriberList != null &&
-                                      _bloc.subscriberList.length != 0
-                                  ? ListView.builder(
-                                      itemCount: _bloc.subscriberList.length,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) =>
-                                          SubscriberListItem(
-                                        subscriber: _bloc.subscriberList[index],
-                                      ),
-                                    )
+                              _bloc.subscriberList != null
+                                  ? _bloc.subscriberList.length != 0
+                                      ? ListView.builder(
+                                          itemCount:
+                                              _bloc.subscriberList.length,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemBuilder: (context, index) =>
+                                              SubscriberListItem(
+                                            subscriber:
+                                                _bloc.subscriberList[index],
+                                          ),
+                                        )
+                                      : Center(
+                                          child:
+                                              Text('Sorry. We found nothing.'),
+                                        )
                                   : StreamBuilder<
                                       ApiResponse<List<Subscriber>>>(
                                       stream: _bloc.subscribersListStream,
@@ -252,7 +259,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 // AppointmentsHistoryScreen()
-                BookingsScreen(controller: pageController,),
+                BookingsScreen(
+                  controller: pageController,
+                ),
                 // Column(
                 //   children: <Widget>[
                 //     Text('Your appointment history'),
