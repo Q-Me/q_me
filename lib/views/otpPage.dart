@@ -45,18 +45,28 @@ class _OtpPageState extends State<OtpPage> {
 
       if (response['accessToken'] != null) {
         logger.d(response);
-       Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);
+        Navigator.pushNamedAndRemoveUntil(
+            context, HomeScreen.id, (route) => false);
 
         fcmTokenApiCall();
-
       } else {
-         logger.d("response of signin Otp: $response");
+        logger.d("response of signin Otp: $response");
         Scaffold.of(context)
             .showSnackBar(SnackBar(content: Text(response['eror'].toString())));
         return logger.d("error in api hit");
       }
     } catch (e) {
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text(e.toMap()["msg"].toString())));
+      final errorMessage = e.toMap()["msg"].toString();
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(errorMessage),
+        action: SnackBarAction(
+          label: 'Dismiss',
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+                context, SignInScreen.id, (route) => false);
+          },
+        ),
+      ));
       log('Error in signIn API: ' + e.toString());
       return;
     }
@@ -100,17 +110,16 @@ class _OtpPageState extends State<OtpPage> {
     if (response != null && response['msg'] == 'Registation successful') {
       // Make SignIn call
       try {
-       
         response = await UserRepository().signInWithOtp(idToken);
 
         if (response['accessToken'] != null) {
-
-         Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);
+          Navigator.pushNamedAndRemoveUntil(
+              context, HomeScreen.id, (route) => false);
           fcmTokenApiCall();
         } else {
           logger.d("response of signin Otp: $response");
-           Scaffold.of(context)
-            .showSnackBar(SnackBar(content: Text(response['eror'].toString())));
+          Scaffold.of(context).showSnackBar(
+              SnackBar(content: Text(response['eror'].toString())));
           return logger.d("error in api hit");
         }
       } catch (e) {
@@ -125,16 +134,16 @@ class _OtpPageState extends State<OtpPage> {
       return;
     }
   }
-  fetchPhoneNumber()async{
+
+  fetchPhoneNumber() async {
     Box box = await Hive.openBox("user");
     setState(() {
       mobileNumber = box.get('userPhoneSignup');
     });
-     
-
   }
+
   @override
-  void initState(){
+  void initState() {
     fetchPhoneNumber();
     super.initState();
   }
@@ -162,9 +171,12 @@ class _OtpPageState extends State<OtpPage> {
                         child: Hero(
                           tag: 'hero',
                           child: new CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            radius: 60.0,
-                            child: SvgPicture.asset("assets/temp/users.svg"),
+                            backgroundColor: Colors.blue,
+                            radius: 80.0,
+                            child: Padding(
+                              padding: const EdgeInsets.all(1.5),
+                              child: SvgPicture.asset("assets/temp/otpSvg.svg"),
+                            ),
                           ),
                         ),
                       ),
@@ -188,53 +200,54 @@ class _OtpPageState extends State<OtpPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text("Enter OTP sent to: "),
-                            Text("$mobileNumber", style: TextStyle(fontWeight: FontWeight.bold),),
+                            Text(
+                              "$mobileNumber",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.05,
                         ),
-
                         PinCodeTextField(
-                      appContext: context,
-                      pastedTextStyle: TextStyle(
-                        color: Colors.green.shade600,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      length: 6,
-                      obsecureText: false,
-                      animationType: AnimationType.fade,
-                      validator: (v) {
-                        if (v.length != 6) {
-                          return "Please enter valid otp";
-                        } else {
-                          return null;
-                        }
-                      },
-                      pinTheme: PinTheme(
-                        inactiveFillColor: Colors.white,
-                        activeFillColor:Colors.white,
-                        inactiveColor: Theme.of(context).primaryColor,
-                        activeColor: Theme.of(context).primaryColor
-                      ),
-                      animationDuration: Duration(milliseconds: 300),
-                      enableActiveFill: true,
-                      onCompleted: (pin) {
-                        _codeController.text = pin;
-                      },
-                      // onTap: () {
-                      //   print("Pressed");
-                      // },
-                      onChanged: (pin) {
-                        setState(() {
-                           _codeController.text = pin;
-                        });
-                      },
-                      beforeTextPaste: (text) {
-                        print("Allowing to paste $text");
-                        return true;
-                      },
-                    ),
+                          appContext: context,
+                          pastedTextStyle: TextStyle(
+                            color: Colors.green.shade600,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          length: 6,
+                          obsecureText: false,
+                          animationType: AnimationType.fade,
+                          validator: (v) {
+                            if (v.length != 6) {
+                              return "Please enter valid otp";
+                            } else {
+                              return null;
+                            }
+                          },
+                          pinTheme: PinTheme(
+                              inactiveFillColor: Colors.white,
+                              activeFillColor: Colors.white,
+                              inactiveColor: Theme.of(context).primaryColor,
+                              activeColor: Theme.of(context).primaryColor),
+                          animationDuration: Duration(milliseconds: 300),
+                          enableActiveFill: true,
+                          onCompleted: (pin) {
+                            _codeController.text = pin;
+                          },
+                          // onTap: () {
+                          //   print("Pressed");
+                          // },
+                          onChanged: (pin) {
+                            setState(() {
+                              _codeController.text = pin;
+                            });
+                          },
+                          beforeTextPaste: (text) {
+                            print("Allowing to paste $text");
+                            return true;
+                          },
+                        ),
                         SizedBox(height: 50.0),
                         Container(
                           height: 50.0,
@@ -247,8 +260,8 @@ class _OtpPageState extends State<OtpPage> {
                               onTap: () async {
                                 final code = _codeController.text.trim();
                                 try {
-                                  Scaffold.of(context)
-            .showSnackBar(SnackBar(content: Text('Processing Data')));
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      content: Text('Processing Data')));
                                   AuthCredential credential =
                                       PhoneAuthProvider.getCredential(
                                           verificationId: verificationIdOtp,
@@ -264,8 +277,8 @@ class _OtpPageState extends State<OtpPage> {
                                   FirebaseUser userFireBAse = result.user;
 
                                   if (userFireBAse != null) {
-                                     Scaffold.of(context)
-            .showSnackBar(SnackBar(content: Text('Processing Data')));
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        content: Text('Processing Data')));
                                     var token = await userFireBAse
                                         .getIdToken()
                                         .then((result) {
@@ -273,7 +286,7 @@ class _OtpPageState extends State<OtpPage> {
                                       formData['token'] = idToken;
                                       logger.d("@@ $idToken @@");
                                     });
-                                    
+                                    logger.d(token);
                                     if (loginPage == "SignUp") {
                                       signUpUser(context);
                                     } else {
@@ -283,15 +296,18 @@ class _OtpPageState extends State<OtpPage> {
                                     logger.d("Some Error occured");
                                   }
                                 } on PlatformException catch (e) {
-                                  Navigator.of(context).pop();
-
+                                  String errorMessage;
+                                  e.code.toString() ==
+                                          "ERROR_INVALID_VERIFICATION_CODE"
+                                      ? errorMessage = "Invalid OTP was entered"
+                                      : errorMessage = e.code.toString();
                                   showDialog(
                                       context: context,
                                       barrierDismissible: false,
                                       builder: (context) {
                                         return AlertDialog(
                                           title: Text("Verification Failed"),
-                                          content: Text(e.code.toString()),
+                                          content: Text(errorMessage),
                                           actions: <Widget>[
                                             FlatButton(
                                               child: Text("OK"),
@@ -299,14 +315,7 @@ class _OtpPageState extends State<OtpPage> {
                                               color: Theme.of(context)
                                                   .primaryColor,
                                               onPressed: () {
-                                                Navigator.pushAndRemoveUntil(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SignInScreen(),
-                                                  ),
-                                                  (route) => false,
-                                                );
+                                                Navigator.pop(context);
                                               },
                                             )
                                           ],
@@ -314,8 +323,6 @@ class _OtpPageState extends State<OtpPage> {
                                       });
                                   logger.d(e.code);
                                 } on Exception catch (e) {
-                                  Navigator.of(context).pop();
-
                                   showDialog(
                                       context: context,
                                       barrierDismissible: false,
@@ -330,14 +337,7 @@ class _OtpPageState extends State<OtpPage> {
                                               color: Theme.of(context)
                                                   .primaryColor,
                                               onPressed: () async {
-                                                Navigator.pushAndRemoveUntil(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SignInScreen(),
-                                                  ),
-                                                  (route) => false,
-                                                );
+                                                Navigator.pop(context);
                                               },
                                             )
                                           ],

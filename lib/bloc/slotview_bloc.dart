@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/model/reception.dart';

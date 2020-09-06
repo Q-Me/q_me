@@ -38,6 +38,9 @@ final subscriber = Subscriber.fromJson(jsonString);
 
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
+  const HomeScreen({
+    Key key,
+  }) : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -45,10 +48,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   PageController pageController;
   int _selectedIndex = 0;
+  Box indexOfPage;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      indexOfPage.put("index", index);
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
       logger.d('Navigation bar index: $_selectedIndex');
@@ -60,13 +65,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    indexOfPage = Hive.box("index");
+    _selectedIndex = indexOfPage.get("index");
     pageController = PageController(
-      initialPage: 0,
+      initialPage: _selectedIndex,
     );
     super.initState();
     firebaseCloudMessagingListeners();
     _messaging.getToken().then((token) {
-      logger.i("fcmToken: $token");
       _fcmToken = token;
       verifyFcmTokenChange(_fcmToken);
     });
@@ -115,76 +121,104 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Theme.of(context).primaryColor,
-        body: PageView(
-          controller: pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          children: <Widget>[
-            SingleChildScrollView(
-              child: BlocProvider(
-                create: (context) {
-                  HomeBloc bloc = HomeBloc();
-                  bloc.add(GetCategories());
-                  return bloc;
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: <Widget>[
-                    HomeHeader(),
-                    BlocBuilder<HomeBloc, HomeState>(
-                      builder: (context, state) {
-                        if (state is HomeLoading) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(state.msg),
-                              CircularProgressIndicator(),
-                            ],
-                          );
-                        } else if (state is CategorySuccess) {
-                          return ListView.builder(
-                            itemCount: state.categoryList.length,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) => ConstrainedBox(
-                              constraints: BoxConstraints(maxHeight: 300),
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                color: Colors.white,
-                                child: CategoryBox(state.categoryList[index]),
+    final offset = MediaQuery.of(context).size.width / 20;
+    return WillPopScope(
+      onWillPop: () {
+        if (_selectedIndex != 0) {
+          pageController.animateToPage(0,
+              duration: Duration(milliseconds: 500), curve: Curves.ease);
+          return Future.value(false);
+        } else {
+          return Future.value(true);
+        }
+      },
+      child: SafeArea(
+        child: Scaffold(
+          body: PageView(
+            controller: pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            children: <Widget>[
+              SingleChildScrollView(
+                child: BlocProvider(
+                  create: (context) {
+                    HomeBloc bloc = HomeBloc();
+                    bloc.add(GetCategories());
+                    return bloc;
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      HomeHeader(),
+                      BlocBuilder<HomeBloc, HomeState>(
+                        builder: (context, state) {
+                          if (state is HomeLoading) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(state.msg),
+                                CircularProgressIndicator(),
+                              ],
+                            );
+                          } else if (state is CategorySuccess) {
+                            return ListView.builder(
+                              itemCount: state.categoryList.length,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) => ConstrainedBox(
+                                constraints: BoxConstraints(maxHeight: 300),
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  color: Colors.white,
+                                  child: CategoryBox(state.categoryList[index]),
+                                ),
                               ),
-                            ),
-                          );
-                        } else {
-                          return Text('Undetermined state');
-                        }
-                      },
-                    ),
-                  ],
+                            );
+                          } else {
+                            return Text('Undetermined state');
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            BookingsScreen(),
-            MenuScreen(),
-          ],
-        ),
-        bottomNavigationBar: CupertinoTabBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.home)),
-            BottomNavigationBarItem(icon: Icon(Icons.timer)),
-            BottomNavigationBarItem(icon: Icon(Icons.person)),
-          ],
+              BookingsScreen(
+                controller: pageController,
+              ),
+              MenuScreen(
+                controller: pageController,
+              ),
+            ],
+          ),
+          bottomNavigationBar: CupertinoTabBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home,
+                ),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.timer,
+                ),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.person,
+                ),
+              ),
+            ],
+            activeColor: Theme.of(context).primaryColor,
+          ),
         ),
       ),
     );

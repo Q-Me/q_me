@@ -3,23 +3,20 @@ import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/initialScreen.dart';
 import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/noInternet.dart';
 import 'package:qme/views/otpPage.dart';
-import 'package:qme/views/profile.dart';
 import 'package:qme/views/review.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
 import 'package:qme/views/slot_view.dart';
 import 'package:qme/views/subscriber.dart';
 import 'package:qme/views/booking_success.dart';
-import 'package:qme/views/unknown.dart';
 
 import 'model/subscriber.dart';
-import 'views/profile.dart';
 import 'views/signin.dart';
 import 'views/signup.dart';
-import 'views/unknown.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   logger.d(settings.name);
@@ -79,16 +76,15 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: AppointmentScreen.id),
       );
 
-    case ProfileScreen.id:
-      return MaterialPageRoute(
-        builder: (context) => ProfileScreen(),
-        settings: RouteSettings(name: ProfileScreen.id),
-      );
-
     case IntroScreen.id:
       return MaterialPageRoute(
         builder: (context) => IntroScreen(),
         settings: RouteSettings(name: IntroScreen.id),
+      );
+    case InitialScreen.id:
+      return MaterialPageRoute(
+        builder: (context) => InitialScreen(),
+        settings: RouteSettings(name: InitialScreen.id),
       );
     case ReviewScreen.id:
       final ReviewScreenArguments arguments = settings.arguments;
@@ -111,8 +107,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
 /*    default:
       return MaterialPageRoute(
-        builder: (context) => UndefinedView(name: settings.name),
-        settings: RouteSettings(name: '/undefined'),
+        builder: (context) => HomeScreen(),
+        settings: RouteSettings(name: HomeScreen.id),
       );
       */
   }

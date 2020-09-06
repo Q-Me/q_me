@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:qme/views/contact_us.dart';
 
 class AboutUsView extends StatelessWidget {
   @override
@@ -23,11 +24,13 @@ class AboutUsView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: w,
-              height: h * 0.4,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: SvgPicture.network(
                 "https://firebasestorage.googleapis.com/v0/b/q-me-user.appspot.com/o/assets%2Fimages%2Faboutus.svg?alt=media&token=58e74fc7-197e-4c0e-b868-8f499724d378",
+                width: w,
+                fit: BoxFit.cover,
+                height: h * 0.4,
               ),
             ),
             SizedBox(
@@ -64,10 +67,49 @@ Also, we would love to hear a feedback from you regarding your current experienc
 Please feel free to contact or email us. """,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  SizedBox(height: 20),
+                  ConnectWithUsBtn()
                 ],
               ),
             )
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class ConnectWithUsBtn extends StatelessWidget {
+  const ConnectWithUsBtn({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: RaisedButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return ContactUsView();
+          }));
+        },
+        color: Theme.of(context).primaryColor,
+        splashColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          width: MediaQuery.of(context).size.width - 100,
+          height: 60,
+          child: Center(
+            child: Text(
+              'Connect with us',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline6
+                  .copyWith(color: Colors.white),
+            ),
+          ),
         ),
       ),
     );
