@@ -23,17 +23,10 @@ class BusinessEnquiryView extends StatelessWidget {
         child: Column(
           children: [
             PinkContainer(h: h, w: w),
-            SizedBox(
-              height: 10,
-            ),
+            SizedBox(height: 10),
             Slogan(w: w),
-            SizedBox(
-              height: 10,
-            ),
-            Divider(
-              height: 2,
-              color: Colors.black,
-            ),
+            SizedBox(height: 10),
+            Divider(height: 2, color: Colors.black),
             NameAndPost(w: w),
             EmailAndPhoneNumberTiles()
           ],
