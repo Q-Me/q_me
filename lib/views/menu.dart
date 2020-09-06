@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:qme/api/app_exceptions.dart';
-import 'package:qme/repository/user.dart';
-import 'package:qme/utilities/logger.dart';
+import 'package:hive/hive.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/about_us.dart';
 import 'package:qme/views/business_enquiry.dart';
 import 'package:qme/views/contact_us.dart';
-import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/profileview.dart';
 import 'package:qme/views/signin.dart';
 
-class MenuScreen extends StatelessWidget {
-  const MenuScreen({Key key, this.controller}) : super(key: key);
-  final PageController controller;
+import 'package:hive_flutter/hive_flutter.dart';
 
+class MenuScreen extends StatelessWidget {
+  const MenuScreen({
+    Key key,
+    @required this.controller,
+  }) : super(key: key);
+  final PageController controller;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -50,26 +51,55 @@ class MenuScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Padding(
-                padding: EdgeInsets.only(top: 55),
-                child: Column(
-                  children: [
-                    Text(
-                      "Dhushyanth",
-                      style: TextStyle(fontSize: 30),
-                    ),
-                    _listItem("My Profile", FontAwesomeIcons.addressCard,
-                        "profile", context),
-                    _listItem("My Bookings", FontAwesomeIcons.userCheck,
-                        "bookings", context),
-                    _listItem("Need Support?", FontAwesomeIcons.phoneAlt,
-                        "support", context),
-                    _listItem("Buisness Enquiry",
-                        FontAwesomeIcons.projectDiagram, "buisness", context),
-                    _listItem("About Us", FontAwesomeIcons.infoCircle, "about",
-                        context),
-                    _listItem("Log Out", FontAwesomeIcons.signOutAlt, "logout",
-                        context),
-                  ],
+                padding: EdgeInsets.only(top: 55, bottom: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ValueListenableBuilder(
+                        valueListenable: Hive.box('user').listenable(),
+                        builder: (context, box, widget) => Text(
+                          "${box.get("name").split(" ")[0]}",
+                          style: TextStyle(fontSize: 30),
+                        ),
+                      ),
+                      MenuListItem(
+                        "My Profile",
+                        FontAwesomeIcons.addressCard,
+                        "profile",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "My Bookings",
+                        FontAwesomeIcons.userCheck,
+                        "bookings",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "Need Support?",
+                        FontAwesomeIcons.phoneAlt,
+                        "support",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "Log Out",
+                        FontAwesomeIcons.signOutAlt,
+                        "logout",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "Buisness Enquiry",
+                        FontAwesomeIcons.projectDiagram,
+                        "buisness",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "About Us",
+                        FontAwesomeIcons.infoCircle,
+                        "about",
+                        controller,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -93,9 +123,17 @@ class MenuScreen extends StatelessWidget {
       ),
     ));
   }
+}
 
-  Widget _listItem(
-      String title, IconData icon, String index, BuildContext context) {
+class MenuListItem extends StatelessWidget {
+  const MenuListItem(this.title, this.icon, this.index, this.controller);
+  final String title;
+  final IconData icon;
+  final String index;
+  final PageController controller;
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -116,17 +154,18 @@ class MenuScreen extends StatelessWidget {
                       return ProfileView();
                     }));
                     break;
-                  case "booking":
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return BookingsScreen();
-                    }));
+                  case "bookings":
+                    controller.animateToPage(1,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.ease);
+                    //TODO navigate to corresponding screen
                     break;
                   case "support":
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return ContactUsView();
                     }));
+                    //TODO navigate to corresponding screen
                     break;
                   case "logout":
                     showDialog(
@@ -205,6 +244,20 @@ class AlertDialogRefactor extends StatelessWidget {
             onPressed: () async {
               await clearSession();
               Navigator.pushReplacementNamed(context, SignInScreen.id);
+
+              /* try {
+                await UserRepository().signOut();
+                Navigator.pushReplacementNamed(context, SignInScreen.id);
+              } catch (e) {
+                logger.e(e.toString());
+                Navigator.pop(context);
+                Scaffold.of(scaffoldContext).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString()),
+                  ),
+                );
+                return;
+              } */
             }),
         FlatButton(
             onPressed: () {

@@ -20,6 +20,9 @@ import '../widgets/loader.dart';
 
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
+  const HomeScreen({
+    Key key,
+  }) : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -28,11 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
   PageController pageController;
   SubscribersBloc _bloc;
   bool _enabled;
-  int _selectedIndex = 0;
+  int _selectedIndex;
+  Box indexOfPage;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      indexOfPage.put("index", index);
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
       logger.d('Navigation bar index: $_selectedIndex');
@@ -44,15 +49,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    indexOfPage = Hive.box("index");
+    _selectedIndex = indexOfPage.get("index");
     pageController = PageController(
-      initialPage: 0,
+      initialPage: _selectedIndex,
     );
+
     _bloc = SubscribersBloc();
     _enabled = true;
     super.initState();
     firebaseCloudMessagingListeners();
     _messaging.getToken().then((token) {
-      logger.i("fcmToken: $token");
       _fcmToken = token;
       verifyFcmTokenChange(_fcmToken);
     });
