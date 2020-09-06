@@ -32,6 +32,9 @@ class Appointment extends Equatable {
     this.note,
     this.otp,
     this.rating,
+    this.reviewedByUser,
+    this.userReview,
+    this.userRating,
   });
 
   final String subscriberName;
@@ -52,6 +55,9 @@ class Appointment extends Equatable {
   final String note;
   final otp;
   final rating;
+  final int reviewedByUser;
+  final String userReview;
+  final int userRating;
 
   @override
   List<Object> get props => [
@@ -72,6 +78,9 @@ class Appointment extends Equatable {
         slotStatus,
         note,
         otp,
+        reviewedByUser,
+        userRating,
+        userReview,
       ];
 
   factory Appointment.fromMap(Map<String, dynamic> json) => Appointment(
@@ -108,6 +117,9 @@ class Appointment extends Equatable {
         note: json["note"] == null ? null : json["note"],
         otp: json["otp"] == null ? null : json["otp"],
         rating: json["rating"] == null ? null : json["rating"],
+        userRating: json["user_rating"] == null ? null : json["user_rating"],
+        userReview: json["user_review"] == null ? null : json["user_review"],
+        reviewedByUser: json["reviewed_by_user"] == null ? null : json["reviewed_by_user"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -135,5 +147,8 @@ class Appointment extends Equatable {
         "note": note == null ? null : note,
         "otp": otp == null ? null : otp,
         "rating": rating == null ? null : rating,
+        "user_review": userReview == null ? null : userReview,
+        "user_rating": userRating == null ? null : userRating,
+        "reviewed_by_user": reviewedByUser == null ? null : reviewedByUser,
       };
 }
