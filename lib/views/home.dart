@@ -157,15 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       HomeHeader(),
                       BlocBuilder<HomeBloc, HomeState>(
                         builder: (context, state) {
-                          if (state is HomeLoading) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(state.msg),
-                                CircularProgressIndicator(),
-                              ],
-                            );
-                          } else if (state is CategorySuccess) {
+                          if (state is CategorySuccess) {
                             return ListView.builder(
                               itemCount: state.categoryList.length,
                               shrinkWrap: true,
@@ -181,7 +173,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           } else {
-                            return Text('Undetermined state');
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(''),
+                                CircularProgressIndicator(),
+                              ],
+                            );
                           }
                         },
                       ),
@@ -225,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class CategoryBox extends StatefulWidget {
+class CategoryBox extends StatelessWidget {
   const CategoryBox(
     this.categorySubscriberList, {
     Key key,
@@ -234,20 +232,10 @@ class CategoryBox extends StatefulWidget {
   final CategorySubscriberList categorySubscriberList;
 
   @override
-  _CategoryBoxState createState() => _CategoryBoxState();
-}
-
-class _CategoryBoxState extends State<CategoryBox> {
-  ScrollController scrollController;
-
-  @override
-  void initState() {
-    scrollController = ScrollController();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    if (categorySubscriberList.subscribers.length == 0) {
+      return Container();
+    }
     return Column(
       children: [
         Padding(
@@ -256,7 +244,7 @@ class _CategoryBoxState extends State<CategoryBox> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.categorySubscriberList.categoryName,
+                categorySubscriberList.categoryName,
                 style: Theme.of(context).textTheme.headline6,
               ),
               GestureDetector(
@@ -276,13 +264,11 @@ class _CategoryBoxState extends State<CategoryBox> {
         Expanded(
           child: Container(
             child: ListView.builder(
-              itemCount: widget.categorySubscriberList.subscribers.length,
+              itemCount: categorySubscriberList.subscribers.length,
               scrollDirection: Axis.horizontal,
               shrinkWrap: true,
-              controller: scrollController,
               itemBuilder: (context, index) {
-                return SubscriberBox(
-                    widget.categorySubscriberList.subscribers[index]);
+                return SubscriberBox(categorySubscriberList.subscribers[index]);
               },
             ),
           ),

@@ -14,7 +14,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   String location = 'Patna';
   SubscriberRepository repository;
   List<String> categories;
-  List<CategorySubscriberList> categorizedSubscribers;
+  List<CategorySubscriberList> categorizedSubscribers = [];
 
   HomeBloc({this.accessToken}) : super(HomeInitial()) {
     repository = SubscriberRepository(localAccessToken: accessToken);
