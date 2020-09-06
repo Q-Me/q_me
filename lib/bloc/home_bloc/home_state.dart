@@ -42,6 +42,37 @@ class CategoriesReady extends HomeState {
   List<Object> get props => [categories];
 }
 
+class CategoryLoading extends HomeState {
+  final String category;
+
+  CategoryLoading(this.category);
+
+  @override
+  List<Object> get props => [category];
+}
+
+class CategoryLoadingFail extends HomeState {
+  final String category;
+  final String error;
+  CategoryLoadingFail({@required this.category, @required this.error});
+
+  @override
+  List<Object> get props => [category];
+}
+
+class CategorySuccess extends HomeState {
+  final List<CategorySubscriberList> categoryList;
+
+  CategorySuccess(this.categoryList);
+}
+
+class PartCategoryReady extends HomeState {
+  final List<CategorySubscriberList> categoryList;
+  
+  PartCategoryReady(this.categoryList);
+
+}
+
 class SubscribersByCategoryReady extends HomeState {
   final Map<String, List<Subscriber>> categoryMap;
 

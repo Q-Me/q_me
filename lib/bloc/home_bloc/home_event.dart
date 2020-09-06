@@ -15,7 +15,9 @@ class SetLocation extends HomeEvent {
 
 class GetCategories extends HomeEvent {}
 
-class GetSubscribersByCategory {
+class GetSubscribersAllCategory extends HomeEvent {}
+
+class GetSubscribersByCategory extends HomeEvent {
   final String category;
 
   GetSubscribersByCategory(this.category);

@@ -4,9 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:hive/hive.dart';
 import 'package:qme/api/base_helper.dart';
+import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
@@ -125,36 +127,50 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           children: <Widget>[
             SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  HomeHeader(),
-                  ListView.builder(
-                    itemCount: 6,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) => ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: 300),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        color: Colors.white,
-                        child: CategoryBox(
-                          CategorySubscriberList(
-                            categoryName: 'Premium Salons',
-                            subscribers: [
-                              subscriber,
-                              subscriber,
-                              subscriber,
-                              subscriber,
+              child: BlocProvider(
+                create: (context) {
+                  HomeBloc bloc = HomeBloc();
+                  bloc.add(GetCategories());
+                  return bloc;
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    HomeHeader(),
+                    BlocBuilder<HomeBloc, HomeState>(
+                      builder: (context, state) {
+                        if (state is HomeLoading) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(state.msg),
+                              CircularProgressIndicator(),
                             ],
-                          ),
-                        ),
-                      ),
+                          );
+                        } else if (state is CategorySuccess) {
+                          return ListView.builder(
+                            itemCount: state.categoryList.length,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) => ConstrainedBox(
+                              constraints: BoxConstraints(maxHeight: 300),
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                color: Colors.white,
+                                child: CategoryBox(state.categoryList[index]),
+                              ),
+                            ),
+                          );
+                        } else {
+                          return Text('Undetermined state');
+                        }
+                      },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             BookingsScreen(),

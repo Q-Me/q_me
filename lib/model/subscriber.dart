@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:equatable/equatable.dart';
 import 'package:qme/api/kAPI.dart';
 import 'package:meta/meta.dart';
 import 'package:qme/utilities/logger.dart';
@@ -7,7 +8,7 @@ import 'package:qme/utilities/logger.dart';
 Subscriber subscriberFromJson(String str) =>
     Subscriber.fromJson(json.decode(str));
 
-class Subscriber {
+class Subscriber extends Equatable {
   String id,
       name,
       description,
@@ -24,7 +25,7 @@ class Subscriber {
   double rating;
 
   Subscriber({
-    this.id,
+    @required this.id,
     this.name,
     this.description,
     this.owner,
@@ -111,14 +112,26 @@ class Subscriber {
         "displayImages": [displayImages],
         "tags": [tags],
       };
+
+  @override
+  List<Object> get props => [id];
 }
 
-class CategorySubscriberList {
+class CategorySubscriberList extends Equatable {
   final String categoryName;
   List<Subscriber> subscribers;
 
   CategorySubscriberList({
     @required this.categoryName,
-    this.subscribers = const [],
+    this.subscribers,
   });
+
+  Map<String, dynamic> toJson() => {
+        "category": categoryName,
+        "subscribers":
+            subscribers.map((e) => Subscriber(id: e.id).toJson()).toList(),
+      };
+
+  @override
+  List<Object> get props => [categoryName, subscribers];
 }

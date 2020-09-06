@@ -16,11 +16,14 @@ class SubscriberRepository {
   String get accessToken => localAccessToken;
 
   setAccessToken() async {
-    localAccessToken ??= await getAccessTokenFromStorage();
+    localAccessToken = localAccessToken == null
+        ? await getAccessTokenFromStorage()
+        : localAccessToken;
   }
 
   SubscriberRepository({this.localAccessToken}) {
     setAccessToken();
+    // logger.d('Repo accessToken:\n$accessToken');
   }
 
   Future<List<Subscriber>> fetchSubscriberList({String accessToken}) async {
@@ -92,15 +95,15 @@ class SubscriberRepository {
   Future<List<String>> subscriberCategories() async {
     final response = await _helper.post(
       '/user/categories',
-      authToken: await accessToken,
+      // authToken: accessToken,
+      headers: {'Authorization': 'Bearer $accessToken'},
     );
-    return response["categories"];
+    return List<String>.from(response["categories"]);
   }
 
   Future<List<Subscriber>> subscriberByCategory({
     String location,
     @required String category,
-    String accessToken,
   }) async {
     final response = await _helper.post(
       kSubscriberByCategory,
@@ -108,7 +111,7 @@ class SubscriberRepository {
         'location': location,
         'category': category,
       },
-      headers: {'Authorization': 'Bearer $accessToken'},
+      authToken: accessToken,
     );
     return List.from(response["subscriber"])
         .map((e) => Subscriber.fromJson(e))
