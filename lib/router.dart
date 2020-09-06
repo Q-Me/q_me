@@ -54,9 +54,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );*/
 
     case SubscriberScreen.id:
-      Subscriber subscriber = settings.arguments;
       return MaterialPageRoute(
-        builder: (context) => SubscriberScreen(subscriber: subscriber),
+        builder: (context) => SubscriberScreen(subscriber: settings.arguments),
         settings: RouteSettings(name: SubscriberScreen.id),
       );
 

@@ -14,33 +14,13 @@ import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
+import 'package:qme/views/subscriber.dart';
 import 'package:qme/widgets/searchBox.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-final jsonString = {
-  "id": "nplhS-7cJ",
-  "name": "Piyush Saloon",
-  "description": "NULL",
-  "owner": "Mr. A",
-  "email": "piyush@gmail.com",
-  "phone": "+919876543210",
-  "address": "Mumbai",
-  "longitude": 0,
-  "latitude": 0,
-  "category": "Beauty & Wellness",
-  "tags": null,
-  "profileImage": "Beauty & Wellness.png",
-  "verified": 0,
-  "rating": 3.7,
-  "displayImages": ["nplhS-7cJ_1.jpeg"]
-};
-final subscriber = Subscriber.fromJson(jsonString);
-
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
-  const HomeScreen({
-    Key key,
-  }) : super(key: key);
+  const HomeScreen({Key key}) : super(key: key);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -121,7 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final offset = MediaQuery.of(context).size.width / 20;
     return WillPopScope(
       onWillPop: () {
         if (_selectedIndex != 0) {
@@ -134,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: SafeArea(
         child: Scaffold(
+          backgroundColor: Theme.of(context).primaryColor,
           body: PageView(
             controller: pageController,
             onPageChanged: (index) {
@@ -142,81 +122,76 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             },
             children: <Widget>[
-              SingleChildScrollView(
-                child: BlocProvider(
-                  create: (context) {
-                    HomeBloc bloc = HomeBloc();
-                    bloc.add(GetCategories());
-                    return bloc;
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      HomeHeader(),
-                      BlocBuilder<HomeBloc, HomeState>(
-                        builder: (context, state) {
-                          if (state is CategorySuccess) {
-                            return ListView.builder(
-                              itemCount: state.categoryList.length,
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, index) => ConstrainedBox(
-                                constraints: BoxConstraints(maxHeight: 300),
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  color: Colors.white,
-                                  child: CategoryBox(state.categoryList[index]),
-                                ),
-                              ),
-                            );
-                          } else {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(''),
-                                CircularProgressIndicator(),
-                              ],
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              BookingsScreen(
-                controller: pageController,
-              ),
-              MenuScreen(
-                controller: pageController,
-              ),
+              HomeScreenPage(),
+              BookingsScreen(controller: pageController),
+              MenuScreen(controller: pageController),
             ],
           ),
           bottomNavigationBar: CupertinoTabBar(
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
             items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
-                ),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.timer,
-                ),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.person,
-                ),
-              ),
+              BottomNavigationBarItem(icon: Icon(Icons.home)),
+              BottomNavigationBarItem(icon: Icon(Icons.timer)),
+              BottomNavigationBarItem(icon: Icon(Icons.person)),
             ],
             activeColor: Theme.of(context).primaryColor,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class HomeScreenPage extends StatelessWidget {
+  const HomeScreenPage({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: BlocProvider(
+        create: (context) {
+          HomeBloc bloc = HomeBloc();
+          bloc.add(GetCategories());
+          return bloc;
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            HomeHeader(
+              child: BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  if (state is CategorySuccess) {
+                    return ListView.builder(
+                      itemCount: state.categoryList.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) => ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: 300),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          color: Colors.white,
+                          child: CategoryBox(state.categoryList[index]),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(''),
+                        CircularProgressIndicator(),
+                      ],
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -287,102 +262,112 @@ class SubscriberBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-            child: ValueListenableBuilder(
-              valueListenable: Hive.box('user').listenable(),
-              builder: (context, box, widget) => CachedNetworkImage(
-                imageUrl: subscriber.imgURL,
-                fit: BoxFit.cover,
-                httpHeaders: {
-                  HttpHeaders.authorizationHeader:
-                      bearerToken(box.get('accessToken'))
-                },
-                width: 230,
-                height: 180,
-              ),
-            ),
-          ),
-          Container(
-            width: 230,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 2,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(
-                color: Colors.black26,
-                width: 1.0,
-              ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          SubscriberScreen.id,
+          arguments: subscriber,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          children: [
+            ClipRRect(
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20.0),
-                bottomRight: Radius.circular(20.0),
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              child: ValueListenableBuilder(
+                valueListenable: Hive.box('user').listenable(
+                  keys: ['accessToken'],
+                ),
+                builder: (context, box, widget) => CachedNetworkImage(
+                  imageUrl: subscriber.imgURL,
+                  fit: BoxFit.cover,
+                  httpHeaders: {
+                    HttpHeaders.authorizationHeader:
+                        bearerToken(box.get('accessToken'))
+                  },
+                  width: 230,
+                  height: 180,
+                ),
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  subscriber.name,
-                  maxLines: 1,
-                  style: Theme.of(context).textTheme.subtitle1,
+            Container(
+              width: 230,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 2,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: Colors.black26,
+                  width: 1.0,
                 ),
-                Text(
-                  subscriber.address,
-                  maxLines: 1,
-                  style: Theme.of(context)
-                      .textTheme
-                      .subtitle2
-                      .copyWith(color: Colors.grey),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20.0),
+                  bottomRight: Radius.circular(20.0),
                 ),
-                Opacity(
-                  opacity: subscriber.rating <= 0.0 ? 0 : 1,
-                  child: Row(
-                    children: [
-                      RatingBarIndicator(
-                        itemSize: 15,
-                        direction: Axis.horizontal,
-                        itemCount: 5,
-                        rating: subscriber.quantizedRating,
-                        itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                        itemBuilder: (context, _) => Icon(
-                          Icons.star,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        // onRatingUpdate: (double value) {},
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        '${subscriber.rating}/5',
-                        style: TextStyle(
-                          fontSize: 11,
-                        ),
-                      )
-                    ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    subscriber.name,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
-                )
-              ],
+                  Text(
+                    subscriber.address,
+                    maxLines: 1,
+                    style: Theme.of(context)
+                        .textTheme
+                        .subtitle2
+                        .copyWith(color: Colors.grey),
+                  ),
+                  Opacity(
+                    opacity: subscriber.rating <= 0.0 ? 0 : 1,
+                    child: Row(
+                      children: [
+                        RatingBarIndicator(
+                          itemSize: 15,
+                          direction: Axis.horizontal,
+                          itemCount: 5,
+                          rating: subscriber.quantizedRating,
+                          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+                          itemBuilder: (context, _) => Icon(
+                            Icons.star,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                          // onRatingUpdate: (double value) {},
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          '${subscriber.rating}/5',
+                          style: TextStyle(
+                            fontSize: 11,
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({
-    Key key,
-  }) : super(key: key);
+  final Widget child;
+  const HomeHeader({Key key, @required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -420,7 +405,8 @@ class HomeHeader extends StatelessWidget {
                   topRight: Radius.circular(10.0),
                 ),
               ),
-            )
+            ),
+            child,
           ],
         ),
         Positioned(
