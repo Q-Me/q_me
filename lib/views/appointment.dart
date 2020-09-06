@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,6 +9,7 @@ import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/appointment.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/booking_success.dart';
 
 class ApppointmentScreenArguments {
@@ -61,6 +63,51 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
         reception: reception,
       );
     }
+  }
+
+  void confirmationDialog(BuildContext primaryContext) {
+    showCupertinoDialog(
+        context: primaryContext,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Confirm!"),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+              RaisedButton(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                onPressed: () {
+                  logger.d("bookng");
+                  BlocProvider.of<BookingBloc>(primaryContext)
+                      .add(BookingRequested(
+                    subscriber.id,
+                    note,
+                    reception.id,
+                    slot.startTime,
+                    slot.endTime,
+                  ));
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Yes",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                color: Theme.of(context).primaryColor,
+              ),
+            ],
+          );
+        });
   }
 
   @override
@@ -204,14 +251,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                     builder: (context, state) {
                       return RaisedButton(
                         onPressed: () {
-                          BlocProvider.of<BookingBloc>(context)
-                              .add(BookingRequested(
-                            subscriber.id,
-                            note,
-                            reception.id,
-                            slot.startTime,
-                            slot.endTime,
-                          ));
+                          confirmationDialog(context);
                         },
                         color: Theme.of(context).primaryColor,
                         child: Padding(

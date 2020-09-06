@@ -12,7 +12,8 @@ import 'package:qme/views/profileview.dart';
 import 'package:qme/views/signin.dart';
 
 class MenuScreen extends StatelessWidget {
-  const MenuScreen({Key key}) : super(key: key);
+  const MenuScreen({Key key, this.controller}) : super(key: key);
+  final PageController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +21,20 @@ class MenuScreen extends StatelessWidget {
         child: Scaffold(
       backgroundColor: Color.fromRGBO(9, 79, 239, 1),
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            controller.animateToPage(0,
+                duration: Duration(milliseconds: 500), curve: Curves.ease);
+          },
+          child: Center(
+            child: FaIcon(FontAwesomeIcons.arrowLeft),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
           "Menu",
           style: TextStyle(color: Colors.white),
-        ),
-        leading: GestureDetector(
-          onTap: () {},
-          child: Center(
-            child: FaIcon(FontAwesomeIcons.arrowLeft),
-          ),
         ),
       ),
       body: Container(

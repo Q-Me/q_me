@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/views/review.dart';
@@ -16,6 +17,8 @@ class ListItemBooked extends StatelessWidget {
     @required this.otp,
     @required this.counterId,
     @required this.primaryContext,
+    @required this.latitude,
+    @required this.longitude,
   }) : super(key: key);
 
   final String name;
@@ -24,6 +27,8 @@ class ListItemBooked extends StatelessWidget {
   final String otp;
   final String counterId;
   final BuildContext primaryContext;
+  final double latitude;
+  final double longitude;
 
   @override
   Widget build(BuildContext context) {
@@ -32,23 +37,53 @@ class ListItemBooked extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Column(
+          child: Row(
             children: [
-              Text(
-                "$name",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    children: [
+                      Text(
+                        "$name",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "$location",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              Text(
-                "$location",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold),
-              ),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          MapsLauncher.launchCoordinates(latitude, longitude);
+                        },
+                        icon: Icon(Icons.pin_drop),
+                        color: Theme.of(context).primaryColor,
+                        iconSize: 30,
+                      ),
+                      Text("View map"),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
@@ -94,8 +129,7 @@ class ListItemBooked extends StatelessWidget {
                         title: Text("Whoa, Hold On..."),
                         content: Text(
                             "Do you really want to cancel your appointment?"),
-                        actions: <Widget>[
-                          new RaisedButton(
+                        actions: <Widget>[new FlatButton(
                             onPressed: () async {
                               BlocProvider.of<BookingslistBloc>(primaryContext)
                                   .add(
@@ -106,16 +140,17 @@ class ListItemBooked extends StatelessWidget {
                               );
                               Navigator.pop(context);
                             },
-                            child: Text("Yep, I'm sure"),
-                            color: Colors.red[600],
+                            child: Text("Yes", style: TextStyle(color: Theme.of(context).primaryColor,),),
                           ),
                           new RaisedButton(
-                            onPressed: () {
+                            color: Theme.of(context).primaryColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),),
+                            onPressed: () async {
                               Navigator.pop(context);
                             },
-                            child: Text("No, I want my appointment"),
-                            color: Colors.green[600],
-                          )
+                            child: Text("Cancel", style: TextStyle(color: Colors.white,),),
+                          ),
+                          
                         ],
                       );
                     });
@@ -152,16 +187,22 @@ class ListItemFinished extends StatelessWidget {
     @required this.counterId,
     @required this.subscriberName,
     @required this.primaryContext,
+    @required this.latitude,
+    @required this.longitude,
+    @required this.review,
   }) : super(key: key);
 
   final String name;
   final String location;
   final DateTime slot;
   final double rating;
+  final String review;
   final String subscriberId;
   final String counterId;
   final String subscriberName;
   final BuildContext primaryContext;
+  final double latitude;
+  final double longitude;
 
   @override
   Widget build(BuildContext context) {
@@ -170,23 +211,53 @@ class ListItemFinished extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Column(
+          child: Row(
             children: [
-              Text(
-                "$name",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    children: [
+                      Text(
+                        "$name",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "$location",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              Text(
-                "$location",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold),
-              ),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          MapsLauncher.launchCoordinates(latitude, longitude);
+                        },
+                        icon: Icon(Icons.pin_drop),
+                        color: Theme.of(context).primaryColor,
+                        iconSize: 30,
+                      ),
+                      Text("View map"),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
@@ -201,7 +272,24 @@ class ListItemFinished extends StatelessWidget {
         ),
         Material(
           child: InkWell(
-            onTap: () {},
+            onTap: () async {
+              await Navigator.pushNamed(
+                context,
+                ReviewScreen.id,
+                arguments: ReviewScreenArguments(
+                  counterId,
+                  subscriberId,
+                  name,
+                  subscriberName,
+                  slot,
+                  rating,
+                  review,
+                  location,
+                ),
+              );
+              BlocProvider.of<BookingslistBloc>(primaryContext)
+                  .add(BookingsListRequested());
+            },
             child: Padding(
               padding: EdgeInsets.all(10),
               child: Row(
@@ -220,7 +308,7 @@ class ListItemFinished extends StatelessWidget {
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: rating == null
+                      child: rating == null || rating == 0.0
                           ? Text(
                               "You have not rated yet",
                               style: TextStyle(
@@ -228,7 +316,7 @@ class ListItemFinished extends StatelessWidget {
                               ),
                             )
                           : RatingBarIndicator(
-                              itemSize: 30,
+                              itemSize: 20,
                               rating: rating,
                               itemBuilder: (BuildContext context, int index) =>
                                   FaIcon(
@@ -238,21 +326,9 @@ class ListItemFinished extends StatelessWidget {
                             ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        ReviewScreen.id,
-                        arguments: ReviewScreenArguments(
-                            counterId, subscriberId, name, subscriberName, slot),
-                      );
-                      BlocProvider.of<BookingslistBloc>(primaryContext)
-                          .add(BookingsListRequested());
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: FaIcon(FontAwesomeIcons.angleRight),
-                    ),
+                  Padding(
+                    padding: EdgeInsets.all(8),
+                    child: FaIcon(FontAwesomeIcons.angleRight),
                   )
                 ],
               ),
@@ -273,11 +349,15 @@ class ListItemCancelled extends StatelessWidget {
     @required this.name,
     @required this.location,
     @required this.slot,
+    @required this.latitude,
+    @required this.longitude,
   }) : super(key: key);
 
   final String name;
   final String location;
   final DateTime slot;
+  final double latitude;
+  final double longitude;
 
   @override
   Widget build(BuildContext context) {
@@ -286,23 +366,53 @@ class ListItemCancelled extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Column(
+          child: Row(
             children: [
-              Text(
-                "$name",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    children: [
+                      Text(
+                        "$name",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "$location",
+                        style: TextStyle(
+                            fontFamily: "Avenir",
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              Text(
-                "$location",
-                style: TextStyle(
-                    fontFamily: "Avenir",
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold),
-              ),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          MapsLauncher.launchCoordinates(latitude, longitude);
+                        },
+                        icon: Icon(Icons.pin_drop),
+                        color: Theme.of(context).primaryColor,
+                        iconSize: 30,
+                      ),
+                      Text("View map"),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
