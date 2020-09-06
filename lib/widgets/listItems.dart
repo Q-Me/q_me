@@ -7,7 +7,6 @@ import 'package:maps_launcher/maps_launcher.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/views/review.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ListItemBooked extends StatelessWidget {
   const ListItemBooked({

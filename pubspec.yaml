@@ -91,6 +91,7 @@ flutter:
   assets:
    - assets/icons/
    - assets/temp/otpSvg.svg
+   - assets/temp/getStarted.svg
    - assets/temp/users.svg
    - assets/temp/introSlider1.png
    - assets/temp/introSlider2.png

@@ -78,14 +78,15 @@ class _SignInScreenState extends State<SignInScreen>
                   return;
                 }
               } catch (e) {
-                logger.d(" !!$e !!");
+                logger.d(" !!${e.toMap()["msg"].toString()}!!");
+                final errorMessage = e.toMap()["msg"].toString();
                 showDialog(
                     context: context,
                     barrierDismissible: false,
                     builder: (context) {
                       return AlertDialog(
-                        title: Text("SignIn Failed"),
-                        content: Text(e.toMap()["msg"].toString()),
+                        title: Text("SignIn Failed!"),
+                        content: Text(errorMessage),
                         actions: <Widget>[
                           FlatButton(
                             child: Text("OK"),
@@ -115,16 +116,19 @@ class _SignInScreenState extends State<SignInScreen>
         verificationFailed: (AuthException exception) {
           logger.d("here is exception error");
           logger.d(exception.message);
-            String fireBaseError  = exception.message.toString();
+          String fireBaseError = exception.message.toString();
           if (exception.message ==
-              "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_LONG ]"
-              ||exception.message ==  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_SHORT ]")
-               { fireBaseError = "Please verify and enter correct 10 digit phone number with country code.";}
-               else if (exception.message == "We have blocked all requests from this device due to unusual activity. Try again later.")
-               {
-                 fireBaseError = "You have tried maximum number of signin.please retry after some time.";
-               }
-               
+                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_LONG ]" ||
+              exception.message ==
+                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_SHORT ]") {
+            fireBaseError =
+                "Please verify and enter correct 10 digit phone number with country code.";
+          } else if (exception.message ==
+              "We have blocked all requests from this device due to unusual activity. Try again later.") {
+            fireBaseError =
+                "You have tried maximum number of signin.please retry after some time.";
+          }
+
           showDialog(
               context: context,
               barrierDismissible: false,
