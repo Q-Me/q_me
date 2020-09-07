@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:qme/bloc/appointment.dart';
 import 'package:qme/bloc/booking_bloc.dart';
@@ -155,6 +156,12 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                   ),
                 );
               } else if (state is BookingLoadSuccess) {
+                int previousVal = Hive.box("counter").get("counter");
+                logger.i(previousVal);
+                Hive.box("counter").put(
+                  "counter",
+                  previousVal + 1,
+                );
                 Navigator.pushReplacementNamed(
                   context,
                   BookingSuccess.id,

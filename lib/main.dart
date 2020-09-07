@@ -22,6 +22,7 @@ import 'package:qme/views/noInternet.dart';
 String initialHome = InitialScreen.id;
 bool firstLogin;
 Box indexOfHomeScreen;
+Box notificationIndicator;
 
 void main() async {
   // Bloc.observer = SimpleBlocObserver();
@@ -30,6 +31,8 @@ void main() async {
   Box box = await Hive.openBox("user");
   indexOfHomeScreen = await Hive.openBox("index");
   indexOfHomeScreen.put("index", 0);
+  notificationIndicator = await Hive.openBox("counter");
+  notificationIndicator.put("counter", 0);
   firstLogin = await box.get('firstLogin');
   if (firstLogin == false) initialHome = SignInScreen.id;
 
@@ -38,7 +41,6 @@ void main() async {
   // TODO setConfigs();
   // TODO fetch user related information
   try {
-
     if (await UserRepository().isSessionReady()) {
       initialHome = HomeScreen.id;
     }
