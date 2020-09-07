@@ -136,7 +136,15 @@ class _SlotViewState extends State<SlotView> {
                         return Center(child: Text('Unavailable'));
                       } else if (receptions.length == 1) {}
                       List<Widget> boxesOfSlot = [];
-
+                      DateTime now = DateTime.now();
+                      now = DateTime.utc(
+                        now.year,
+                        now.month,
+                        now.day,
+                        now.hour,
+                        now.minute,
+                        now.millisecond,
+                      );
                       for (Reception reception in receptions) {
                         boxesOfSlot.addAll(reception.slotList.map(
                           (e) {
@@ -149,7 +157,8 @@ class _SlotViewState extends State<SlotView> {
                             } else if (state is SelectedSlot &&
                                 state.slot == slot) {
                               color = Theme.of(context).primaryColor;
-                            } else if (!reception.availableForBooking) {
+                            } else if (!reception.availableForBooking ||
+                                e.startTime.isBefore(now)) {
                               color = Colors.grey;
                             } else {
                               color = Colors.white;
@@ -159,7 +168,8 @@ class _SlotViewState extends State<SlotView> {
                                 return GestureDetector(
                                   onTap: () {
                                     if (!reception.availableForBooking ||
-                                        !e.availableForBooking) {
+                                        !e.availableForBooking ||
+                                        e.startTime.isBefore(now)) {
                                       return;
                                     }
                                     BlocProvider.of<SlotViewBloc>(context).add(
