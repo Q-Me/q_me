@@ -25,6 +25,7 @@ class _BookingSuccessState extends State<BookingSuccess> {
         body: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 200,
@@ -58,7 +59,10 @@ class _BookingSuccessState extends State<BookingSuccess> {
           ),
           Text(
             "Please try to reach at least 5 minutes before the scheduled time and show this OTP at the store.",
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+            textAlign: TextAlign.center,
           ),
           SizedBox(
             height: 15,

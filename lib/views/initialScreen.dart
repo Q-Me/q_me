@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intro_slider/intro_slider.dart';
 import 'package:qme/views/introSlider.dart';
 
 class InitialScreen extends StatefulWidget {

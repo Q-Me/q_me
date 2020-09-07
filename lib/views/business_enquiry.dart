@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -203,7 +202,7 @@ class PinkContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: 14),
-      height: h * 0.3,
+      height: h * 0.3 * 0.95,
       width: w,
       decoration: BoxDecoration(
           color: Color(0xFFf0e2dd),
@@ -211,17 +210,19 @@ class PinkContainer extends StatelessWidget {
             bottomLeft: Radius.circular(20),
             bottomRight: Radius.circular(20),
           )),
-      // child: CircleAvatar(
-      //   radius: w / 6,
-      //   backgroundColor: Colors.white,
-      // ),
       child: Align(
         alignment: Alignment.topRight,
         child: Container(
-          height: h * 0.3 * 0.85,
-          width: w / 2,
-          child: SvgPicture.asset(
-            "assets/images/wantlist.svg",
+          height: h * 0.3 * 0.86,
+          width: w,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Image.asset("assets/images/man.png"),
+              Image.asset(
+                "assets/images/wantlist.png",
+              ),
+            ],
           ),
         ),
       ),

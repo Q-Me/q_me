@@ -25,8 +25,8 @@ class ContactUsView extends StatelessWidget {
           children: [
             Container(
               height: h * 0.4,
-              child: SvgPicture.asset(
-                "assets/images/contactus.svg",
+              child: Image.asset(
+                "assets/images/contactus.png",
               ),
             ),
             NameAndPost(
