@@ -51,7 +51,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         fontSize: 18,
                         color: Colors.black,
                         fontFamily: "Avenir"),
-                  ),
+                  ), 
                   background: Image.asset(
                     "assets/icons/my-bookings.png",
                     fit: BoxFit.cover,

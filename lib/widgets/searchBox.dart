@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/utilities/logger.dart';
 
 class SearchBox extends StatefulWidget {
@@ -12,6 +14,7 @@ class SearchBox extends StatefulWidget {
 
 class _SearchBoxState extends State<SearchBox> {
   TextEditingController _controller;
+  final FocusNode _searchFocus = FocusNode();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,8 +34,12 @@ class _SearchBoxState extends State<SearchBox> {
         width: MediaQuery.of(context).size.width - 40,
         child: TextFormField(
           controller: _controller,
+          focusNode: _searchFocus,
           style: TextStyle(fontSize: 18),
           textInputAction: TextInputAction.search,
+          onFieldSubmitted: (value) {
+            BlocProvider.of<HomeBloc>(context).add(SetLocation(value));
+          },
           decoration: InputDecoration(
             prefixIcon: Icon(Icons.search),
             hintText: 'Search by location',
@@ -41,6 +48,9 @@ class _SearchBoxState extends State<SearchBox> {
             ),
             contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
           ),
+          onEditingComplete: () {
+            _searchFocus.unfocus();
+          },
         ),
       ),
     );

@@ -20,11 +20,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 String shortAddress(String address) {
   final aList = address.split(",");
-  if (aList.length > 2)
+  if (aList.length >= 2)
     return aList.elementAt(aList.length - 2).trimLeft() +
         ', ' +
         aList.elementAt(aList.length - 1);
-  else if (aList.length > 1)
+  else if (aList.length >= 1)
     return aList.elementAt(aList.length - 1);
   else
     return address;
@@ -90,7 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _messaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         //showNotification(message['notification']);
-        logger.i('on message $message');
+        setState(() {
+          logger.i('on message $message');
+        });
       },
       onResume: (Map<String, dynamic> message) async {
         logger.i('on resume $message');
@@ -342,10 +344,7 @@ class SubscriberBox extends StatelessWidget {
                         .subtitle2
                         .copyWith(color: Colors.grey),
                   ),
-                  Opacity(
-                    opacity: subscriber.rating <= 0.0 ? 0 : 1,
-                    child: SubscriberRating(subscriber: subscriber),
-                  )
+                  SubscriberRating(subscriber: subscriber)
                 ],
               ),
             ),
@@ -366,28 +365,31 @@ class SubscriberRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        RatingBarIndicator(
-          itemSize: 15,
-          direction: Axis.horizontal,
-          itemCount: 5,
-          rating: subscriber.quantizedRating,
-          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-          itemBuilder: (context, _) => Icon(
-            Icons.star,
-            color: Theme.of(context).primaryColor,
+    return Opacity(
+      opacity: subscriber.rating <= 0.0 ? 0 : 1,
+      child: Row(
+        children: [
+          RatingBarIndicator(
+            itemSize: 15,
+            direction: Axis.horizontal,
+            itemCount: 5,
+            rating: subscriber.quantizedRating,
+            itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+            itemBuilder: (context, _) => Icon(
+              Icons.star,
+              color: Theme.of(context).primaryColor,
+            ),
+            // onRatingUpdate: (double value) {},
           ),
-          // onRatingUpdate: (double value) {},
-        ),
-        SizedBox(width: 10),
-        Text(
-          '${subscriber.rating}/5.0',
-          style: TextStyle(
-            fontSize: 11,
-          ),
-        )
-      ],
+          SizedBox(width: 10),
+          Text(
+            '${subscriber.rating}/5.0',
+            style: TextStyle(
+              fontSize: 11,
+            ),
+          )
+        ],
+      ),
     );
   }
 }
