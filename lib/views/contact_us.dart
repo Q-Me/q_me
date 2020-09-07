@@ -35,7 +35,7 @@ class ContactUsView extends StatelessWidget {
               position: "Building Relations @ Q Me",
             ),
             EmailAndPhoneNumberTiles(
-              phone1: "+919931059201",
+              phone1: "+91 9931059201",
               phone2: "+91 8340342582",
               beEmail: "aman.ks0224@gmail.com",
             ),
@@ -45,9 +45,10 @@ class ContactUsView extends StatelessWidget {
               position: "Building Product @ Q Me",
             ),
             EmailAndPhoneNumberTiles(
-                phone1: "+91 96735 82517",
-                phone2: "+91 8850774467",
-                beEmail: "pi.codemonk@gmail.com"),
+              phone1: "+91 96735 82517",
+              phone2: "+91 8850774467",
+              beEmail: "pi.codemonk@gmail.com",
+            ),
           ],
         ),
       ),

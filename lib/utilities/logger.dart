@@ -29,4 +29,4 @@ class PrefixPrinter extends LogPrinter {
 
 var logger = Logger(
     printer: PrefixPrinter(
-        PrettyPrinter(colors: false, printEmojis: false, printTime: true)));
+        PrettyPrinter(colors: true, printEmojis: false, printTime: true)));

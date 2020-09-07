@@ -1,11 +1,14 @@
 import 'dart:convert';
 
+import 'package:equatable/equatable.dart';
 import 'package:qme/api/kAPI.dart';
+import 'package:meta/meta.dart';
+import 'package:qme/utilities/logger.dart';
 
 Subscriber subscriberFromJson(String str) =>
     Subscriber.fromJson(json.decode(str));
 
-class Subscriber {
+class Subscriber extends Equatable {
   String id,
       name,
       description,
@@ -22,7 +25,7 @@ class Subscriber {
   double rating;
 
   Subscriber({
-    this.id,
+    @required this.id,
     this.name,
     this.description,
     this.owner,
@@ -39,6 +42,28 @@ class Subscriber {
     this.tags,
     this.rating,
   });
+
+  double get quantizedRating {
+    final round = rating.round().toDouble();
+    final lowerInt = rating.toInt().toDouble();
+    if (round - lowerInt > 0.5) {
+      return lowerInt + 0.5;
+    } else {
+      return lowerInt;
+    }
+  }
+
+  String get shortAddress {
+    final aList = address.split(",");
+    if (aList.length >= 2)
+      return aList.elementAt(aList.length - 2).trimLeft() +
+          ', ' +
+          aList.elementAt(aList.length - 1);
+    else if (aList.length >= 1)
+      return aList.elementAt(aList.length - 1);
+    else
+      return address;
+  }
 
   factory Subscriber.fromJson(Map<String, dynamic> json) {
     String distance;
@@ -79,7 +104,7 @@ class Subscriber {
       distance: distance,
       displayImages: displayImages,
       // tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
-      rating: json["rating"],
+      rating: json["rating"] == null ? -1.0 : json["rating"].toDouble(),
     );
   }
   Map<String, dynamic> toJson() => {
@@ -99,4 +124,25 @@ class Subscriber {
         "displayImages": [displayImages],
         "tags": [tags],
       };
+
+  @override
+  List<Object> get props => [id];
+}
+
+class CategorySubscriberList extends Equatable {
+  final String categoryName;
+  List<Subscriber> subscribers;
+
+  CategorySubscriberList({
+    @required this.categoryName,
+    this.subscribers,
+  });
+
+  Map<String, dynamic> toJson() => {
+        "category": categoryName,
+        "subscribers": subscribers.map((e) => '{id:${e.id}}').toList(),
+      };
+
+  @override
+  List<Object> get props => [categoryName, subscribers];
 }

@@ -129,7 +129,8 @@ class ListItemBooked extends StatelessWidget {
                         title: Text("Whoa, Hold On..."),
                         content: Text(
                             "Do you really want to cancel your appointment?"),
-                        actions: <Widget>[new FlatButton(
+                        actions: <Widget>[
+                          new FlatButton(
                             onPressed: () async {
                               BlocProvider.of<BookingslistBloc>(primaryContext)
                                   .add(
@@ -140,17 +141,24 @@ class ListItemBooked extends StatelessWidget {
                               );
                               Navigator.pop(context);
                             },
-                            child: Text("Yes", style: TextStyle(color: Theme.of(context).primaryColor,),),
+                            child: Text(
+                              "Yes",
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ),
                           new RaisedButton(
                             color: Theme.of(context).primaryColor,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
                             onPressed: () async {
                               Navigator.pop(context);
                             },
-                            child: Text("Cancel", style: TextStyle(color: Colors.white,),),
+                            child: Text(
+                              "No",
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
-                          
                         ],
                       );
                     });

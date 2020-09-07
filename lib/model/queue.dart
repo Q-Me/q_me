@@ -63,7 +63,7 @@ class Queue {
         totalIssuedTokens: json["total_issued_tokens"],
         subscriber: json["subscriber"] != null
             ? Subscriber.fromJson(json["subscriber"])
-            : Subscriber(),
+            : Subscriber(id :''),
         eta: json["ETA"] != null ? durationFromString(json["ETA"]) : Duration(),
         token: json["token"] != null
             ? QueueToken.fromJson(json["token"])

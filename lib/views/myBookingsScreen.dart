@@ -47,8 +47,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     collapseMode: CollapseMode.parallax,
                     centerTitle: false,
                     title: Text(
-                      "Your Bookings :",
-                      style: TextStyle(
+                      "",
+                      style: const TextStyle(
                           fontSize: 18,
                           color: Colors.black,
                           fontFamily: "Avenir"),

@@ -45,12 +45,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         settings: RouteSettings(name: HomeScreen.id),
       );
 
-    /* case NearbyScreen.id:
-      return MaterialPageRoute(
-        builder: (context) => NearbyScreen(),
-        settings: RouteSettings(name: NearbyScreen.id),
-      );
-
+    /* 
     case TokenScreen.id:
       String queueId = settings.arguments;
       return MaterialPageRoute(
@@ -59,9 +54,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );*/
 
     case SubscriberScreen.id:
-      Subscriber subscriber = settings.arguments;
       return MaterialPageRoute(
-        builder: (context) => SubscriberScreen(subscriber: subscriber),
+        builder: (context) => SubscriberScreen(subscriber: settings.arguments),
         settings: RouteSettings(name: SubscriberScreen.id),
       );
 

@@ -12,6 +12,19 @@ import '../repository/user.dart';
 
 class SubscriberRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
+  String localAccessToken;
+  String get accessToken => localAccessToken;
+
+  setAccessToken() async {
+    localAccessToken = localAccessToken == null
+        ? await getAccessTokenFromStorage()
+        : localAccessToken;
+  }
+
+  SubscriberRepository({this.localAccessToken}) {
+    setAccessToken();
+    // logger.d('Repo accessToken:\n$accessToken');
+  }
 
   Future<List<Subscriber>> fetchSubscriberList({String accessToken}) async {
     /*Get all subscribers list*/
@@ -41,7 +54,7 @@ class SubscriberRepository {
     final response = await _helper.post(
       '/user/getsubscriber',
       req: {"subscriber_id": subscriberId},
-      headers: {'Authorization': 'Bearer $accessToken'},
+      authToken: accessToken,
     );
 
     return Subscriber.fromJson(response);
@@ -79,10 +92,18 @@ class SubscriberRepository {
         .toList();
   }
 
+  Future<List<String>> subscriberCategories() async {
+    final response = await _helper.post(
+      '/user/categories',
+      // authToken: accessToken,
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+    return List<String>.from(response["categories"]);
+  }
+
   Future<List<Subscriber>> subscriberByCategory({
     String location,
-    String category,
-    String accessToken,
+    @required String category,
   }) async {
     final response = await _helper.post(
       kSubscriberByCategory,
@@ -90,14 +111,14 @@ class SubscriberRepository {
         'location': location,
         'category': category,
       },
-      headers: {'Authorization': 'Bearer $accessToken'},
+      authToken: accessToken,
     );
     return List.from(response["subscriber"])
         .map((e) => Subscriber.fromJson(e))
         .toList();
   }
 
-  Future<String> rateSubscriber({
+  Future rateSubscriber({
     String counterId,
     String subscriberId,
     String review,

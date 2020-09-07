@@ -11,8 +11,6 @@ class InitialScreen extends StatefulWidget {
 class _InitialScreenState extends State<InitialScreen> {
   @override
   Widget build(BuildContext context) {
-    double cWidth = MediaQuery.of(context).size.width;
-    double cHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -31,7 +29,7 @@ class _InitialScreenState extends State<InitialScreen> {
               ),
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
-              padding: EdgeInsets.all(cWidth * 0.05),
+              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
               onPressed: () {
                 Navigator.pushNamed(context, IntroScreen.id);
               },
