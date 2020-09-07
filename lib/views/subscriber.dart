@@ -12,6 +12,7 @@ import 'package:qme/model/review.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/views/slot_view.dart';
 import 'package:qme/widgets/error.dart';
+import 'dart:math';
 
 class SubscriberScreen extends StatefulWidget {
   static const String id = '/booking';
@@ -175,7 +176,6 @@ class CheckAvailableSlotsButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(18.0),
       ),
       onPressed: () {
-        log('Navigating to subscriber id:${subscriber.id}');
         Navigator.pushReplacementNamed(context, SlotView.id,
             arguments: SlotViewArguments(subscriber: subscriber));
       },
@@ -342,15 +342,12 @@ class SubscriberReviews extends StatelessWidget {
             itemBuilder: (context, index) {
               final Review review = reviews[index];
               return ListTile(
-                title: Row(
-                  children: [
-                    Icon(Icons.account_circle),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(review.custName),
-                  ],
+                leading: CircleAvatar(
+                  child: Text(review.custName[0]),
+                  backgroundColor: [Colors.green, Colors.red, Colors.yellow]
+                      .elementAt(Random().nextInt(3)),
                 ),
+                title: Text(review.custName),
                 trailing: RatingBarIndicator(
                   rating: review.rating,
                   itemSize: 12,
@@ -359,11 +356,12 @@ class SubscriberReviews extends StatelessWidget {
                   itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
                   itemBuilder: (context, _) => Icon(
                     Icons.star,
-                    color: Colors.black,
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
                 subtitle: Text(review.review == "NULL" ? "" : review.review),
               );
-            });
+            },
+          );
   }
 }
