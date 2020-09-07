@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:icon_shadow/icon_shadow.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:qme/bloc/subscriber_bloc/subscriber_bloc.dart';
 import 'package:qme/model/review.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/views/home.dart';
 import 'package:qme/views/slot_view.dart';
 import 'package:qme/widgets/error.dart';
 import 'dart:math';
@@ -84,8 +85,9 @@ class _SubscriberScreenState extends State<SubscriberScreen> {
               padding: EdgeInsets.only(left: 20, right: 20, top: 20),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20)),
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
               ),
               child: Column(
                 children: [
@@ -205,33 +207,42 @@ class SubscriberHeaderInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "${subscriber.name}",
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                SizedBox(height: 5),
-                Text(
-                  "${subscriber.address}",
-                  softWrap: true,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-            Container(
-              padding: EdgeInsets.all(5),
-              child: SubscriberStarRating(
-                subscriber: subscriber,
+        ListTile(
+          title: Text(
+            "${subscriber.name}",
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "${subscriber.address}",
+                softWrap: true,
+                textAlign: TextAlign.left,
+                style: TextStyle(color: Colors.grey),
               ),
-            )
-          ],
+              SubscriberRating(
+                subscriber: subscriber,
+              )
+            ],
+          ),
+          trailing: IconButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              MapsLauncher.launchCoordinates(
+                subscriber.latitude,
+                subscriber.longitude,
+              );
+            },
+            icon: Icon(Icons.pin_drop),
+            color: Theme.of(context).primaryColor,
+            iconSize: 20,
+            constraints: BoxConstraints(maxHeight: 22, maxWidth: 22),
+          ),
+          contentPadding: const EdgeInsets.all(0),
         ),
         SizedBox(height: 10),
         SubscriberServices(
@@ -294,36 +305,6 @@ class SubscriberImages extends StatelessWidget {
   }
 }
 
-class SubscriberStarRating extends StatelessWidget {
-  const SubscriberStarRating({
-    this.subscriber,
-    Key key,
-  }) : super(key: key);
-  final Subscriber subscriber;
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        subscriber.rating == null
-            ? Container()
-            : RatingBarIndicator(
-                itemSize: 15,
-                direction: Axis.horizontal,
-                itemCount: 5,
-                rating: subscriber.rating.toDouble(),
-                itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                itemBuilder: (context, _) => Icon(
-                  Icons.star,
-                  color: Colors.black,
-                ),
-                // onRatingUpdate: (double value) {},
-              ),
-      ],
-    );
-  }
-}
-
 class SubscriberReviews extends StatelessWidget {
   const SubscriberReviews({
     this.reviews,
@@ -341,11 +322,15 @@ class SubscriberReviews extends StatelessWidget {
             itemCount: reviews.length,
             itemBuilder: (context, index) {
               final Review review = reviews[index];
+              final random = Random();
               return ListTile(
                 leading: CircleAvatar(
                   child: Text(review.custName[0]),
-                  backgroundColor: [Colors.green, Colors.red, Colors.yellow]
-                      .elementAt(Random().nextInt(3)),
+                  backgroundColor: [
+                    Colors.green,
+                    Colors.red,
+                    Colors.yellow,
+                  ].elementAt(random.nextInt(3)),
                 ),
                 title: Text(review.custName),
                 trailing: RatingBarIndicator(

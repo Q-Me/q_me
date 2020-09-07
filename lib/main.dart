@@ -38,8 +38,6 @@ void main() async {
   // TODO setConfigs();
   // TODO fetch user related information
   try {
-    await setSession();
-    // await clearSession();
 
     if (await UserRepository().isSessionReady()) {
       initialHome = HomeScreen.id;

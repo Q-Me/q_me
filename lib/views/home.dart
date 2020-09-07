@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     indexOfPage = Hive.box("index");
     _selectedIndex = indexOfPage.get("index");
     pageController = PageController(
-      initialPage: _selectedIndex,
+      initialPage: _selectedIndex ?? 0,
     );
     super.initState();
     firebaseCloudMessagingListeners();
@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: SafeArea(
         child: Scaffold(
-          backgroundColor: Theme.of(context).primaryColor,
+          // backgroundColor: Theme.of(context).primaryColor,
           body: PageView(
             controller: pageController,
             onPageChanged: (index) {
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           bottomNavigationBar: CupertinoTabBar(
-            currentIndex: _selectedIndex,
+            currentIndex: _selectedIndex ?? 0,
             onTap: _onItemTapped,
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(icon: Icon(Icons.home)),
@@ -344,29 +344,7 @@ class SubscriberBox extends StatelessWidget {
                   ),
                   Opacity(
                     opacity: subscriber.rating <= 0.0 ? 0 : 1,
-                    child: Row(
-                      children: [
-                        RatingBarIndicator(
-                          itemSize: 15,
-                          direction: Axis.horizontal,
-                          itemCount: 5,
-                          rating: subscriber.quantizedRating,
-                          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
-                          itemBuilder: (context, _) => Icon(
-                            Icons.star,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          // onRatingUpdate: (double value) {},
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          '${subscriber.rating}/5.0',
-                          style: TextStyle(
-                            fontSize: 11,
-                          ),
-                        )
-                      ],
-                    ),
+                    child: SubscriberRating(subscriber: subscriber),
                   )
                 ],
               ),
@@ -374,6 +352,42 @@ class SubscriberBox extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class SubscriberRating extends StatelessWidget {
+  const SubscriberRating({
+    Key key,
+    @required this.subscriber,
+  }) : super(key: key);
+
+  final Subscriber subscriber;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        RatingBarIndicator(
+          itemSize: 15,
+          direction: Axis.horizontal,
+          itemCount: 5,
+          rating: subscriber.quantizedRating,
+          itemPadding: EdgeInsets.symmetric(horizontal: 1.0),
+          itemBuilder: (context, _) => Icon(
+            Icons.star,
+            color: Theme.of(context).primaryColor,
+          ),
+          // onRatingUpdate: (double value) {},
+        ),
+        SizedBox(width: 10),
+        Text(
+          '${subscriber.rating}/5.0',
+          style: TextStyle(
+            fontSize: 11,
+          ),
+        )
+      ],
     );
   }
 }
@@ -386,46 +400,46 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: ValueListenableBuilder(
-                valueListenable: Hive.box('user').listenable(keys: ['name']),
-                builder: (context, box, widget) {
-                  final String fullName = box.get('name');
-                  return Text(
-                    'Hi ${fullName.split(" ").elementAt(0)}!',
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10.0),
-                  topRight: Radius.circular(10.0),
+        Container(
+          color: Theme.of(context).primaryColor,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: ValueListenableBuilder(
+                  valueListenable: Hive.box('user').listenable(keys: ['name']),
+                  builder: (context, box, widget) {
+                    final String fullName = box.get('name');
+                    return Text(
+                      'Hi ${fullName.split(" ").elementAt(0)}!',
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    );
+                  },
                 ),
               ),
-            ),
-            child,
-          ],
+              const SizedBox(height: 20),
+              Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10.0),
+                    topRight: Radius.circular(10.0),
+                  ),
+                ),
+              ),
+              Container(color: Colors.white, child: child),
+            ],
+          ),
         ),
-        Positioned(
-          top: 80,
-          child: SearchBox(),
-        ),
+        Positioned(top: 80, child: SearchBox()),
       ],
     );
   }
