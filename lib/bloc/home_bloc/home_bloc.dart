@@ -30,7 +30,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (event is SetLocation) {
       yield HomeLoading('setting location to ${event.location}');
       location = event.location;
-      this.add(GetCategories());
+      categorizedSubscribers = [];
+      logger.i('Location set to ${event.location}');
+      this.add(GetSubscribersAllCategory());
     } else if (event is GetCategories) {
       yield HomeLoading('Getting categories...');
       try {

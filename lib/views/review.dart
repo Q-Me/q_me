@@ -58,7 +58,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
     stars = rating;
     review = reviewPrevious;
     controller.text = review;
-    logger.d(stars);
     super.initState();
   }
 
