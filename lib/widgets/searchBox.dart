@@ -3,17 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/utilities/logger.dart';
 
-class SearchBox extends StatefulWidget {
-  const SearchBox({
+class SearchBox extends StatelessWidget {
+  SearchBox({
     Key key,
   }) : super(key: key);
 
-  @override
-  _SearchBoxState createState() => _SearchBoxState();
-}
-
-class _SearchBoxState extends State<SearchBox> {
-  TextEditingController _controller;
   final FocusNode _searchFocus = FocusNode();
   @override
   Widget build(BuildContext context) {
@@ -33,7 +27,6 @@ class _SearchBoxState extends State<SearchBox> {
       child: SizedBox(
         width: MediaQuery.of(context).size.width - 40,
         child: TextFormField(
-          controller: _controller,
           focusNode: _searchFocus,
           style: TextStyle(fontSize: 18),
           textInputAction: TextInputAction.search,

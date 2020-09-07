@@ -53,6 +53,18 @@ class Subscriber extends Equatable {
     }
   }
 
+  String get shortAddress {
+    final aList = address.split(",");
+    if (aList.length >= 2)
+      return aList.elementAt(aList.length - 2).trimLeft() +
+          ', ' +
+          aList.elementAt(aList.length - 1);
+    else if (aList.length >= 1)
+      return aList.elementAt(aList.length - 1);
+    else
+      return address;
+  }
+
   factory Subscriber.fromJson(Map<String, dynamic> json) {
     String distance;
     if (json['distance'] != null) {
