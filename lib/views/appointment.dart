@@ -36,11 +36,11 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   Slot get slot => widget.arg.slot;
   double get h => MediaQuery.of(context).size.height;
   double get w => MediaQuery.of(context).size.width;
-  String note = 'Add notes like requirements';
   int otp;
   AppointmentBloc _appointmentBloc;
   AppointmentRepository appointmentRepository;
   bool cancel = false;
+  TextEditingController editingController = new TextEditingController();
 
   @override
   void initState() {
@@ -65,7 +65,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     }
   }
 
-  void confirmationDialog(BuildContext primaryContext) {
+  void confirmationDialog(BuildContext primaryContext, String note) {
     showCupertinoDialog(
         context: primaryContext,
         builder: (BuildContext context) {
@@ -84,7 +84,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                 ),
               ),
               RaisedButton(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5)),
                 onPressed: () {
                   logger.d("bookng");
                   BlocProvider.of<BookingBloc>(primaryContext)
@@ -175,105 +176,137 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                 );
               }
             },
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      DateIcon(slot: slot),
-                      Expanded(
-                        flex: 3,
-                        child: Container(
-                          alignment: Alignment.bottomRight,
-                          height: 150,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        DateIcon(slot: slot),
+                        Expanded(
+                          flex: 3,
+                          child: Container(
+                            alignment: Alignment.bottomRight,
+                            height: 150,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                FaIcon(
+                                  FontAwesomeIcons.clock,
+                                  size: 50,
+                                  color: Colors.grey,
+                                ),
+                                Text(
+                                    "${DateFormat("jm").format(slot.startTime)}",
+                                    style: TextStyle(fontSize: 25)),
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: LongDateText(slot: slot),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 50),
+                  Container(
+                      padding: EdgeInsets.fromLTRB(30, 0, 0, 10),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Appointment for",
+                        style: TextStyle(fontSize: 25),
+                      )),
+                  Card(
+                    elevation: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Container(
+                          width: double.infinity,
+                          alignment: Alignment.topLeft,
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              FaIcon(
-                                FontAwesomeIcons.clock,
-                                size: 50,
-                                color: Colors.grey,
-                              ),
-                              Text("${DateFormat("jm").format(slot.startTime)}",
-                                  style: TextStyle(fontSize: 25)),
+                              ListItem(
+                                  title: "Name", value: "${subscriber.name}"),
+                              ListItem(
+                                  title: "Phone No",
+                                  value: "${subscriber.phone}"),
+                              TextField(
+                                onChanged: (value) {
+                                  print(value);
+                                },
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                                minLines: 1,
+                                maxLines: 6,
+                                controller: editingController,
+                                decoration: InputDecoration(
+                                    prefixIcon: Icon(Icons.note_add),
+                                    // labelText: "Note",
+                                    hintText:
+                                        "Add notes for special requirements from the partner",
+                                    // hintStyle: TextStyle(fontSize: 14,),
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          width: 2,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(8))),
+                              )
                             ],
+                          )),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: BlocBuilder<BookingBloc, BookingState>(
+                      builder: (context, state) {
+                        return RaisedButton(
+                          onPressed: () {
+                            confirmationDialog(context, editingController.text);
+                          },
+                          color: Theme.of(context).primaryColor,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 20),
+                            child: Text(
+                              "Book Appointment",
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: LongDateText(slot: slot),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 50),
-                Container(
-                    padding: EdgeInsets.fromLTRB(30, 0, 0, 10),
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Appointment for",
-                      style: TextStyle(fontSize: 25),
-                    )),
-                Card(
-                  elevation: 5,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Container(
-                        width: double.infinity,
-                        alignment: Alignment.topLeft,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListItem(
-                                title: "Name", value: "${subscriber.name}"),
-                            ListItem(
-                                title: "Phone No",
-                                value: "${subscriber.phone}"),
-                          ],
-                        )),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: BlocBuilder<BookingBloc, BookingState>(
-                    builder: (context, state) {
-                      return RaisedButton(
-                        onPressed: () {
-                          confirmationDialog(context);
-                        },
-                        color: Theme.of(context).primaryColor,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 20),
-                          child: Text(
-                            "Book Appointment",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                      );
-                    },
-                  ),
-                )
-              ],
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    editingController.dispose();
+    super.dispose();
   }
 }
 
