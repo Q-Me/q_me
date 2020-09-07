@@ -25,6 +25,7 @@ class _BookingSuccessState extends State<BookingSuccess> {
         body: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 200,
