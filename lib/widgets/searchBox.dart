@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/utilities/logger.dart';
 
-class SearchBox extends StatefulWidget {
-  const SearchBox({
+class SearchBox extends StatelessWidget {
+  SearchBox({
     Key key,
   }) : super(key: key);
 

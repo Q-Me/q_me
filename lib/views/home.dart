@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: SafeArea(
         child: Scaffold(
-          // backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: Colors.white,
           body: PageView(
             controller: pageController,
             onPageChanged: (index) {
@@ -206,39 +206,70 @@ class HomeScreenPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             HomeHeader(
               child: BlocBuilder<HomeBloc, HomeState>(
                 builder: (context, state) {
-                  if (state is CategorySuccess) {
-                    return ListView.builder(
-                      itemCount: state.categoryList.length,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) => ConstrainedBox(
-                        constraints: BoxConstraints(maxHeight: 300),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          color: Colors.white,
-                          child: CategoryBox(state.categoryList[index]),
-                        ),
+                  if (state is HomeLoading) {
+                    return Container(
+                      color: Colors.white,
+                      width: MediaQuery.of(context).size.width,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(state.msg ?? 'Loading..'),
+                          CircularProgressIndicator(),
+                        ],
                       ),
                     );
-                  } else {
+                  } else if (state is PartCategoryReady) {
+                    List<CategorySubscriberList> categoryList =
+                        state.categoryList;
                     return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(''),
+                        ReadySubscribersCategoriesList(
+                          categoryList: categoryList,
+                        ),
                         CircularProgressIndicator(),
                       ],
                     );
+                  } else if (state is CategorySuccess) {
+                    List<CategorySubscriberList> categoryList =
+                        state.categoryList;
+                    return ReadySubscribersCategoriesList(
+                      categoryList: categoryList,
+                    );
+                  } else {
+                    return Text('Underminedstate');
                   }
                 },
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ReadySubscribersCategoriesList extends StatelessWidget {
+  const ReadySubscribersCategoriesList({
+    Key key,
+    @required this.categoryList,
+  }) : super(key: key);
+
+  final List<CategorySubscriberList> categoryList;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: categoryList.length,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        color: Colors.white,
+        child: CategoryBox(categoryList[index]),
       ),
     );
   }
@@ -282,7 +313,8 @@ class CategoryBox extends StatelessWidget {
             ],
           ),
         ),
-        Expanded(
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 260),
           child: Container(
             child: ListView.builder(
               itemCount: categorySubscriberList.subscribers.length,
@@ -368,7 +400,7 @@ class SubscriberBox extends StatelessWidget {
                     style: Theme.of(context).textTheme.subtitle1,
                   ),
                   Text(
-                    shortAddress(subscriber.address),
+                    subscriber.shortAddress,
                     maxLines: 1,
                     overflow: TextOverflow.clip,
                     style: Theme.of(context)
@@ -460,7 +492,7 @@ class HomeHeader extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Container(
-                height: 60,
+                padding: const EdgeInsets.only(top: 30),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -468,8 +500,8 @@ class HomeHeader extends StatelessWidget {
                     topRight: Radius.circular(10.0),
                   ),
                 ),
+                child: child,
               ),
-              Container(color: Colors.white, child: child),
             ],
           ),
         ),

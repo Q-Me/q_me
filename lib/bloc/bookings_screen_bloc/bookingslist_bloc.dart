@@ -65,7 +65,7 @@ class BookingslistBloc extends Bloc<BookingslistEvent, BookingslistState> {
           .fetchAppointments(
               ["CANCELLED", "UPCOMING", "CANCELLED BY SUBSCRIBER", "DONE"]);
 
-      logger.i(response[response.length - 1].rating);
+      // logger.i(response[response.length - 1].rating);
       yield BookingsListSuccess(response);
     } catch (e) {
       logger.e("${e.toString()}");
