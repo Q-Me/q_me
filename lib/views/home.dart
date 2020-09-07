@@ -18,6 +18,18 @@ import 'package:qme/views/subscriber.dart';
 import 'package:qme/widgets/searchBox.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+String shortAddress(String address) {
+  final aList = address.split(",");
+  if (aList.length > 2)
+    return aList.elementAt(aList.length - 2).trimLeft() +
+        ', ' +
+        aList.elementAt(aList.length - 1);
+  else if (aList.length > 1)
+    return aList.elementAt(aList.length - 1);
+  else
+    return address;
+}
+
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
   const HomeScreen({Key key}) : super(key: key);
@@ -322,8 +334,9 @@ class SubscriberBox extends StatelessWidget {
                     style: Theme.of(context).textTheme.subtitle1,
                   ),
                   Text(
-                    subscriber.address,
+                    shortAddress(subscriber.address),
                     maxLines: 1,
+                    overflow: TextOverflow.clip,
                     style: Theme.of(context)
                         .textTheme
                         .subtitle2
@@ -347,7 +360,7 @@ class SubscriberBox extends StatelessWidget {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          '${subscriber.rating}/5',
+                          '${subscriber.rating}/5.0',
                           style: TextStyle(
                             fontSize: 11,
                           ),

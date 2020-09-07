@@ -92,7 +92,7 @@ class Subscriber extends Equatable {
       distance: distance,
       displayImages: displayImages,
       // tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
-      rating: json["rating"] == null ? -1.0 : json["rating"],
+      rating: json["rating"] == null ? -1.0 : json["rating"].toDouble(),
     );
   }
   Map<String, dynamic> toJson() => {
@@ -128,8 +128,7 @@ class CategorySubscriberList extends Equatable {
 
   Map<String, dynamic> toJson() => {
         "category": categoryName,
-        "subscribers":
-            subscribers.map((e) => Subscriber(id: e.id).toJson()).toList(),
+        "subscribers": subscribers.map((e) => '{id:${e.id}}').toList(),
       };
 
   @override

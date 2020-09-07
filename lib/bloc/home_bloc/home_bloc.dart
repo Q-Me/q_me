@@ -42,7 +42,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         yield HomeFail(e.toString());
       }
     } else if (event is GetSubscribersAllCategory) {
-      yield HomeLoading('Getting ready..');
+      yield HomeLoading('Getting ready...');
       for (String category in categories) {
         try {
           final response = await repository.subscriberByCategory(

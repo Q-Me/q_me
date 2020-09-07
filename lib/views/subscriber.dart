@@ -214,16 +214,14 @@ class SubscriberHeaderInfo extends StatelessWidget {
               children: [
                 Text(
                   "${subscriber.name}",
-                  // style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   style: Theme.of(context).textTheme.headline6,
                 ),
                 SizedBox(height: 5),
-                Container(
-                  child: Text(
-                    "${subscriber.address}",
-                    textAlign: TextAlign.left,
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                Text(
+                  "${subscriber.address}",
+                  softWrap: true,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(color: Colors.grey),
                 ),
               ],
             ),
@@ -262,7 +260,7 @@ class SubscriberServices extends StatelessWidget {
                 textAlign: TextAlign.left,
               )
             : Container(),
-        // TODO Add services based on tags here 
+        // TODO Add services based on tags here
       ],
     );
   }
