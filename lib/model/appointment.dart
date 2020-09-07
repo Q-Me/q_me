@@ -58,6 +58,8 @@ class Appointment extends Equatable {
   final int reviewedByUser;
   final String userReview;
   final int userRating;
+  @override
+  bool get stringify => true;
 
   @override
   List<Object> get props => [

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -44,6 +45,7 @@ class BookingslistBloc extends Bloc<BookingslistEvent, BookingslistState> {
       if (response.length != 0) {
         // logger.i(response[response.length - 1].counterId);
       }
+      log("${response.toString()}");
       yield BookingsListSuccess(response);
     } catch (e) {
       logger.e(e);

@@ -302,6 +302,12 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    editingController.dispose();
+    super.dispose();
+  }
 }
 
 class LongDateText extends StatelessWidget {

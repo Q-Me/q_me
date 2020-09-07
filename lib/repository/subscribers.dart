@@ -118,7 +118,7 @@ class SubscriberRepository {
         .toList();
   }
 
-  Future<String> rateSubscriber({
+  Future rateSubscriber({
     String counterId,
     String subscriberId,
     String review,
