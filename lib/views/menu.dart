@@ -242,8 +242,8 @@ class AlertDialogRefactor extends StatelessWidget {
               style: TextStyle(color: Colors.redAccent),
             ),
             onPressed: () async {
-              await clearSession();
               Navigator.pushReplacementNamed(context, SignInScreen.id);
+              await clearSession();
 
               /* try {
                 await UserRepository().signOut();
