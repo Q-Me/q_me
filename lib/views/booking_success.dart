@@ -55,6 +55,30 @@ class _BookingSuccessState extends State<BookingSuccess> {
               letterSpacing: 12,
               fontWeight: FontWeight.w800,
             ),
+          ),
+          Text(
+            "Please try to reach at least 5 minutes before the scheduled time and show this OTP at the store.",
+            style: TextStyle(color: Colors.grey),
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          RaisedButton(
+            splashColor: Colors.white,
+            color: Theme.of(context).primaryColor,
+            onPressed: () => Navigator.pop(context),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+              child: Text(
+                "Nice!",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+              ),
+            ),
           )
         ],
       ),

@@ -8,7 +8,6 @@ import 'package:qme/utilities/logger.dart';
 
 import '../api/base_helper.dart';
 import '../model/token.dart';
-import '../model/user.dart';
 import '../repository/token.dart';
 
 class ProfileBloc extends ChangeNotifier {
@@ -39,7 +38,7 @@ class ProfileBloc extends ChangeNotifier {
   }
 
   accessToken() async {
-    final UserData userData = await getUserDataFromStorage();
+    // final UserData userData = await getUserDataFromStorage();
   }
 
   fetchTokens({@required String status}) async {

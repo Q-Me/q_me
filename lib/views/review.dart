@@ -4,7 +4,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:qme/bloc/review_bloc/review_bloc.dart';
-import 'package:qme/model/slot.dart';
 import 'package:qme/utilities/logger.dart';
 
 class ReviewScreenArguments {
@@ -13,9 +12,20 @@ class ReviewScreenArguments {
   final String name;
   final String subscriberName;
   final DateTime slot;
+  final double rating;
+  final String review;
+  final String location;
 
-  ReviewScreenArguments(this.receptionId, this.subscriberId, this.name,
-      this.subscriberName, this.slot);
+  ReviewScreenArguments(
+    this.receptionId,
+    this.subscriberId,
+    this.name,
+    this.subscriberName,
+    this.slot,
+    this.rating,
+    this.review,
+    this.location,
+  );
 }
 
 class ReviewScreen extends StatefulWidget {
@@ -35,12 +45,26 @@ class _ReviewScreenState extends State<ReviewScreen> {
   String get subscriberName => widget.args.subscriberName;
   String get name => widget.args.name;
   DateTime get slot => widget.args.slot;
-  double stars = 0;
+  String get location => widget.args.location;
+  String get reviewPrevious => widget.args.review ?? "";
+  double get rating => widget.args.rating ?? 0.0;
+  double stars = 0.0;
   String review = '';
   final TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    logger.d("$rating , $reviewPrevious");
+    stars = rating;
+    review = reviewPrevious;
+    controller.text = review;
+    logger.d(stars);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
+    // double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return SafeArea(
       child: Scaffold(
@@ -97,10 +121,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             style: TextStyle(
                                 fontFamily: "Avenir",
                                 fontSize: 40,
-                                fontWeight: FontWeight.bold),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
                           ),
                           Text(
-                            "Patna, Bihar",
+                            "$location",
                             style: TextStyle(
                                 fontFamily: "Avenir",
                                 fontSize: 16,
@@ -131,6 +156,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       ),
                     ),
                     RatingBar(
+                      initialRating: stars,
                       onRatingUpdate: (rating) {
                         print(rating);
                         stars = rating;

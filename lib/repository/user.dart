@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/utilities/logger.dart';
+import 'package:qme/utilities/session.dart';
 
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
@@ -43,6 +44,18 @@ class UserRepository {
     return response;
   }
 
+/*
+  Future<String> signOut() async {
+    final String token = await getAccessTokenFromStorage();
+    print("authToken: $token");
+    final response = await _helper.post(
+      kSignOut,
+      authToken: token,
+    );
+    await clearSession();
+    return response["msg"];
+  }
+*/
   Future<Map<String, dynamic>> signIn(Map<String, String> formData) async {
     final response = await _helper.post(kSignIn, req: formData);
     await storeUserData(UserData.fromJson(response));
