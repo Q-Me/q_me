@@ -265,7 +265,7 @@ class SubscriberServices extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Divider(thickness: 3),
-        description == ""
+        description != ""
             ? Text(
                 description,
                 textAlign: TextAlign.left,
