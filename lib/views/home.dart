@@ -263,43 +263,34 @@ class OfferCarousal extends StatelessWidget {
         }
         if (snapshot.connectionState == ConnectionState.done ||
             snapshot.connectionState == ConnectionState.active) {
-          // return Text(snapshot.data.documents[0].data["imgUrl"]);
-          /* return ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: 100),
-            child: ListView.builder(
-              itemCount: snapshot.data.documents.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot offer = snapshot.data.documents[index];
-                final docMap = offer.data;
-                print(docMap["imgUrl"]);
-                return Text(docMap["imgUrl"]);
-                // return Container();
+          return SizedBox(
+            height: 200.0,
+            width: MediaQuery.of(context).size.width - 20,
+            child: Carousel(
+              onImageTap: (index) {
+                logger.i('tapped image is at index $index');
               },
+              dotBgColor: Colors.transparent,
+              images: snapshot.data.documents.map((DocumentSnapshot offer) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  child: CachedNetworkImage(
+                    imageUrl: offer.data["imgUrl"].toString(),
+                    height: 200,
+                    progressIndicatorBuilder: (context, url, progress) =>
+                        ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: 20,
+                        maxWidth: 20,
+                      ),
+                      child: CircularProgressIndicator(),
+                    ),
+                    fit: BoxFit.fill,
+                  ),
+                );
+              }).toList(),
             ),
-          ); */
-          // final List<String> images = snapshot.data.documents.map((offer) {
-          //   return offer.data["imgUrl"].toString();
-          // }).toList();
-          return Text(snapshot.data.documents
-              .map((DocumentSnapshot offer) => offer.data["imgUrl"].toString())
-              .toList()
-              .join("\n"));
-          /* 
-          return Carousel(
-            showIndicator: true,
-            onImageTap: (index) {
-              logger.i('tapped image is at index $index');
-            },
-            images: snapshot.data.documents.map((DocumentSnapshot offer) {
-              return CachedNetworkImage(
-                imageUrl: offer.data["imgUrl"].toString(),
-                progressIndicatorBuilder: (context, url, progress) =>
-                    CircularProgressIndicator(),
-                fit: BoxFit.contain,
-              );
-            }).toList(),
-          ); 
-          */
+          );
         }
         return Text("loading");
       },
