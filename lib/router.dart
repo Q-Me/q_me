@@ -19,7 +19,7 @@ import 'views/signin.dart';
 import 'views/signup.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
-  logger.d(settings.name);
+  // logger.d(settings.name);
   switch (settings.name) {
     case SignUpScreen.id:
       return MaterialPageRoute(
