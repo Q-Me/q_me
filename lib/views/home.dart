@@ -29,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   PageController pageController;
   int _selectedIndex = 0;
   Box indexOfPage;
+  final ValueNotifier<int> _counter =
+      ValueNotifier<int>(Hive.box("counter").get("counter"));
 
   void _onItemTapped(int index) {
     setState(() {
@@ -132,9 +134,39 @@ class _HomeScreenState extends State<HomeScreen> {
           bottomNavigationBar: CupertinoTabBar(
             currentIndex: _selectedIndex ?? 0,
             onTap: _onItemTapped,
-            items: const <BottomNavigationBarItem>[
+            items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(icon: Icon(Icons.home)),
-              BottomNavigationBarItem(icon: Icon(Icons.timer)),
+              BottomNavigationBarItem(
+                icon: Hive.box("counter").get("counter") > 0
+                    ? Stack(
+                        children: <Widget>[
+                          new Icon(Icons.timer),
+                          new Positioned(
+                            right: 0,
+                            child: new Container(
+                              padding: EdgeInsets.all(1),
+                              decoration: new BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              constraints: BoxConstraints(
+                                minWidth: 12,
+                                minHeight: 12,
+                              ),
+                              /*  child: new Text(
+                                '${Hive.box("counter").get("counter")}',
+                                style: new TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                ),
+                                textAlign: TextAlign.center,
+                              ), */
+                            ),
+                          )
+                        ],
+                      )
+                    : Icon(Icons.timer),
+              ),
               BottomNavigationBarItem(icon: Icon(Icons.person)),
             ],
             activeColor: Theme.of(context).primaryColor,
