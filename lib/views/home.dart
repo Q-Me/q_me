@@ -153,14 +153,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 minWidth: 12,
                                 minHeight: 12,
                               ),
-                              child: new Text(
+                              /*  child: new Text(
                                 '${Hive.box("counter").get("counter")}',
                                 style: new TextStyle(
                                   color: Colors.white,
                                   fontSize: 8,
                                 ),
                                 textAlign: TextAlign.center,
-                              ),
+                              ), */
                             ),
                           )
                         ],
