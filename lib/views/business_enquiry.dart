@@ -203,21 +203,26 @@ class PinkContainer extends StatelessWidget {
             bottomLeft: Radius.circular(20),
             bottomRight: Radius.circular(20),
           )),
-      child: Align(
-        alignment: Alignment.topRight,
-        child: Container(
-          height: h * 0.3 * 0.86,
-          width: w,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Image.asset("assets/images/man.png"),
-              Image.asset(
-                "assets/images/wantlist.png",
-              ),
-            ],
+      child: Stack(
+        children: [
+          Positioned(
+            bottom: 0,
+            left: 30,
+            child: Image.asset(
+              "assets/images/man.png",
+              scale: 0.3,
+              height: h * .3 * .6,
+              fit: BoxFit.contain,
+            ),
           ),
-        ),
+          Positioned(
+            right: 0,
+            child: Image.asset(
+              "assets/images/wantlist.png",
+              height: h * .3 * .9,
+            ),
+          ),
+        ],
       ),
     );
   }

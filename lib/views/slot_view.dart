@@ -243,19 +243,18 @@ class AppointmentForDetails extends StatelessWidget {
           SizedBox(height: 20),
           Text(
             'Appointment for',
-            style: Theme.of(context).textTheme.subtitle1,
+            style: Theme.of(context).textTheme.headline6,
             textAlign: TextAlign.left,
           ),
           SizedBox(height: 10),
           FieldValue(
-            label: 'Full Name',
+            label: 'Name',
             text: "${box.get("name")}",
           ),
           FieldValue(
             label: 'Contact No.',
             text: '${box.get("phone")}',
           ),
-          // TODO FieldValue(label: 'Note'),
         ],
       ),
     );

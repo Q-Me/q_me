@@ -4,6 +4,7 @@ import 'package:intro_slider/dot_animation_enum.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
 import 'package:qme/views/signin.dart';
+import 'package:qme/views/signup.dart';
 
 class IntroScreen extends StatefulWidget {
   static const String id = "/introScreen";
@@ -65,30 +66,97 @@ class IntroScreenState extends State<IntroScreen> {
     );
     slides.add(
       new Slide(
-          title: "Best User Experince",
-          marginTitle: EdgeInsets.only(top: 400.0),
+          widgetDescription: Column(
+            children: [
+              Center(
+                child: Text(
+                  "User interface enabling great product-user communication and also ensures user's security Simple and easy to use.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.brown[900],
+                      fontWeight: FontWeight.bold,
+                      height: 1.5,
+                      fontSize: 16.0),
+                ),
+              ),
+              Padding(padding: EdgeInsets.only(top: 30.0)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("New to Q Me?",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.brown[900],
+                        decoration: TextDecoration.underline,
+                        fontSize: 16.0,
+                      )),
+                  RaisedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, SignUpScreen.id);
+                    },
+                    child: Text("Sign Up",
+                        style: TextStyle(
+                          fontSize: 15.0,
+                        )),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      side: BorderSide(color: Colors.blue[900]),
+                    ),
+                    color: Colors.blue[800],
+                    textColor: Colors.white,
+                  ),
+                ],
+              ),
+              Padding(padding: EdgeInsets.only(top: 15.0)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Already have an account?",
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        color: Colors.brown[900],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      )),
+                  RaisedButton(
+                    onPressed: () {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, SignInScreen.id, (route) => false);
+                    },
+                    child: Text("Log In",
+                        style: TextStyle(
+                          fontSize: 15.0,
+                        )),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      side: BorderSide(color: Colors.blue[900]),
+                    ),
+                    color: Colors.blue[800],
+                    textColor: Colors.white,
+                  ),
+                ],
+              )
+            ],
+          ),
+          title: "Best User Experience",
+          marginTitle: EdgeInsets.only(top: 300.0),
           styleTitle: TextStyle(
             color: Colors.brown[900],
             fontWeight: FontWeight.bold,
             fontSize: 25.0,
           ),
-          description:
-              "User interface enabling great product-user communication and also ensures user's security Simple and easy to use.",
+          // description:
+          //     "",
           marginDescription: EdgeInsets.all(16.0),
-          styleDescription: TextStyle(
-              color: Colors.brown[900],
-              fontWeight: FontWeight.bold,
-              height: 1.5,
-              fontSize: 16.0),
           backgroundImage: "assets/temp/introSlider3.png",
           backgroundOpacity: 0.0),
     );
   }
 
-  void onDonePress() async{
+  void onDonePress() async {
     Navigator.pushNamed(context, SignInScreen.id);
-     Box box = await Hive.openBox("user");
-  await box.put('firstLogin' , false);
+    Box box = await Hive.openBox("user");
+    await box.put('firstLogin', false);
   }
 
   void onTabChangeCompleted(index) {}
@@ -104,8 +172,7 @@ class IntroScreenState extends State<IntroScreen> {
 
   Widget renderDoneBtn() {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Text('Done'),
+      padding: const EdgeInsets.all(0.0),
     );
   }
 
@@ -133,8 +200,8 @@ class IntroScreenState extends State<IntroScreen> {
 
         // Done button
         renderDoneBtn: this.renderDoneBtn(),
-        onDonePress: this.onDonePress,
-        colorDoneBtn: Colors.blue[100],
+        // onDonePress: this.onDonePress,
+        //colorDoneBtn: Colors.blue[100],
         highlightColorDoneBtn: Colors.blue[800],
 
         // Dot indicator

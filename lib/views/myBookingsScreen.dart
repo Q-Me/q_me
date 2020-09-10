@@ -70,7 +70,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         ),
                         FilterChip(
                           label: Text(
-                            "Booked",
+                            "Upcoming",
                             style: TextStyle(color: Colors.white),
                           ),
                           onSelected: (bool value) {

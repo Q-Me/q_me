@@ -265,7 +265,7 @@ class SubscriberServices extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Divider(thickness: 3),
-        description == ""
+        description != ""
             ? Text(
                 description,
                 textAlign: TextAlign.left,
@@ -314,7 +314,10 @@ class SubscriberReviews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return reviews.length == 0
-        ? Container(child: Center(child: Text('No ratings to show')))
+        ? Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Center(child: Text('No ratings to show')),
+          )
         : ListView.builder(
             scrollDirection: Axis.vertical,
             shrinkWrap: true,

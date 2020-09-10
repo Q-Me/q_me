@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:qme/bloc/appointment.dart';
 import 'package:qme/bloc/booking_bloc.dart';
@@ -10,7 +11,10 @@ import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/utilities/logger.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:qme/views/booking_success.dart';
+import 'package:qme/views/slot_view.dart';
 
 class ApppointmentScreenArguments {
   final Subscriber subscriber;
@@ -155,6 +159,12 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                   ),
                 );
               } else if (state is BookingLoadSuccess) {
+                int previousVal = Hive.box("counter").get("counter");
+                logger.i(previousVal);
+                Hive.box("counter").put(
+                  "counter",
+                  previousVal + 1,
+                );
                 Navigator.pushReplacementNamed(
                   context,
                   BookingSuccess.id,
@@ -221,30 +231,39 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 50),
                   Container(
-                      padding: EdgeInsets.fromLTRB(30, 0, 0, 10),
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Appointment for",
-                        style: TextStyle(fontSize: 25),
-                      )),
-                  Card(
-                    elevation: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Container(
-                          width: double.infinity,
-                          alignment: Alignment.topLeft,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ListItem(
-                                  title: "Name", value: "${subscriber.name}"),
-                              ListItem(
-                                  title: "Phone No",
-                                  value: "${subscriber.phone}"),
-                              TextField(
+                    padding: EdgeInsets.fromLTRB(30, 10, 10, 10),
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Appointment at \n${subscriber.name}',
+                          style: Theme.of(context).textTheme.headline6,
+                        ),
+                        Text(
+                          subscriber.address,
+                          style: Theme.of(context).textTheme.subtitle1,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                      width: double.infinity,
+                      alignment: Alignment.topLeft,
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: ValueListenableBuilder(
+                        valueListenable: Hive.box('user').listenable(
+                          keys: ['name', 'phone'],
+                        ),
+                        builder: (context, box, widget) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AppointmentForDetails(box: box),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: TextField(
                                 onChanged: (value) {
                                   print(value);
                                 },
@@ -258,19 +277,18 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                     prefixIcon: Icon(Icons.note_add),
                                     // labelText: "Note",
                                     hintText:
-                                        "Add notes for special requirements from the partner",
-                                    // hintStyle: TextStyle(fontSize: 14,),
+                                        "Please add a note for your stylist. You can include the service you wish.",
                                     border: OutlineInputBorder(
                                         borderSide: BorderSide(
                                           width: 2,
                                         ),
                                         borderRadius:
                                             BorderRadius.circular(8))),
-                              )
-                            ],
-                          )),
-                    ),
-                  ),
+                              ),
+                            )
+                          ],
+                        ),
+                      )),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: BlocBuilder<BookingBloc, BookingState>(
