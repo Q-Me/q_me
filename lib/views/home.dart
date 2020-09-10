@@ -18,7 +18,6 @@ import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/subscriber.dart';
 import 'package:qme/widgets/searchBox.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -143,8 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Hive.box("counter").get("counter") > 0
                     ? Stack(
                         children: <Widget>[
-                          new Icon(Icons.timer),
-                          new Positioned(
+                          Icon(Icons.timer),
+                          /* Positioned(
                             right: 0,
                             child: new Container(
                               padding: EdgeInsets.all(1),
@@ -165,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 textAlign: TextAlign.center,
                               ), */
                             ),
-                          )
+                          ) */
                         ],
                       )
                     : Icon(Icons.timer),
@@ -542,7 +541,7 @@ class HomeHeader extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              // const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.only(top: 30),
                 decoration: BoxDecoration(
@@ -557,7 +556,7 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(top: 80, child: SearchBox()),
+        // Positioned(top: 80, child: SearchBox()),
       ],
     );
   }
