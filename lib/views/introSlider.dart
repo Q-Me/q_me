@@ -79,7 +79,7 @@ class IntroScreenState extends State<IntroScreen> {
                       fontSize: 16.0),
                 ),
               ),
-              Padding(padding: EdgeInsets.only(top: 30.0)),
+              Padding(padding: EdgeInsets.only(top: 20.0)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -106,7 +106,7 @@ class IntroScreenState extends State<IntroScreen> {
                   ),
                 ],
               ),
-              Padding(padding: EdgeInsets.only(top: 15.0)),
+              Padding(padding: EdgeInsets.only(top: 8.0)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -138,7 +138,7 @@ class IntroScreenState extends State<IntroScreen> {
             ],
           ),
           title: "Best User Experience",
-          marginTitle: EdgeInsets.only(top: 300.0),
+          marginTitle: EdgeInsets.only(top: 350.0),
           styleTitle: TextStyle(
             color: Colors.brown[900],
             fontWeight: FontWeight.bold,
