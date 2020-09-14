@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
@@ -15,10 +16,13 @@ import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
+import 'package:qme/views/signin.dart';
 import 'package:qme/views/subscriber.dart';
-import 'package:qme/widgets/searchBox.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shimmer/shimmer.dart';
+
+final borderRadius = Radius.circular(20);
 
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
@@ -201,7 +205,15 @@ class HomeScreenPage extends StatelessWidget {
               child: Column(
                 children: [
                   OfferCarousal(),
-                  BlocBuilder<HomeBloc, HomeState>(
+                  BlocConsumer<HomeBloc, HomeState>(
+                    listener: (context, state) {
+                      if (state is HomeFail) {
+                        if (state.msg.startsWith('Unauthorised')) {
+                          Navigator.pushReplacementNamed(
+                              context, SignInScreen.id);
+                        }
+                      }
+                    },
                     builder: (context, state) {
                       if (state is HomeLoading) {
                         return Container(
@@ -278,7 +290,7 @@ class OfferCarousal extends StatelessWidget {
                     height: 200,
                     progressIndicatorBuilder: (context, url, progress) =>
                         ConstrainedBox(
-                      constraints: BoxConstraints(
+                      constraints: const BoxConstraints(
                         maxHeight: 20,
                         maxWidth: 20,
                       ),
@@ -333,7 +345,7 @@ class CategoryBox extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -401,12 +413,15 @@ class SubscriberBox extends StatelessWidget {
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(borderRadius),
+        ),
         child: Column(
           children: [
             ClipRRect(
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: borderRadius,
+                topRight: borderRadius,
               ),
               child: ValueListenableBuilder(
                 valueListenable: Hive.box('user').listenable(
@@ -418,6 +433,17 @@ class SubscriberBox extends StatelessWidget {
                   httpHeaders: {
                     HttpHeaders.authorizationHeader:
                         bearerToken(box.get('accessToken'))
+                  },
+                  placeholder: (context, url) {
+                    return SizedBox(
+                      width: 230,
+                      height: 180,
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.red,
+                        highlightColor: Colors.yellow,
+                        child: Container(),
+                      ),
+                    );
                   },
                   width: 230,
                   height: 180,
@@ -437,8 +463,8 @@ class SubscriberBox extends StatelessWidget {
                   width: 1.0,
                 ),
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20.0),
-                  bottomRight: Radius.circular(20.0),
+                  bottomLeft: borderRadius,
+                  bottomRight: borderRadius,
                 ),
               ),
               child: Column(
@@ -448,7 +474,12 @@ class SubscriberBox extends StatelessWidget {
                   Text(
                     subscriber.name,
                     maxLines: 1,
-                    style: Theme.of(context).textTheme.subtitle1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.subtitle1.copyWith(
+                          fontStyle: GoogleFonts.nunito().fontStyle,
+                          fontFamily: GoogleFonts.nunito().fontFamily,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   Text(
                     subscriber.shortAddress,
@@ -544,11 +575,12 @@ class HomeHeader extends StatelessWidget {
               // const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.only(top: 30),
+                width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    topRight: Radius.circular(10.0),
+                    topLeft: borderRadius,
+                    topRight: borderRadius,
                   ),
                 ),
                 child: child,

@@ -82,10 +82,9 @@ class _OtpPageState extends State<OtpPage> {
     formData['email'] = await box.get('userEmailSignup');
 
     log('$formData');
-    formData['name'] = formData['firstName'] + " " + formData['lastName'];
 
     UserRepository user = UserRepository();
-    formData['name'] = '${formData['firstName']}|${formData['lastName']}';
+    formData['name'] = '${formData['firstName']} ${formData['lastName']}';
     // Make SignUp API call
     Map response;
     try {
@@ -99,6 +98,7 @@ class _OtpPageState extends State<OtpPage> {
         ),
       ));
     } catch (e) {
+      logger.e(e.toMap()['error']);
       Scaffold.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
