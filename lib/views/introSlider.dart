@@ -3,6 +3,8 @@ import 'package:hive/hive.dart';
 import 'package:intro_slider/dot_animation_enum.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
+import 'package:qme/utilities/logger.dart';
+import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
 
@@ -67,6 +69,7 @@ class IntroScreenState extends State<IntroScreen> {
     slides.add(
       new Slide(
           widgetDescription: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Center(
                 child: Text(
@@ -79,7 +82,8 @@ class IntroScreenState extends State<IntroScreen> {
                       fontSize: 16.0),
                 ),
               ),
-              Padding(padding: EdgeInsets.only(top: 30.0)),
+              // Padding(padding: EdgeInsets.only(top: 30.0)),
+              SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -92,7 +96,8 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
-                     Navigator.pushNamed(context, SignUpScreen.id);},
+                      Navigator.pushNamed(context, SignUpScreen.id);
+                    },
                     child: Text("Sign Up",
                         style: TextStyle(
                           fontSize: 15.0,
@@ -106,7 +111,7 @@ class IntroScreenState extends State<IntroScreen> {
                   ),
                 ],
               ),
-              Padding(padding: EdgeInsets.only(top: 15.0)),
+              SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -134,11 +139,11 @@ class IntroScreenState extends State<IntroScreen> {
                     textColor: Colors.white,
                   ),
                 ],
-              )
+              ),
             ],
           ),
           title: "Best User Experience",
-          marginTitle: EdgeInsets.only(top: 300.0),
+          marginTitle: EdgeInsets.only(top: 350.0),
           styleTitle: TextStyle(
             color: Colors.brown[900],
             fontWeight: FontWeight.bold,
