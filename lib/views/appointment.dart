@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
-import 'package:qme/bloc/appointment.dart';
 import 'package:qme/bloc/booking_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
@@ -41,33 +40,16 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   double get h => MediaQuery.of(context).size.height;
   double get w => MediaQuery.of(context).size.width;
   int otp;
-  AppointmentBloc _appointmentBloc;
   AppointmentRepository appointmentRepository;
   bool cancel = false;
   TextEditingController editingController = new TextEditingController();
 
   @override
   void initState() {
-    _appointmentBloc = AppointmentBloc(
-      slot: slot,
-      subscriber: subscriber,
-      reception: reception,
-    );
     appointmentRepository = AppointmentRepository();
     super.initState();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_appointmentBloc == null) {
-      _appointmentBloc = AppointmentBloc(
-        slot: slot,
-        subscriber: subscriber,
-        reception: reception,
-      );
-    }
-  }
 
   void confirmationDialog(BuildContext primaryContext, String note) {
     showCupertinoDialog(

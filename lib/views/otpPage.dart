@@ -119,7 +119,7 @@ class _OtpPageState extends State<OtpPage> {
         } else {
           logger.d("response of signin Otp: $response");
           Scaffold.of(context).showSnackBar(
-              SnackBar(content: Text(response['eror'].toString())));
+              SnackBar(content: Text(response['error'].toString())));
           return logger.d("error in api hit");
         }
       } catch (e) {
