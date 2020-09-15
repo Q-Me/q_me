@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
+import 'package:marquee_widget/marquee_widget.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/subscriber.dart';
@@ -44,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
       indexOfPage.put("index", index);
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
-      logger.d('Navigation bar index: $_selectedIndex');
+      // logger.d('Navigation bar index: $_selectedIndex');
     });
   }
 
@@ -471,15 +472,18 @@ class SubscriberBox extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text(
-                    subscriber.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.subtitle1.copyWith(
-                          fontStyle: GoogleFonts.nunito().fontStyle,
-                          fontFamily: GoogleFonts.nunito().fontFamily,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  Marquee(
+                    directionMarguee: DirectionMarguee.oneDirection,
+                    child: Text(
+                      subscriber.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.subtitle1.copyWith(
+                            fontStyle: GoogleFonts.nunito().fontStyle,
+                            fontFamily: GoogleFonts.nunito().fontFamily,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
                   ),
                   Text(
                     subscriber.shortAddress,
