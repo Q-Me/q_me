@@ -63,12 +63,12 @@ class _HomeScreenState extends State<HomeScreen> {
       initialPage: _selectedIndex ?? 0,
     );
     if (_selectedIndex == 0) {
-        _observer.analytics.setCurrentScreen(screenName: "Home Screen");
-      } else if (_selectedIndex == 1) {
-        _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
-      } else {
-        _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
-      }
+      _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+    } else if (_selectedIndex == 1) {
+      _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
+    } else {
+      _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
+    }
     _observer = AnalyticsService().getAnalyticsObserver();
     super.initState();
     firebaseCloudMessagingListeners();
@@ -147,7 +147,10 @@ class _HomeScreenState extends State<HomeScreen> {
             children: <Widget>[
               HomeScreenPage(),
               BookingsScreen(controller: pageController),
-              MenuScreen(controller: pageController, observer: _observer,),
+              MenuScreen(
+                controller: pageController,
+                observer: _observer,
+              ),
             ],
           ),
           bottomNavigationBar: CupertinoTabBar(
