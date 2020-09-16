@@ -148,9 +148,8 @@ class ListItemBooked extends StatelessWidget {
                             },
                             child: Text(
                               "Yes",
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                              ),
+                              style: TextStyle(color: Colors.red),
+
                             ),
                           ),
                           new RaisedButton(
@@ -162,10 +161,9 @@ class ListItemBooked extends StatelessWidget {
                               Navigator.pop(context);
                             },
                             child: Text(
-                              "Cancel",
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
+
+                              "No",
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                         ],

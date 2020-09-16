@@ -25,6 +25,7 @@ class _BookingSuccessState extends State<BookingSuccess> {
         body: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 200,
@@ -56,9 +57,13 @@ class _BookingSuccessState extends State<BookingSuccess> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          Text(
-            "Please try to reach at least 5 minutes before the scheduled time and show this OTP at the store.",
-            style: TextStyle(color: Colors.grey),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Text(
+              "Please try to reach 5 minutes before the scheduled time and show this OTP at the store.",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
+            ),
           ),
           SizedBox(
             height: 15,

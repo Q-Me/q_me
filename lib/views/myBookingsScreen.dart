@@ -52,8 +52,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     collapseMode: CollapseMode.parallax,
                     centerTitle: false,
                     title: Text(
-                      "Your Bookings :",
-                      style: TextStyle(
+                      "",
+                      style: const TextStyle(
                           fontSize: 18,
                           color: Colors.black,
                           fontFamily: "Avenir"),
@@ -75,7 +75,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         ),
                         FilterChip(
                           label: Text(
-                            "Booked",
+                            "Upcoming",
                             style: TextStyle(color: Colors.white),
                           ),
                           onSelected: (bool value) {

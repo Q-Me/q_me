@@ -6,8 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class ContactUsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
-    double h = MediaQuery.of(context).size.height;
+    final h = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
@@ -25,12 +24,11 @@ class ContactUsView extends StatelessWidget {
           children: [
             Container(
               height: h * 0.4,
-              child: SvgPicture.asset(
-                "assets/images/contactus.svg",
+              child: Image.asset(
+                "assets/images/contactus.png",
               ),
             ),
             NameAndPost(
-              w: w,
               name: "Aman Deep",
               position: "Building Relations @ Q Me",
             ),
@@ -40,7 +38,6 @@ class ContactUsView extends StatelessWidget {
               beEmail: "aman.ks0224@gmail.com",
             ),
             NameAndPost(
-              w: w,
               name: "Piyush Chauhan",
               position: "Building Product @ Q Me",
             ),
@@ -143,19 +140,16 @@ class EmailAndPhoneNumberTiles extends StatelessWidget {
 class NameAndPost extends StatelessWidget {
   const NameAndPost({
     Key key,
-    @required this.w,
     @required this.name,
     @required this.position,
   }) : super(key: key);
 
-  final double w;
   final String name;
   final String position;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: w,
       padding: EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

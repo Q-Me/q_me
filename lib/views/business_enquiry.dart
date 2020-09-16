@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -23,17 +22,10 @@ class BusinessEnquiryView extends StatelessWidget {
         child: Column(
           children: [
             PinkContainer(h: h, w: w),
-            SizedBox(
-              height: 10,
-            ),
+            SizedBox(height: 10),
             Slogan(w: w),
-            SizedBox(
-              height: 10,
-            ),
-            Divider(
-              height: 2,
-              color: Colors.black,
-            ),
+            SizedBox(height: 10),
+            Divider(height: 2, color: Colors.black),
             NameAndPost(w: w),
             EmailAndPhoneNumberTiles()
           ],
@@ -211,19 +203,26 @@ class PinkContainer extends StatelessWidget {
             bottomLeft: Radius.circular(20),
             bottomRight: Radius.circular(20),
           )),
-      // child: CircleAvatar(
-      //   radius: w / 6,
-      //   backgroundColor: Colors.white,
-      // ),
-      child: Align(
-        alignment: Alignment.topRight,
-        child: Container(
-          height: h * 0.3 * 0.85,
-          width: w / 2,
-          child: SvgPicture.asset(
-            "assets/images/wantlist.svg",
+      child: Stack(
+        children: [
+          Positioned(
+            bottom: 0,
+            left: 30,
+            child: Image.asset(
+              "assets/images/man.png",
+              scale: 0.3,
+              height: h * .3 * .6,
+              fit: BoxFit.contain,
+            ),
           ),
-        ),
+          Positioned(
+            right: 0,
+            child: Image.asset(
+              "assets/images/wantlist.png",
+              height: h * .3 * .9,
+            ),
+          ),
+        ],
       ),
     );
   }
