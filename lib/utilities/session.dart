@@ -14,7 +14,9 @@ Future<void> setSession() async {
 
 Future<void> clearSession() async {
   Box box = await Hive.openBox("user");
+  // box.deleteAll(['accessToken', 'refreshToken', 'name', 'email']);
   await box.clear();
+
   Box indexBox = await Hive.openBox("index");
   await indexBox.clear();
 }

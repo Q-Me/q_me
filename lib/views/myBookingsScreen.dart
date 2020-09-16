@@ -224,26 +224,49 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              SizedBox(
-                                height: 20,
-                              ),
                               FaIcon(
                                 FontAwesomeIcons.solidCalendarTimes,
-                                size: 100,
+                                size: 50,
+                                color: Colors.grey,
                               ),
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 5),
                                 child: Text(
                                   "Seems you haven't booked with us yet!",
                                   style: TextStyle(fontSize: 16),
                                 ),
                               ),
-                              Expanded(
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(maxWidth: 300),
-                                  child: Image.asset("assets/no-bookings.jpg"),
-                                ),
+                              Image.asset(
+                                "assets/no-bookings.jpg",
+                                height: 250,
+                                width: 250,
                               ),
+                              RaisedButton(
+                                onPressed: () {
+                                  controller.animateToPage(
+                                    0,
+                                    duration: Duration(milliseconds: 500),
+                                    curve: Curves.ease,
+                                  );
+                                },
+                                color: Theme.of(context).primaryColor,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  height: 50,
+                                  child: Center(
+                                    child: Text(
+                                      'Start Exploring',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         ),

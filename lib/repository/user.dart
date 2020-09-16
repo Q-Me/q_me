@@ -11,8 +11,29 @@ import '../api/base_helper.dart';
 import '../api/endpoints.dart';
 import '../model/user.dart';
 
+Future<void> setGuestSession(Map<String, dynamic> response) async {
+  Box box = await Hive.openBox("user");
+  await box.put('id', response['id']);
+  await box.put('name', response['name']);
+  await box.put('isGuest', true);
+  await box.put('accessToken', response['accessToken']);
+  await box.put('expiry', DateTime.now().add(Duration(days: 1)).toString());
+  await box.put('firstLogin', false);
+}
+
+Future<void> clearGuestSession() async {
+  Box box = await Hive.openBox("user");
+  box.deleteAll(['accessToken', 'isGuest', 'name']);
+}
+
 class UserRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
+
+  Future<Map<String, dynamic>> guestLogin() async {
+    Map<String, dynamic> response = await _helper.post('/user/guestlogin');
+    await setGuestSession(response);
+    return response;
+  }
 
   Future<UserData> fetchProfile() async {
     final String accessToken = await getAccessTokenFromStorage();
@@ -44,18 +65,16 @@ class UserRepository {
     return response;
   }
 
-/*
   Future<String> signOut() async {
     final String token = await getAccessTokenFromStorage();
-    print("authToken: $token");
     final response = await _helper.post(
       kSignOut,
-      authToken: token,
+      headers: {HttpHeaders.authorizationHeader: bearerToken(token)},
     );
     await clearSession();
     return response["msg"];
   }
-*/
+
   Future<Map<String, dynamic>> signIn(Map<String, String> formData) async {
     final response = await _helper.post(kSignIn, req: formData);
     await storeUserData(UserData.fromJson(response));
@@ -85,7 +104,7 @@ class UserRepository {
 
   Future<String> fcmTokenSubmit(String fcmToken) async {
     final String accessToken = await getAccessTokenFromStorage();
-
+    Box box = await Hive.openBox("user");
     final response = await _helper.post(
       fcmUrl,
       req: {"token": fcmToken},
@@ -93,7 +112,6 @@ class UserRepository {
     );
 
     final msg = response["msg"];
-    Box box = await Hive.openBox("user");
     await box.put('fcmToken', msg);
 
     return msg;
@@ -126,11 +144,20 @@ class UserRepository {
         DateTime.now().isBefore(DateTime.parse(expiry)) &&
         accessToken != null) {
       // accessToken is valid
-//      log('Token is valid');
+      // log('Token is valid');
       return true;
     } else {
       // invalid accessToken
       if (refreshToken != null) {
+        if (box.get('isGuest') == true) {
+          try {
+            await guestLogin();
+          } catch (e) {
+            logger.e(e.toString());
+            // box.clear();
+            return false;
+          }
+        }
         try {
           // Get new accessToken from refreshToken
           final result = await accessTokenFromApi();
