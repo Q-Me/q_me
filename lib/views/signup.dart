@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/repository/user.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/otpPage.dart';
@@ -133,13 +134,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               if (response != null &&
                   response['msg'] == 'Registation successful') {
+                    AnalyticsService()
+                        .getAnalyticsObserver()
+                        .analytics
+                        .logSignUp(signUpMethod: "Normal");
                 // Make SignIn call
                 try {
                   response = await UserRepository().signInWithOtp(idToken);
                   if (response['accessToken'] != null) {
                     logger.d("respose of ${response['status']}");
                     logger.d(response);
-
                     Navigator.pushNamedAndRemoveUntil(
                         context, HomeScreen.id, (route) => false);
                     fcmTokenApiCall();

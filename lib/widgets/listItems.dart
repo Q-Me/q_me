@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
 import 'package:qme/model/user.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/views/review.dart';
 
 class ListItemBooked extends StatelessWidget {
@@ -74,6 +75,12 @@ class ListItemBooked extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
+                          AnalyticsService()
+                              .getAnalyticsObserver()
+                              .analytics
+                              .logEvent(
+                                name: "Map Directions Requested",
+                              );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -149,7 +156,6 @@ class ListItemBooked extends StatelessWidget {
                             child: Text(
                               "Yes",
                               style: TextStyle(color: Colors.red),
-
                             ),
                           ),
                           new RaisedButton(
@@ -161,7 +167,6 @@ class ListItemBooked extends StatelessWidget {
                               Navigator.pop(context);
                             },
                             child: Text(
-
                               "No",
                               style: TextStyle(color: Colors.white),
                             ),
@@ -262,6 +267,12 @@ class ListItemFinished extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
+                          AnalyticsService()
+                              .getAnalyticsObserver()
+                              .analytics
+                              .logEvent(
+                                name: "Map Directions Requested",
+                              );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -417,6 +428,12 @@ class ListItemCancelled extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
+                          AnalyticsService()
+                              .getAnalyticsObserver()
+                              .analytics
+                              .logEvent(
+                                name: "Map Directions Requested",
+                              );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),

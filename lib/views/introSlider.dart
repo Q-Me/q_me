@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:intro_slider/dot_animation_enum.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
 
@@ -92,7 +93,12 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
-                     Navigator.pushNamed(context, SignUpScreen.id);},
+                      AnalyticsService()
+                          .getAnalyticsObserver()
+                          .analytics
+                          .logEvent(name: "SignUp Button clicked");
+                      Navigator.pushNamed(context, SignUpScreen.id);
+                    },
                     child: Text("Sign Up",
                         style: TextStyle(
                           fontSize: 15.0,
@@ -119,6 +125,10 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
+                      AnalyticsService()
+                          .getAnalyticsObserver()
+                          .analytics
+                          .logEvent(name: "Login Button clicked");
                       Navigator.pushNamedAndRemoveUntil(
                           context, SignInScreen.id, (route) => false);
                     },

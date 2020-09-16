@@ -41,10 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
       indexOfPage.put("index", index);
       if (index == 0) {
         _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+        logger.i("logging firebase");
       } else if (index == 1) {
         _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
+        logger.i("logging firebase");
       } else {
         _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
+        logger.i("logging firebase");
       }
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
@@ -62,14 +65,17 @@ class _HomeScreenState extends State<HomeScreen> {
     pageController = PageController(
       initialPage: _selectedIndex ?? 0,
     );
+    _observer = AnalyticsService().getAnalyticsObserver();
     if (_selectedIndex == 0) {
       _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+      logger.i("logging firebase");
     } else if (_selectedIndex == 1) {
       _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
+      logger.i("logging firebase");
     } else {
       _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
+      logger.i("logging firebase");
     }
-    _observer = AnalyticsService().getAnalyticsObserver();
     super.initState();
     firebaseCloudMessagingListeners();
     _messaging.getToken().then((token) {
@@ -129,6 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
           pageController.animateToPage(0,
               duration: Duration(milliseconds: 500), curve: Curves.ease);
           _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+          logger.i("logging firebase");
           return Future.value(false);
         } else {
           return Future.value(true);
@@ -142,6 +149,19 @@ class _HomeScreenState extends State<HomeScreen> {
             onPageChanged: (index) {
               setState(() {
                 _selectedIndex = index;
+                if (_selectedIndex == 0) {
+                  _observer.analytics
+                      .setCurrentScreen(screenName: "Home Screen");
+                  logger.i("logging firebase");
+                } else if (_selectedIndex == 1) {
+                  _observer.analytics
+                      .setCurrentScreen(screenName: "My Bookings Screen");
+                  logger.i("logging firebase");
+                } else {
+                  _observer.analytics
+                      .setCurrentScreen(screenName: "Menu Screen");
+                  logger.i("logging firebase");
+                }
               });
             },
             children: <Widget>[
