@@ -15,6 +15,70 @@
       },
       "oauth_client": [
         {
+          "client_id": "137294993106-a3jr3r5k9k9cs06sdnhq9qio0o3fv9ns.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme",
+            "certificate_hash": "c5b861310058bf27c0568561930e8c7b82770a99"
+          }
+        },
+        {
+          "client_id": "137294993106-pa3m7ohconntfb75b50igvj9chfhg89h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme",
+            "certificate_hash": "3b372b1a582f7e04b31808fd2d2178660568a6bb"
+          }
+        },
+        {
+          "client_id": "137294993106-9hu9351tjnp0gnc8lk803vir2qh5mc56.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme",
+            "certificate_hash": "b330845a0c2e7a4388546da3ff93fb38e645c887"
+          }
+        },
+        {
+          "client_id": "137294993106-1kf034el531of5rpno4dqhbku8quqeb6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme",
+            "certificate_hash": "667e81dd68a8ff97452482a73575af3b2bc94e1e"
+          }
+        },
+        {
+          "client_id": "137294993106-q3mqfq9crs5e55ajtsn5f06dn3auua5e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme",
+            "certificate_hash": "03a202cb6455e90628bee75b095cda2e29d07c22"
+          }
+        },
+        {
+          "client_id": "137294993106-fsi58gmsem3hkoivdq1600efa9r1g7a1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme",
+            "certificate_hash": "a604b831d22740e918fc1a9bc03796152c55ce8c"
+          }
+        },
+        {
+          "client_id": "137294993106-lfgmmvq397n8na0paknftjj56unls6nh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme",
+            "certificate_hash": "4c63f78b98a92c8c310f86ba4768711153cd0b95"
+          }
+        },
+        {
+          "client_id": "137294993106-e9n1n7ssh1ehs8vns39v64aphfa45h2g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme",
+            "certificate_hash": "2ad264548bbf28d7e6a694a379f09c1888f7140c"
+          }
+        },
+        {
           "client_id": "137294993106-1nsrl8bi5de8jdmg4a8ajutkekm6eh2v.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -28,7 +92,60 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "137294993106-1nsrl8bi5de8jdmg4a8ajutkekm6eh2v.apps.googleusercontent.com",
+              "client_id": "137294993106-jmpmsq4j6p0satlklatlv98rn0s3ofig.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137294993106:android:7050e3c9556852a4107f0b",
+        "android_client_info": {
+          "package_name": "com.vaapso.qme_subscriber"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "137294993106-ocb7rvfha47ukl5aamo5bckoev0suebj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme_subscriber",
+            "certificate_hash": "b330845a0c2e7a4388546da3ff93fb38e645c887"
+          }
+        },
+        {
+          "client_id": "137294993106-uel242o8e7ag8ndtb0ba7lhlgve63m8r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme_subscriber",
+            "certificate_hash": "3b372b1a582f7e04b31808fd2d2178660568a6bb"
+          }
+        },
+        {
+          "client_id": "137294993106-mcuo0bllu7loin58f35moqged8csjv2i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaapso.qme_subscriber",
+            "certificate_hash": "2ad264548bbf28d7e6a694a379f09c1888f7140c"
+          }
+        },
+        {
+          "client_id": "137294993106-1nsrl8bi5de8jdmg4a8ajutkekm6eh2v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVef0d0BaEubSiOgSiNkIvxzjjyttvBzo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "137294993106-jmpmsq4j6p0satlklatlv98rn0s3ofig.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

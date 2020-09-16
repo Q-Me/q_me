@@ -11,7 +11,7 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final String accessToken;
-  String location = 'Patna';
+  String location = '';
   SubscriberRepository repository;
   List<String> categories;
   List<CategorySubscriberList> categorizedSubscribers = [];
@@ -47,14 +47,24 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       yield HomeLoading('Getting ready...');
       for (String category in categories) {
         try {
-          final response = await repository.subscriberByCategory(
-            category: category,
-            location: location,
-          );
-          categorizedSubscribers.add(CategorySubscriberList(
-            categoryName: category,
-            subscribers: response,
-          ));
+          if (location.length > 0) {
+            final response = await repository.subscriberByLocation(
+              category: category,
+              location: location,
+            );
+            categorizedSubscribers.add(CategorySubscriberList(
+              categoryName: category,
+              subscribers: response,
+            ));
+          } else {
+            final response = await repository.subscriberByCategory(
+              category: category,
+            );
+            categorizedSubscribers.add(CategorySubscriberList(
+              categoryName: category,
+              subscribers: response,
+            ));
+          }
           yield PartCategoryReady(categorizedSubscribers);
 
           for (CategorySubscriberList value in categorizedSubscribers) {

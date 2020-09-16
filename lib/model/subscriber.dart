@@ -9,17 +9,9 @@ Subscriber subscriberFromJson(String str) =>
     Subscriber.fromJson(json.decode(str));
 
 class Subscriber extends Equatable {
-  String id,
-      name,
-      description,
-      address,
-      email,
-      phone,
-      owner,
-      imgURL,
-      distance,
-      category;
-  double latitude, longitude;
+  String id, name, description, address, email, phone, owner, imgURL, category;
+  double latitude, longitude, distance;
+
   bool verified;
   List<String> displayImages, tags;
   double rating;
@@ -66,12 +58,13 @@ class Subscriber extends Equatable {
   }
 
   factory Subscriber.fromJson(Map<String, dynamic> json) {
-    String distance;
-    if (json['distance'] != null) {
-      distance = double.parse(json['distance']) > 1
-          ? "${double.parse(json['distance'])} km"
-          : "${double.parse(json['distance']) * 1000} m";
-    }
+    // String distance;
+    // if (json['distance'] != null) {
+    //   print(json['distance'].runtimeType);
+    //   distance = double.tryParse(json['distance']) > 1
+    //       ? "${double.parse(json['distance'])} km"
+    //       : "${double.parse(json['distance']) * 1000} m";
+    // }
     // logger.d(json);
     final String imgUrl = '$baseURL/user/profileimage/${json["profileImage"]}';
     List<String> displayImages = [imgUrl];
@@ -101,7 +94,7 @@ class Subscriber extends Equatable {
           ? ""
           : json["description"],
       category: json["category"],
-      distance: distance,
+      distance: json["distance"],
       displayImages: displayImages,
       // tags: json["tags"] != null ? List<String>.from(json["tags"]) : null,
       rating: json["rating"] == null ? -1.0 : json["rating"].toDouble(),

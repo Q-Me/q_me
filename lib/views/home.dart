@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:carousel_pro/carousel_pro.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/subscriber.dart';
 import 'package:qme/widgets/searchBox.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
@@ -90,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (Platform.isIOS) iosPermission();
 
     _messaging.getToken().then((token) {
-      logger.i(token);
+      // logger.i(token);
     });
 
     _messaging.configure(
@@ -145,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: <Widget>[
               HomeScreenPage(),
               BookingsScreen(controller: pageController),
-              MenuScreen(controller: pageController),
+              MenuScreen(controller: pageController, observer: _observer,),
             ],
           ),
           bottomNavigationBar: CupertinoTabBar(
@@ -157,8 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Hive.box("counter").get("counter") > 0
                     ? Stack(
                         children: <Widget>[
-                          new Icon(Icons.timer),
-                          new Positioned(
+                          Icon(Icons.timer),
+                          /* Positioned(
                             right: 0,
                             child: new Container(
                               padding: EdgeInsets.all(1),
@@ -179,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 textAlign: TextAlign.center,
                               ), */
                             ),
-                          )
+                          ) */
                         ],
                       )
                     : Icon(Icons.timer),
@@ -213,46 +215,101 @@ class HomeScreenPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             HomeHeader(
-              child: BlocBuilder<HomeBloc, HomeState>(
-                builder: (context, state) {
-                  if (state is HomeLoading) {
-                    return Container(
-                      color: Colors.white,
-                      width: MediaQuery.of(context).size.width,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(state.msg ?? 'Loading..'),
-                          CircularProgressIndicator(),
-                        ],
-                      ),
-                    );
-                  } else if (state is PartCategoryReady) {
-                    List<CategorySubscriberList> categoryList =
-                        state.categoryList;
-                    return Column(
-                      children: [
-                        ReadySubscribersCategoriesList(
+              child: Column(
+                children: [
+                  OfferCarousal(),
+                  BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      if (state is HomeLoading) {
+                        return Container(
+                          color: Colors.white,
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(state.msg ?? 'Loading..'),
+                              CircularProgressIndicator(),
+                            ],
+                          ),
+                        );
+                      } else if (state is PartCategoryReady) {
+                        List<CategorySubscriberList> categoryList =
+                            state.categoryList;
+                        return Column(
+                          children: [
+                            ReadySubscribersCategoriesList(
+                              categoryList: categoryList,
+                            ),
+                            CircularProgressIndicator(),
+                          ],
+                        );
+                      } else if (state is CategorySuccess) {
+                        List<CategorySubscriberList> categoryList =
+                            state.categoryList;
+                        return ReadySubscribersCategoriesList(
                           categoryList: categoryList,
-                        ),
-                        CircularProgressIndicator(),
-                      ],
-                    );
-                  } else if (state is CategorySuccess) {
-                    List<CategorySubscriberList> categoryList =
-                        state.categoryList;
-                    return ReadySubscribersCategoriesList(
-                      categoryList: categoryList,
-                    );
-                  } else {
-                    return Text('Underminedstate');
-                  }
-                },
+                        );
+                      } else {
+                        return Text('Underminedstate');
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class OfferCarousal extends StatelessWidget {
+  OfferCarousal({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Firestore.instance.collection("offers").snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text("Something went wrong");
+        }
+        if (snapshot.connectionState == ConnectionState.done ||
+            snapshot.connectionState == ConnectionState.active) {
+          return SizedBox(
+            height: 200.0,
+            width: MediaQuery.of(context).size.width - 20,
+            child: Carousel(
+              onImageTap: (index) {
+                logger.i('tapped image is at index $index');
+              },
+              dotBgColor: Colors.transparent,
+              images: snapshot.data.documents.map((DocumentSnapshot offer) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  child: CachedNetworkImage(
+                    imageUrl: offer.data["imgUrl"].toString(),
+                    height: 200,
+                    progressIndicatorBuilder: (context, url, progress) =>
+                        ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: 20,
+                        maxWidth: 20,
+                      ),
+                      child: CircularProgressIndicator(),
+                    ),
+                    fit: BoxFit.fill,
+                  ),
+                );
+              }).toList(),
+            ),
+          );
+        }
+        return Text("loading");
+      },
     );
   }
 }
@@ -290,13 +347,10 @@ class CategoryBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (categorySubscriberList.subscribers.length == 0) {
-      return Container();
-    }
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -318,19 +372,28 @@ class CategoryBox extends StatelessWidget {
             ],
           ),
         ),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 260),
-          child: Container(
-            child: ListView.builder(
-              itemCount: categorySubscriberList.subscribers.length,
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return SubscriberBox(categorySubscriberList.subscribers[index]);
-              },
-            ),
-          ),
-        ),
+        categorySubscriberList.subscribers.length != 0
+            ? ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 250),
+                child: Container(
+                  child: ListView.builder(
+                    itemCount: categorySubscriberList.subscribers.length,
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return SubscriberBox(
+                        categorySubscriberList.subscribers[index],
+                      );
+                    },
+                  ),
+                ),
+              )
+            : Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                alignment: Alignment.centerLeft,
+                child: Text('Coming soon'),
+              ),
       ],
     );
   }
@@ -495,7 +558,7 @@ class HomeHeader extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              // const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.only(top: 30),
                 decoration: BoxDecoration(
@@ -510,7 +573,7 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(top: 80, child: SearchBox()),
+        // Positioned(top: 80, child: SearchBox()),
       ],
     );
   }
