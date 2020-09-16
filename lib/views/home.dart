@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/user.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
@@ -41,13 +43,19 @@ class _HomeScreenState extends State<HomeScreen> {
   PageController pageController;
   int _selectedIndex = 0;
   Box indexOfPage;
-  final ValueNotifier<int> _counter =
-      ValueNotifier<int>(Hive.box("counter").get("counter"));
+  FirebaseAnalyticsObserver _observer;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
       indexOfPage.put("index", index);
+      if (index == 0) {
+        _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+      } else if (index == 1) {
+        _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
+      } else {
+        _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
+      }
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
       logger.d('Navigation bar index: $_selectedIndex');
@@ -64,6 +72,14 @@ class _HomeScreenState extends State<HomeScreen> {
     pageController = PageController(
       initialPage: _selectedIndex ?? 0,
     );
+    if (_selectedIndex == 0) {
+        _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+      } else if (_selectedIndex == 1) {
+        _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
+      } else {
+        _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
+      }
+    _observer = AnalyticsService().getAnalyticsObserver();
     super.initState();
     firebaseCloudMessagingListeners();
     _messaging.getToken().then((token) {
@@ -122,6 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (_selectedIndex != 0) {
           pageController.animateToPage(0,
               duration: Duration(milliseconds: 500), curve: Curves.ease);
+          _observer.analytics.setCurrentScreen(screenName: "Home Screen");
           return Future.value(false);
         } else {
           return Future.value(true);

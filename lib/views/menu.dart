@@ -1,6 +1,8 @@
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/about_us.dart';
 import 'package:qme/views/business_enquiry.dart';
@@ -14,8 +16,10 @@ class MenuScreen extends StatelessWidget {
   const MenuScreen({
     Key key,
     @required this.controller,
+    @required this.observer,
   }) : super(key: key);
   final PageController controller;
+  final FirebaseAnalyticsObserver observer;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -26,6 +30,7 @@ class MenuScreen extends StatelessWidget {
           onTap: () {
             controller.animateToPage(0,
                 duration: Duration(milliseconds: 500), curve: Curves.ease);
+            observer.analytics.setCurrentScreen(screenName: "Home Screen");
           },
           child: Center(
             child: FaIcon(FontAwesomeIcons.arrowLeft),
@@ -158,6 +163,10 @@ class MenuListItem extends StatelessWidget {
                     controller.animateToPage(1,
                         duration: Duration(milliseconds: 500),
                         curve: Curves.ease);
+                    AnalyticsService()
+                        .getAnalyticsObserver()
+                        .analytics
+                        .setCurrentScreen(screenName: "My Bookings Screen");
                     //TODO navigate to corresponding screen
                     break;
                   case "support":

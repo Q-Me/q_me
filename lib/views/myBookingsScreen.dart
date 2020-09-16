@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
 import 'package:qme/model/appointment.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/widgets/listItems.dart';
 
 class BookingsScreen extends StatefulWidget {
@@ -31,6 +32,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       controller.animateToPage(0,
                           duration: Duration(milliseconds: 500),
                           curve: Curves.ease);
+                      AnalyticsService()
+                          .getAnalyticsObserver()
+                          .analytics
+                          .setCurrentScreen(screenName: "Home Screen");
                     },
                     child: FaIcon(
                       FontAwesomeIcons.arrowLeft,
