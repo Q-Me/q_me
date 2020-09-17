@@ -136,13 +136,10 @@ class UserRepository {
     final expiry = await box.get('expiry');
     final refreshToken = await box.get('refreshToken');
     final accessToken = await box.get('accessToken');
-    // logger.d(
-    //     'In storage:\nexpiry:$expiry\nrefreshToken:$refreshToken\naccessToken:$accessToken');
     if (expiry != null &&
         DateTime.now().isBefore(DateTime.parse(expiry)) &&
         accessToken != null) {
       // accessToken is valid
-      // log('Token is valid');
       return true;
     } else {
       // invalid accessToken
@@ -165,7 +162,7 @@ class UserRepository {
           return false;
         }
       } else {
-        return await sessionGuestLoginAttempt();
+        return false;
       }
     }
   }

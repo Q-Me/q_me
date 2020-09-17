@@ -17,7 +17,7 @@ import 'package:qme/widgets/error.dart';
 import 'dart:math';
 
 class SubscriberScreen extends StatefulWidget {
-  static const String id = '/booking';
+  static const String id = '/subscriber';
   final Subscriber subscriber;
 
   const SubscriberScreen({Key key, this.subscriber}) : super(key: key);
