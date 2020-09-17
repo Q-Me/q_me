@@ -52,9 +52,7 @@ class UserRepository {
     final UserData userData = await getUserDataFromStorage();
     final response = await _helper.post(
       kAccessToken,
-      headers: {
-        HttpHeaders.authorizationHeader: bearerToken(userData.refreshToken)
-      },
+      req: {"refreshToken": userData.refreshToken},
     );
     await storeUserData(UserData.fromJson(response));
     return response['accessToken'];
@@ -150,13 +148,7 @@ class UserRepository {
       // invalid accessToken
       if (refreshToken != null) {
         if (box.get('isGuest') == true) {
-          try {
-            await guestLogin();
-          } catch (e) {
-            logger.e(e.toString());
-            // box.clear();
-            return false;
-          }
+          return await sessionGuestLoginAttempt();
         }
         try {
           // Get new accessToken from refreshToken
@@ -173,8 +165,20 @@ class UserRepository {
           return false;
         }
       } else {
-        return false;
+        return await sessionGuestLoginAttempt();
       }
+    }
+  }
+
+  Future<bool> sessionGuestLoginAttempt() async {
+    try {
+      final response = await guestLogin();
+      logger.d(response);
+      return true;
+    } catch (e) {
+      logger.e(e.toString());
+      // box.clear();
+      return false;
     }
   }
 }
