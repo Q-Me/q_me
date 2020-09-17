@@ -604,6 +604,17 @@ class HomeHeader extends StatelessWidget {
                   valueListenable: Hive.box('user').listenable(keys: ['name']),
                   builder: (context, box, widget) {
                     final String fullName = box.get('name');
+                    if (fullName.startsWith('guest')) {
+                      return Text(
+                        'Hello There!',
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      );
+                    }
                     return Text(
                       'Hi ${fullName.split(" ").elementAt(0)}!',
                       maxLines: 1,

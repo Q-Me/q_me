@@ -220,7 +220,7 @@ class _SlotViewState extends State<SlotView> {
                   keys: ['isGuest'],
                 ),
                 builder: (context, box, widget) {
-                  if (box.get('isGuest')) {
+                  if (box.get('isGuest') == true) {
                     return Container(
                       padding: const EdgeInsets.only(top: 50),
                     );
@@ -304,7 +304,7 @@ class ActionButton extends StatelessWidget {
                       Box box = await Hive.openBox("user");
 
                       // Go to appointment view
-                      if (!box.get('isGuest')) {
+                      if (box.get('isGuest') != true) {
                         Slot slot = state.slot;
                         Reception reception = state.reception;
                         Subscriber subscriber = state.subcriber;
