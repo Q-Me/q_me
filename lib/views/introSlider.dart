@@ -92,7 +92,8 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
-                     Navigator.pushNamed(context, SignUpScreen.id);},
+                      Navigator.pushNamed(context, SignUpScreen.id);
+                    },
                     child: Text("Sign Up",
                         style: TextStyle(
                           fontSize: 15.0,
