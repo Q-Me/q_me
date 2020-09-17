@@ -371,7 +371,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             if (value.length < 6 || value.length > 20)
                               return 'Password should be not be less than 6 characters';
                             else if (!regex.hasMatch(value)) {
-                              return 'Password must contain one numeric ,one upper and one lower case letter';
+                              return 'Password should contain numeric, upper and lower case ';
                             } else {
                               formData['password'] = value;
                               return null;

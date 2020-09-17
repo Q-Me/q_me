@@ -16,7 +16,7 @@ class _InitialScreenState extends State<InitialScreen> {
         children: <Widget>[
           SvgPicture.asset(
             'assets/temp/getStarted.svg',
-            fit: BoxFit.fitWidth,
+            fit: BoxFit.fill,
           ),
           Positioned(
             bottom: 200,

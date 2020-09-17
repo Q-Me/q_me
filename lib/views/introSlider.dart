@@ -83,8 +83,8 @@ class IntroScreenState extends State<IntroScreen> {
                       fontSize: 16.0),
                 ),
               ),
-              // Padding(padding: EdgeInsets.only(top: 30.0)),
-              SizedBox(height: 30),
+              Padding(padding: EdgeInsets.only(top: 20.0)),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
