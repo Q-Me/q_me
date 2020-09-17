@@ -9,8 +9,10 @@ import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/menu.dart';
 import 'package:qme/widgets/calenderStrip.dart';
 import 'package:intl/intl.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class SlotViewArguments {
   final Subscriber subscriber;
@@ -35,7 +37,6 @@ class _SlotViewState extends State<SlotView> {
   Slot selectedSlot;
   ScrollController gridScroll = ScrollController();
   bool backArrowEnabled = false;
-  Box box = Hive.box("user");
 
   double get h => MediaQuery.of(context).size.height;
   double get w => MediaQuery.of(context).size.width;
@@ -214,7 +215,19 @@ class _SlotViewState extends State<SlotView> {
                   listener: (context, state) {},
                 ),
               ),
-              AppointmentForDetails(box: box),
+              ValueListenableBuilder(
+                valueListenable: Hive.box('user').listenable(
+                  keys: ['isGuest'],
+                ),
+                builder: (context, box, widget) {
+                  if (box.get('isGuest') == true) {
+                    return Container(
+                      padding: const EdgeInsets.only(top: 50),
+                    );
+                  }
+                  return AppointmentForDetails(box: box);
+                },
+              ),
               SizedBox(height: 20),
               ActionButton(),
             ],
@@ -276,7 +289,7 @@ class ActionButton extends StatelessWidget {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             onPressed: state is SelectedSlot || state is BookedSlot
-                ? () {
+                ? () async {
                     if (state is BookedSlot) {
                       logger.d("pushing to homescreen");
                       Box index = Hive.box("index");
@@ -288,19 +301,25 @@ class ActionButton extends StatelessWidget {
                       return;
                     }
                     if (state is SelectedSlot) {
+                      Box box = await Hive.openBox("user");
+
                       // Go to appointment view
-                      Slot slot = state.slot;
-                      Reception reception = state.reception;
-                      Subscriber subscriber = state.subcriber;
-                      Navigator.pushReplacementNamed(
-                        context,
-                        AppointmentScreen.id,
-                        arguments: ApppointmentScreenArguments(
-                          reception: reception,
-                          slot: slot,
-                          subscriber: subscriber,
-                        ),
-                      );
+                      if (box.get('isGuest') != true) {
+                        Slot slot = state.slot;
+                        Reception reception = state.reception;
+                        Subscriber subscriber = state.subcriber;
+                        Navigator.pushReplacementNamed(
+                          context,
+                          AppointmentScreen.id,
+                          arguments: ApppointmentScreenArguments(
+                            reception: reception,
+                            slot: slot,
+                            subscriber: subscriber,
+                          ),
+                        );
+                      } else {
+                        showDialog(context: context, child: LoginSignUpAlert());
+                      }
                     }
                   }
                 : null,

@@ -1,12 +1,15 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_pro/carousel_pro.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
+import 'package:marquee_widget/marquee_widget.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/subscriber.dart';
@@ -14,9 +17,13 @@ import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
+import 'package:qme/views/signin.dart';
 import 'package:qme/views/subscriber.dart';
-import 'package:qme/widgets/searchBox.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shimmer/shimmer.dart';
+
+final borderRadius = Radius.circular(20);
 
 class HomeScreen extends StatefulWidget {
   static const id = '/home';
@@ -38,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
       indexOfPage.put("index", index);
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
-      logger.d('Navigation bar index: $_selectedIndex');
+      // logger.d('Navigation bar index: $_selectedIndex');
     });
   }
 
@@ -74,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (Platform.isIOS) iosPermission();
 
     _messaging.getToken().then((token) {
-      logger.i(token);
+      // logger.i(token);
     });
 
     _messaging.configure(
@@ -140,8 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Hive.box("counter").get("counter") > 0
                     ? Stack(
                         children: <Widget>[
-                          new Icon(Icons.timer),
-                          new Positioned(
+                          Icon(Icons.timer),
+                          /* Positioned(
                             right: 0,
                             child: new Container(
                               padding: EdgeInsets.all(1),
@@ -162,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 textAlign: TextAlign.center,
                               ), */
                             ),
-                          )
+                          ) */
                         ],
                       )
                     : Icon(Icons.timer),
@@ -196,46 +203,109 @@ class HomeScreenPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             HomeHeader(
-              child: BlocBuilder<HomeBloc, HomeState>(
-                builder: (context, state) {
-                  if (state is HomeLoading) {
-                    return Container(
-                      color: Colors.white,
-                      width: MediaQuery.of(context).size.width,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(state.msg ?? 'Loading..'),
-                          CircularProgressIndicator(),
-                        ],
-                      ),
-                    );
-                  } else if (state is PartCategoryReady) {
-                    List<CategorySubscriberList> categoryList =
-                        state.categoryList;
-                    return Column(
-                      children: [
-                        ReadySubscribersCategoriesList(
+              child: Column(
+                children: [
+                  OfferCarousal(),
+                  BlocConsumer<HomeBloc, HomeState>(
+                    listener: (context, state) {
+                      if (state is HomeFail) {
+                        if (state.msg.startsWith('Unauthorised')) {
+                          Navigator.pushReplacementNamed(
+                              context, SignInScreen.id);
+                        }
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is HomeLoading) {
+                        return Container(
+                          color: Colors.white,
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(state.msg ?? 'Loading..'),
+                              CircularProgressIndicator(),
+                            ],
+                          ),
+                        );
+                      } else if (state is PartCategoryReady) {
+                        List<CategorySubscriberList> categoryList =
+                            state.categoryList;
+                        return Column(
+                          children: [
+                            ReadySubscribersCategoriesList(
+                              categoryList: categoryList,
+                            ),
+                            CircularProgressIndicator(),
+                          ],
+                        );
+                      } else if (state is CategorySuccess) {
+                        List<CategorySubscriberList> categoryList =
+                            state.categoryList;
+                        return ReadySubscribersCategoriesList(
                           categoryList: categoryList,
-                        ),
-                        CircularProgressIndicator(),
-                      ],
-                    );
-                  } else if (state is CategorySuccess) {
-                    List<CategorySubscriberList> categoryList =
-                        state.categoryList;
-                    return ReadySubscribersCategoriesList(
-                      categoryList: categoryList,
-                    );
-                  } else {
-                    return Text('Underminedstate');
-                  }
-                },
+                        );
+                      } else {
+                        return Text('Underminedstate');
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class OfferCarousal extends StatelessWidget {
+  OfferCarousal({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Firestore.instance.collection("offers").snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text("Something went wrong");
+        }
+        if (snapshot.connectionState == ConnectionState.done ||
+            snapshot.connectionState == ConnectionState.active) {
+          return SizedBox(
+            height: 200.0,
+            width: MediaQuery.of(context).size.width - 20,
+            child: Carousel(
+              onImageTap: (index) {
+                logger.i('tapped image is at index $index');
+              },
+              dotBgColor: Colors.transparent,
+              images: snapshot.data.documents.map((DocumentSnapshot offer) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  child: CachedNetworkImage(
+                    imageUrl: offer.data["imgUrl"].toString(),
+                    height: 200,
+                    progressIndicatorBuilder: (context, url, progress) =>
+                        ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxHeight: 20,
+                        maxWidth: 20,
+                      ),
+                      child: CircularProgressIndicator(),
+                    ),
+                    fit: BoxFit.fill,
+                  ),
+                );
+              }).toList(),
+            ),
+          );
+        }
+        return Text("loading");
+      },
     );
   }
 }
@@ -273,9 +343,6 @@ class CategoryBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (categorySubscriberList.subscribers.length == 0) {
-      return Container();
-    }
     return Column(
       children: [
         Padding(
@@ -301,19 +368,28 @@ class CategoryBox extends StatelessWidget {
             ],
           ),
         ),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 260),
-          child: Container(
-            child: ListView.builder(
-              itemCount: categorySubscriberList.subscribers.length,
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return SubscriberBox(categorySubscriberList.subscribers[index]);
-              },
-            ),
-          ),
-        ),
+        categorySubscriberList.subscribers.length != 0
+            ? ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 250),
+                child: Container(
+                  child: ListView.builder(
+                    itemCount: categorySubscriberList.subscribers.length,
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return SubscriberBox(
+                        categorySubscriberList.subscribers[index],
+                      );
+                    },
+                  ),
+                ),
+              )
+            : Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                alignment: Alignment.centerLeft,
+                child: Text('Coming soon'),
+              ),
       ],
     );
   }
@@ -338,12 +414,15 @@ class SubscriberBox extends StatelessWidget {
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(borderRadius),
+        ),
         child: Column(
           children: [
             ClipRRect(
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: borderRadius,
+                topRight: borderRadius,
               ),
               child: ValueListenableBuilder(
                 valueListenable: Hive.box('user').listenable(
@@ -355,6 +434,17 @@ class SubscriberBox extends StatelessWidget {
                   httpHeaders: {
                     HttpHeaders.authorizationHeader:
                         bearerToken(box.get('accessToken'))
+                  },
+                  placeholder: (context, url) {
+                    return SizedBox(
+                      width: 230,
+                      height: 180,
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.red,
+                        highlightColor: Colors.yellow,
+                        child: Container(),
+                      ),
+                    );
                   },
                   width: 230,
                   height: 180,
@@ -374,18 +464,26 @@ class SubscriberBox extends StatelessWidget {
                   width: 1.0,
                 ),
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20.0),
-                  bottomRight: Radius.circular(20.0),
+                  bottomLeft: borderRadius,
+                  bottomRight: borderRadius,
                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text(
-                    subscriber.name,
-                    maxLines: 1,
-                    style: Theme.of(context).textTheme.subtitle1,
+                  Marquee(
+                    directionMarguee: DirectionMarguee.oneDirection,
+                    child: Text(
+                      subscriber.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.subtitle1.copyWith(
+                            fontStyle: GoogleFonts.nunito().fontStyle,
+                            fontFamily: GoogleFonts.nunito().fontFamily,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
                   ),
                   Text(
                     subscriber.shortAddress,
@@ -466,6 +564,17 @@ class HomeHeader extends StatelessWidget {
                   valueListenable: Hive.box('user').listenable(keys: ['name']),
                   builder: (context, box, widget) {
                     final String fullName = box.get('name');
+                    if (fullName.startsWith('guest')) {
+                      return Text(
+                        'Hello There!',
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      );
+                    }
                     return Text(
                       'Hi ${fullName.split(" ").elementAt(0)}!',
                       maxLines: 1,
@@ -478,14 +587,15 @@ class HomeHeader extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              // const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.only(top: 30),
+                width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    topRight: Radius.circular(10.0),
+                    topLeft: borderRadius,
+                    topRight: borderRadius,
                   ),
                 ),
                 child: child,
@@ -493,7 +603,7 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(top: 80, child: SearchBox()),
+        // Positioned(top: 80, child: SearchBox()),
       ],
     );
   }

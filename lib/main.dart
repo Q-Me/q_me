@@ -27,7 +27,7 @@ Box indexOfHomeScreen;
 Box notificationIndicator;
 
 void main() async {
-  Bloc.observer = SimpleBlocObserver();
+  // Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Box box = await Hive.openBox("user");

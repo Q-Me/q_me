@@ -3,6 +3,9 @@ import 'package:hive/hive.dart';
 import 'package:intro_slider/dot_animation_enum.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
+import 'package:qme/repository/user.dart';
+import 'package:qme/utilities/logger.dart';
+import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
 
@@ -67,6 +70,7 @@ class IntroScreenState extends State<IntroScreen> {
     slides.add(
       new Slide(
           widgetDescription: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Center(
                 child: Text(
@@ -79,7 +83,8 @@ class IntroScreenState extends State<IntroScreen> {
                       fontSize: 16.0),
                 ),
               ),
-              Padding(padding: EdgeInsets.only(top: 30.0)),
+              Padding(padding: EdgeInsets.only(top: 20.0)),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -107,7 +112,7 @@ class IntroScreenState extends State<IntroScreen> {
                   ),
                 ],
               ),
-              Padding(padding: EdgeInsets.only(top: 15.0)),
+              SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -135,11 +140,43 @@ class IntroScreenState extends State<IntroScreen> {
                     textColor: Colors.white,
                   ),
                 ],
-              )
+              ),
+              SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Want to skip ahead?",
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        color: Colors.brown[900],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      )),
+                  RaisedButton(
+                    onPressed: () async {
+                      logger.i('Skip for now');
+                      await UserRepository().guestLogin();
+
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, HomeScreen.id, (route) => false);
+                    },
+                    child: Text("Skip",
+                        style: TextStyle(
+                          fontSize: 15.0,
+                        )),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      side: BorderSide(color: Colors.blue[900]),
+                    ),
+                    color: Colors.blue[800],
+                    textColor: Colors.white,
+                  ),
+                ],
+              ),
             ],
           ),
           title: "Best User Experience",
-          marginTitle: EdgeInsets.only(top: 300.0),
+          marginTitle: EdgeInsets.only(top: 350.0),
           styleTitle: TextStyle(
             color: Colors.brown[900],
             fontWeight: FontWeight.bold,

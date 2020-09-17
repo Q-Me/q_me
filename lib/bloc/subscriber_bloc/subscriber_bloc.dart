@@ -46,8 +46,6 @@ Stream<SubscriberState> _mapInitialEventToState(subscriberId) async* {
         subscriber: subscriber, images: _images, accessToken: _accessToken);
   } on Exception catch (e) {
     logger.e(e.toString());
-    print('error');
-
     yield SubscriberError(error: e.toString());
   }
 }

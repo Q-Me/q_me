@@ -21,6 +21,7 @@ import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/formField.dart';
 import 'package:qme/widgets/text.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const id = '/signup';
@@ -376,6 +377,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return null;
                             }
                           },
+                          style: GoogleFonts.roboto(
+                            fontWeight: FontWeight.bold,
+                          ),
                           decoration: InputDecoration(
                             labelText: 'PASSWORD',
                             labelStyle: TextStyle(
@@ -407,6 +411,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         TextFormField(
                           // Password
                           // autofocus: true,
+                          style: GoogleFonts.roboto(
+                            fontWeight: FontWeight.bold,
+                          ),
                           obscureText: !passwordVisible,
                           validator: (value) {
                             if (value.length < 6)

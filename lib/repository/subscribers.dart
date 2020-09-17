@@ -73,25 +73,6 @@ class SubscriberRepository {
     return reviews;
   }
 
-  Future<List<Subscriber>> subscriberListByLocation({
-    String location,
-    String category,
-    String accessToken,
-  }) async {
-    final response = await _helper.post(
-      kSubscriberByLocation,
-      req: {
-        'location': location,
-        'category': category,
-      },
-      headers: {'Authorization': 'Bearer $accessToken'},
-      authToken: accessToken,
-    );
-    return List.from(response["subscriber"])
-        .map((e) => Subscriber.fromJson(e))
-        .toList();
-  }
-
   Future<List<String>> subscriberCategories() async {
     final response = await _helper.post(
       '/user/categories',
@@ -107,6 +88,23 @@ class SubscriberRepository {
   }) async {
     final response = await _helper.post(
       kSubscriberByCategory,
+      req: {
+        'location': location,
+        'category': category,
+      },
+      authToken: accessToken,
+    );
+    return List.from(response["subscriber"])
+        .map((e) => Subscriber.fromJson(e))
+        .toList();
+  }
+
+  Future<List<Subscriber>> subscriberByLocation({
+    String location,
+    @required String category,
+  }) async {
+    final response = await _helper.post(
+      kSubscriberByLocation,
       req: {
         'location': location,
         'category': category,

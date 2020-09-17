@@ -42,7 +42,10 @@ Future<void> storeUserData(UserData userData) async {
   Box box = await Hive.openBox("user");
 
   if (userData.id != null) await box.put('id', userData.id);
-  if (userData.name != null) await box.put('name', userData.name);
+  if (userData.name != null) {
+    userData.name = userData.name.replaceAll('|', ' ');
+    await box.put('name', userData.name);
+  }
   if (userData.accessToken != null) {
     await box.put('accessToken', userData.accessToken);
     await box.put('expiry', DateTime.now().add(Duration(days: 1)).toString());
@@ -51,7 +54,7 @@ Future<void> storeUserData(UserData userData) async {
     await box.put('refreshToken', userData.refreshToken);
   if (userData.email != null) await box.put('email', userData.email);
   if (userData.phone != null) await box.put('phone', userData.phone);
-
+  box.put('isGuest',false);
   logger.d('Storing user data success');
 
   return;
