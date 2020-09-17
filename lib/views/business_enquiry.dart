@@ -195,7 +195,7 @@ class PinkContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: 14),
-      height: h * 0.3,
+      height: h * 0.3 * 0.95,
       width: w,
       decoration: BoxDecoration(
           color: Color(0xFFf0e2dd),
