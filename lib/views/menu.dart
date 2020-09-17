@@ -64,7 +64,9 @@ class MenuScreen extends StatelessWidget {
                           String name = box.get('name');
                           if (name != null && !name.startsWith('guest')) {
                             return Text(
-                              "${name.split(" ").elementAt(0)}",
+                              name.length > 1
+                                  ? "${name.split(" ").elementAt(0)}"
+                                  : name,
                               style: TextStyle(fontSize: 30),
                             );
                           }
@@ -101,9 +103,9 @@ class MenuScreen extends StatelessWidget {
                               controller,
                             );
                           return MenuListItem(
-                            "Log in",
+                            "Sign Up",
                             FontAwesomeIcons.signInAlt,
-                            "Log in",
+                            "Sign Up",
                             controller,
                           );
                         },
@@ -210,8 +212,8 @@ class MenuListItem extends StatelessWidget {
                       return AboutUsView();
                     }));
                     break;
-                  case "Log in":
-                    Navigator.pushNamed(context, SignInScreen.id);
+                  case "Sign Up":
+                    Navigator.pushNamed(context, SignUpScreen.id);
                 }
               },
               child: Row(
@@ -262,16 +264,14 @@ class LoginSignUpAlert extends StatelessWidget {
       ),
       actions: [
         FlatButton(
-          onPressed: () =>
-              Navigator.pushNamed(context, SignInScreen.id),
+          onPressed: () => Navigator.pushNamed(context, SignInScreen.id),
           child: Text(
             'Login',
             style: TextStyle(color: Colors.redAccent),
           ),
         ),
         FlatButton(
-          onPressed: () =>
-              Navigator.pushNamed(context, SignUpScreen.id),
+          onPressed: () => Navigator.pushNamed(context, SignUpScreen.id),
           child: Text(
             'SignUp',
             style: TextStyle(color: Colors.redAccent),
