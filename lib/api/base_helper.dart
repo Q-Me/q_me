@@ -38,7 +38,7 @@ class ApiBaseHelper {
           headers[HttpHeaders.authorizationHeader] = bearerToken(authToken);
         }
       }
-      logger.d('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
+      // logger.d('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
       final response = await http.post(
         baseURL + url,
         headers: headers,
@@ -54,7 +54,7 @@ class ApiBaseHelper {
   }
 
   dynamic _returnResponse(http.Response response) {
-    logger.d('Response:${json.decode(response.body.toString())}');
+    // logger.d('Response:${json.decode(response.body.toString())}');
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body.toString());

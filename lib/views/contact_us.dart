@@ -6,8 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class ContactUsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
-    double h = MediaQuery.of(context).size.height;
+    final h = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
@@ -25,29 +24,28 @@ class ContactUsView extends StatelessWidget {
           children: [
             Container(
               height: h * 0.4,
-              child: SvgPicture.asset(
-                "assets/images/contactus.svg",
+              child: Image.asset(
+                "assets/images/contactus.png",
               ),
             ),
             NameAndPost(
-              w: w,
               name: "Aman Deep",
               position: "Building Relations @ Q Me",
             ),
             EmailAndPhoneNumberTiles(
-              phone1: "+919931059201",
+              phone1: "+91 9931059201",
               phone2: "+91 8340342582",
               beEmail: "aman.ks0224@gmail.com",
             ),
             NameAndPost(
-              w: w,
               name: "Piyush Chauhan",
               position: "Building Product @ Q Me",
             ),
             EmailAndPhoneNumberTiles(
-                phone1: "+91 96735 82517",
-                phone2: "+91 8850774467",
-                beEmail: "pi.codemonk@gmail.com"),
+              phone1: "+91 96735 82517",
+              phone2: "+91 8850774467",
+              beEmail: "pi.codemonk@gmail.com",
+            ),
           ],
         ),
       ),
@@ -142,19 +140,16 @@ class EmailAndPhoneNumberTiles extends StatelessWidget {
 class NameAndPost extends StatelessWidget {
   const NameAndPost({
     Key key,
-    @required this.w,
     @required this.name,
     @required this.position,
   }) : super(key: key);
 
-  final double w;
   final String name;
   final String position;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: w,
       padding: EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

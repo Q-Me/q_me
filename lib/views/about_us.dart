@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qme/views/contact_us.dart';
 
@@ -27,8 +26,8 @@ class AboutUsView extends StatelessWidget {
             Container(
               width: w,
               height: h * 0.4,
-              child: SvgPicture.asset(
-                "assets/images/aboutus.svg",
+              child: Image.asset(
+                "assets/images/aboutus.png",
               ),
             ),
             SizedBox(
@@ -44,9 +43,7 @@ class AboutUsView extends StatelessWidget {
                     "About Us",
                     style: TextStyle(fontSize: 20),
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  SizedBox(height: 20),
                   Text(
                     """We're a group of B-Tech students from IIT Patna.
 
@@ -56,7 +53,7 @@ This app which you're using right now is just a basic version of what we have al
 
 Just stay with us and trust us, we would completely change your beauty & wellness experience.
 
-We are in a process to add more & more services near you so that you doesn't miss your favourite one.
+We are in a process to add more & more services near you so that you don't miss your favourite one.
 
 We're starting this from Patna and will roll out in other cities in coming days.
 

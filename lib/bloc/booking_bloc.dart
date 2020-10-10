@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/repository/appointment.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
 
 part 'booking_event.dart';
@@ -47,6 +48,14 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       message = msg;
       detail = details;
       logger.i(msg, details);
+      AnalyticsService()
+          .getAnalyticsObserver()
+          .analytics
+          .logEvent(name: "Booking successful", parameters: {
+        "Subscriber name": details.subscriberName,
+        "Category": details.category,
+        "Is verified": details.verified,
+      });
       yield BookingLoadSuccess(msg, details);
     } catch (error) {
       logger.e(error.toString());

@@ -82,10 +82,9 @@ class _OtpPageState extends State<OtpPage> {
     formData['email'] = await box.get('userEmailSignup');
 
     log('$formData');
-    formData['name'] = formData['firstName'] + " " + formData['lastName'];
 
     UserRepository user = UserRepository();
-    formData['name'] = '${formData['firstName']}|${formData['lastName']}';
+    formData['name'] = '${formData['firstName']} ${formData['lastName']}';
     // Make SignUp API call
     Map response;
     try {
@@ -99,6 +98,7 @@ class _OtpPageState extends State<OtpPage> {
         ),
       ));
     } catch (e) {
+      logger.e(e.toMap()['error']);
       Scaffold.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
@@ -119,7 +119,7 @@ class _OtpPageState extends State<OtpPage> {
         } else {
           logger.d("response of signin Otp: $response");
           Scaffold.of(context).showSnackBar(
-              SnackBar(content: Text(response['eror'].toString())));
+              SnackBar(content: Text(response['error'].toString())));
           return logger.d("error in api hit");
         }
       } catch (e) {
@@ -216,7 +216,7 @@ class _OtpPageState extends State<OtpPage> {
                             fontWeight: FontWeight.bold,
                           ),
                           length: 6,
-                          obsecureText: false,
+                          obscureText: false,
                           animationType: AnimationType.fade,
                           validator: (v) {
                             if (v.length != 6) {

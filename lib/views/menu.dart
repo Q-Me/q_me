@@ -1,6 +1,12 @@
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:qme/services/analytics.dart';
+import 'package:qme/repository/user.dart';
+import 'package:qme/utilities/logger.dart';
+import 'package:qme/repository/user.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/about_us.dart';
 import 'package:qme/views/business_enquiry.dart';
@@ -9,13 +15,16 @@ import 'package:qme/views/profileview.dart';
 import 'package:qme/views/signin.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:qme/views/signup.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({
     Key key,
     @required this.controller,
+    @required this.observer,
   }) : super(key: key);
   final PageController controller;
+  final FirebaseAnalyticsObserver observer;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -26,6 +35,7 @@ class MenuScreen extends StatelessWidget {
           onTap: () {
             controller.animateToPage(0,
                 duration: Duration(milliseconds: 500), curve: Curves.ease);
+            observer.analytics.setCurrentScreen(screenName: "Home Screen");
           },
           child: Center(
             child: FaIcon(FontAwesomeIcons.arrowLeft),
@@ -39,7 +49,7 @@ class MenuScreen extends StatelessWidget {
         ),
       ),
       body: Container(
-        padding: EdgeInsets.fromLTRB(20, 50, 20, 40),
+        padding: const EdgeInsets.fromLTRB(20, 50, 20, 40),
         child: Stack(
           overflow: Overflow.visible,
           alignment: AlignmentDirectional.topCenter,
@@ -57,10 +67,18 @@ class MenuScreen extends StatelessWidget {
                     children: [
                       ValueListenableBuilder(
                         valueListenable: Hive.box('user').listenable(),
-                        builder: (context, box, widget) => Text(
-                          "${box.get("name").split(" ")[0]}",
-                          style: TextStyle(fontSize: 30),
-                        ),
+                        builder: (context, box, widget) {
+                          String name = box.get('name');
+                          if (name != null && !name.startsWith('guest')) {
+                            return Text(
+                              name.length > 1
+                                  ? "${name.split(" ").elementAt(0)}"
+                                  : name,
+                              style: TextStyle(fontSize: 30),
+                            );
+                          }
+                          return SizedBox(height: 30);
+                        },
                       ),
                       MenuListItem(
                         "My Profile",
@@ -80,11 +98,24 @@ class MenuScreen extends StatelessWidget {
                         "support",
                         controller,
                       ),
-                      MenuListItem(
-                        "Log Out",
-                        FontAwesomeIcons.signOutAlt,
-                        "logout",
-                        controller,
+                      ValueListenableBuilder(
+                        valueListenable: Hive.box('user').listenable(),
+                        builder: (context, box, widget) {
+                          bool isGuest = box.get('isGuest') ?? false;
+                          if (!isGuest)
+                            return MenuListItem(
+                              "Log Out",
+                              FontAwesomeIcons.signOutAlt,
+                              "logout",
+                              controller,
+                            );
+                          return MenuListItem(
+                            "Sign Up",
+                            FontAwesomeIcons.signInAlt,
+                            "Sign Up",
+                            controller,
+                          );
+                        },
                       ),
                       MenuListItem(
                         "Buisness Enquiry",
@@ -145,27 +176,33 @@ class MenuListItem extends StatelessWidget {
           Material(
             color: Colors.white,
             child: InkWell(
-              onTap: () {
+              onTap: () async {
                 switch (index) {
                   case "profile":
-                    print("profile page");
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return ProfileView();
-                    }));
+                    Box box = Hive.box('user');
+                    if (box.get('isGuest')) {
+                      showDialog(context: context, child: LoginSignUpAlert());
+                    } else {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return ProfileView();
+                      }));
+                    }
                     break;
                   case "bookings":
                     controller.animateToPage(1,
                         duration: Duration(milliseconds: 500),
                         curve: Curves.ease);
-                    //TODO navigate to corresponding screen
+                    AnalyticsService()
+                        .getAnalyticsObserver()
+                        .analytics
+                        .setCurrentScreen(screenName: "My Bookings Screen");
                     break;
                   case "support":
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return ContactUsView();
                     }));
-                    //TODO navigate to corresponding screen
                     break;
                   case "logout":
                     showDialog(
@@ -186,6 +223,8 @@ class MenuListItem extends StatelessWidget {
                       return AboutUsView();
                     }));
                     break;
+                  case "Sign Up":
+                    Navigator.pushNamed(context, SignUpScreen.id);
                 }
               },
               child: Row(
@@ -222,6 +261,45 @@ class MenuListItem extends StatelessWidget {
   }
 }
 
+class LoginSignUpAlert extends StatelessWidget {
+  const LoginSignUpAlert({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'You need to login or signup to proceed.',
+        style: TextStyle(color: Color(0xFF49565e)),
+      ),
+      actions: [
+        FlatButton(
+          onPressed: () => Navigator.pushNamed(context, SignInScreen.id),
+          child: Text(
+            'Login',
+            style: TextStyle(color: Colors.redAccent),
+          ),
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pushNamed(context, SignUpScreen.id),
+          child: Text(
+            'SignUp',
+            style: TextStyle(color: Colors.redAccent),
+          ),
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: Color(0xFF49565e)),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class AlertDialogRefactor extends StatelessWidget {
   const AlertDialogRefactor({
     Key key,
@@ -242,10 +320,7 @@ class AlertDialogRefactor extends StatelessWidget {
               style: TextStyle(color: Colors.redAccent),
             ),
             onPressed: () async {
-              await clearSession();
-              Navigator.pushReplacementNamed(context, SignInScreen.id);
-
-              /* try {
+              try {
                 await UserRepository().signOut();
                 Navigator.pushReplacementNamed(context, SignInScreen.id);
               } catch (e) {
@@ -257,7 +332,7 @@ class AlertDialogRefactor extends StatelessWidget {
                   ),
                 );
                 return;
-              } */
+              }
             }),
         FlatButton(
             onPressed: () {

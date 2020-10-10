@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
 import 'package:qme/model/user.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/views/review.dart';
 
 class ListItemBooked extends StatelessWidget {
@@ -73,6 +75,12 @@ class ListItemBooked extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
+                          AnalyticsService()
+                              .getAnalyticsObserver()
+                              .analytics
+                              .logEvent(
+                                name: "Map Directions Requested",
+                              );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -129,7 +137,8 @@ class ListItemBooked extends StatelessWidget {
                         title: Text("Whoa, Hold On..."),
                         content: Text(
                             "Do you really want to cancel your appointment?"),
-                        actions: <Widget>[new FlatButton(
+                        actions: <Widget>[
+                          new FlatButton(
                             onPressed: () async {
                               BlocProvider.of<BookingslistBloc>(primaryContext)
                                   .add(
@@ -138,19 +147,30 @@ class ListItemBooked extends StatelessWidget {
                                   await getAccessTokenFromStorage(),
                                 ),
                               );
+                              int previousVal =
+                                  Hive.box("counter").get("counter");
+                              Hive.box("counter")
+                                  .put("counter", previousVal - 1);
                               Navigator.pop(context);
                             },
-                            child: Text("Yes", style: TextStyle(color: Theme.of(context).primaryColor,),),
+                            child: Text(
+                              "Yes",
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ),
                           new RaisedButton(
                             color: Theme.of(context).primaryColor,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
                             onPressed: () async {
                               Navigator.pop(context);
                             },
-                            child: Text("Cancel", style: TextStyle(color: Colors.white,),),
+                            child: Text(
+                              "No",
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
-                          
                         ],
                       );
                     });
@@ -247,6 +267,12 @@ class ListItemFinished extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
+                          AnalyticsService()
+                              .getAnalyticsObserver()
+                              .analytics
+                              .logEvent(
+                                name: "Map Directions Requested",
+                              );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -402,6 +428,12 @@ class ListItemCancelled extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
+                          AnalyticsService()
+                              .getAnalyticsObserver()
+                              .analytics
+                              .logEvent(
+                                name: "Map Directions Requested",
+                              );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),

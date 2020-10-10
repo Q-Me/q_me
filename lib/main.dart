@@ -1,3 +1,4 @@
+import 'package:bloc/bloc.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:qme/api/kAPI.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/router.dart' as router;
 import 'package:qme/services/analytics.dart';
+import 'package:qme/simple_bloc_observer.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
@@ -22,6 +24,7 @@ import 'package:qme/views/noInternet.dart';
 String initialHome = InitialScreen.id;
 bool firstLogin;
 Box indexOfHomeScreen;
+Box notificationIndicator;
 
 void main() async {
   // Bloc.observer = SimpleBlocObserver();
@@ -30,6 +33,8 @@ void main() async {
   Box box = await Hive.openBox("user");
   indexOfHomeScreen = await Hive.openBox("index");
   indexOfHomeScreen.put("index", 0);
+  notificationIndicator = await Hive.openBox("counter");
+  notificationIndicator.put("counter", 0);
   firstLogin = await box.get('firstLogin');
   if (firstLogin == false) initialHome = SignInScreen.id;
 
@@ -38,9 +43,6 @@ void main() async {
   // TODO setConfigs();
   // TODO fetch user related information
   try {
-    await setSession();
-    // await clearSession();
-
     if (await UserRepository().isSessionReady()) {
       initialHome = HomeScreen.id;
     }

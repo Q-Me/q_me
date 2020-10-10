@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
+import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/repository/user.dart';
@@ -44,7 +47,16 @@ class BookingslistBloc extends Bloc<BookingslistEvent, BookingslistState> {
       if (response.length != 0) {
         // logger.i(response[response.length - 1].counterId);
       }
+      log("${response.toString()}");
       yield BookingsListSuccess(response);
+    } on UnauthorisedException catch (e) {
+      Box box = await Hive.openBox("user");
+
+      if (e.toMap()['error'] == 'Forbidden Access' && box.get('isGuest')) {
+        yield BookingsListSuccess([]);
+      } else {
+        yield BookingsListFailure(e.toString());
+      }
     } catch (e) {
       logger.e(e);
       yield BookingsListFailure(e.toString());
@@ -63,7 +75,7 @@ class BookingslistBloc extends Bloc<BookingslistEvent, BookingslistState> {
           .fetchAppointments(
               ["CANCELLED", "UPCOMING", "CANCELLED BY SUBSCRIBER", "DONE"]);
 
-      logger.i(response[response.length - 1].rating);
+      // logger.i(response[response.length - 1].rating);
       yield BookingsListSuccess(response);
     } catch (e) {
       logger.e("${e.toString()}");

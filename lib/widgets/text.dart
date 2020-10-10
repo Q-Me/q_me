@@ -38,7 +38,7 @@ class ThemedText extends StatelessWidget {
           style: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
-              color: Colors.green),
+              color: Theme.of(context).primaryColor),
         )
       ],
     ));

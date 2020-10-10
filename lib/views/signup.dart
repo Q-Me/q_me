@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/repository/user.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/otpPage.dart';
@@ -21,6 +22,7 @@ import 'package:qme/widgets/button.dart';
 import 'package:qme/widgets/formField.dart';
 import 'package:qme/widgets/text.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const id = '/signup';
@@ -54,33 +56,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
     await box.put('fcmToken', _fcmToken);
   }
 
-showAlert(BuildContext context, String content){
-  return showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text("Verification Failed"),
-                      content: Text(content),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text("OK"),
-                          textColor: Colors.white,
-                          color: Theme.of(context).primaryColor,
-                          onPressed: () async {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SignInScreen(),
-                              ),
-                              (route) => false,
-                            );
-                          },
-                        )
-                      ],
-                    );
-                  });
-}
+  showAlert(BuildContext context, String content) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Verification Failed"),
+            content: Text(content),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("OK"),
+                textColor: Colors.white,
+                color: Theme.of(context).primaryColor,
+                onPressed: () async {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SignInScreen(),
+                    ),
+                    (route) => false,
+                  );
+                },
+              )
+            ],
+          );
+        });
+  }
+
   // otp verification with firebase
   Future<bool> loginUser(String phone, BuildContext context) async {
     FirebaseAuth _auth = FirebaseAuth.instance;
@@ -124,21 +127,23 @@ showAlert(BuildContext context, String content){
               } on BadRequestException catch (e) {
                 log('BadRequestException on SignUp:' + e.toString());
                 showAlert(context, e.toMap()["msg"].toString());
-
               } catch (e) {
-                 showAlert(context, e.toMap()["msg"].toString());
+                showAlert(context, e.toMap()["msg"].toString());
               }
               log('SignUp response:${response.toString()}');
 
               if (response != null &&
                   response['msg'] == 'Registation successful') {
+                    AnalyticsService()
+                        .getAnalyticsObserver()
+                        .analytics
+                        .logSignUp(signUpMethod: "Normal");
                 // Make SignIn call
                 try {
                   response = await UserRepository().signInWithOtp(idToken);
                   if (response['accessToken'] != null) {
                     logger.d("respose of ${response['status']}");
                     logger.d(response);
-
                     Navigator.pushNamedAndRemoveUntil(
                         context, HomeScreen.id, (route) => false);
                     fcmTokenApiCall();
@@ -176,16 +181,19 @@ showAlert(BuildContext context, String content){
         },
         verificationFailed: (AuthException exception) {
           logger.e(exception.message);
-            String fireBaseError  = exception.message.toString();
+          String fireBaseError = exception.message.toString();
           if (exception.message ==
-              "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_LONG ]"
-              ||exception.message ==  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_SHORT ]")
-               { fireBaseError = "PPlease verify and enter correct 10 digit phone number with country code.";}
-               else if (exception.message == "We have blocked all requests from this device due to unusual activity. Try again later.")
-               {
-                 fireBaseError = "You have tried maximum number of signup.please retry after some time.";
-               }
-               
+                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_LONG ]" ||
+              exception.message ==
+                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_SHORT ]") {
+            fireBaseError =
+                "PPlease verify and enter correct 10 digit phone number with country code.";
+          } else if (exception.message ==
+              "We have blocked all requests from this device due to unusual activity. Try again later.") {
+            fireBaseError =
+                "You have tried maximum number of signup.please retry after some time.";
+          }
+
           showDialog(
               context: context,
               barrierDismissible: false,
@@ -367,12 +375,15 @@ showAlert(BuildContext context, String content){
                             if (value.length < 6 || value.length > 20)
                               return 'Password should be not be less than 6 characters';
                             else if (!regex.hasMatch(value)) {
-                              return 'Password must contain one numeric ,one upper and one lower case letter';
+                              return 'Password must contain one numeric ,one upper and one lower\ncase letter.';
                             } else {
                               formData['password'] = value;
                               return null;
                             }
                           },
+                          style: GoogleFonts.roboto(
+                            fontWeight: FontWeight.bold,
+                          ),
                           decoration: InputDecoration(
                             labelText: 'PASSWORD',
                             labelStyle: TextStyle(
@@ -404,6 +415,9 @@ showAlert(BuildContext context, String content){
                         TextFormField(
                           // Password
                           // autofocus: true,
+                          style: GoogleFonts.roboto(
+                            fontWeight: FontWeight.bold,
+                          ),
                           obscureText: !passwordVisible,
                           validator: (value) {
                             if (value.length < 6)

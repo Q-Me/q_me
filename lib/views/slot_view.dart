@@ -9,8 +9,10 @@ import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/views/menu.dart';
 import 'package:qme/widgets/calenderStrip.dart';
 import 'package:intl/intl.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class SlotViewArguments {
   final Subscriber subscriber;
@@ -35,7 +37,6 @@ class _SlotViewState extends State<SlotView> {
   Slot selectedSlot;
   ScrollController gridScroll = ScrollController();
   bool backArrowEnabled = false;
-  Box box = Hive.box("user");
 
   double get h => MediaQuery.of(context).size.height;
   double get w => MediaQuery.of(context).size.width;
@@ -136,7 +137,15 @@ class _SlotViewState extends State<SlotView> {
                         return Center(child: Text('Unavailable'));
                       } else if (receptions.length == 1) {}
                       List<Widget> boxesOfSlot = [];
-
+                      DateTime now = DateTime.now();
+                      now = DateTime.utc(
+                        now.year,
+                        now.month,
+                        now.day,
+                        now.hour,
+                        now.minute,
+                        now.millisecond,
+                      );
                       for (Reception reception in receptions) {
                         boxesOfSlot.addAll(reception.slotList.map(
                           (e) {
@@ -149,7 +158,8 @@ class _SlotViewState extends State<SlotView> {
                             } else if (state is SelectedSlot &&
                                 state.slot == slot) {
                               color = Theme.of(context).primaryColor;
-                            } else if (!reception.availableForBooking) {
+                            } else if (!reception.availableForBooking ||
+                                e.startTime.isBefore(now)) {
                               color = Colors.grey;
                             } else {
                               color = Colors.white;
@@ -159,7 +169,8 @@ class _SlotViewState extends State<SlotView> {
                                 return GestureDetector(
                                   onTap: () {
                                     if (!reception.availableForBooking ||
-                                        !e.availableForBooking) {
+                                        !e.availableForBooking ||
+                                        e.startTime.isBefore(now)) {
                                       return;
                                     }
                                     BlocProvider.of<SlotViewBloc>(context).add(
@@ -204,7 +215,19 @@ class _SlotViewState extends State<SlotView> {
                   listener: (context, state) {},
                 ),
               ),
-              AppointmentForDetails(box: box),
+              ValueListenableBuilder(
+                valueListenable: Hive.box('user').listenable(
+                  keys: ['isGuest'],
+                ),
+                builder: (context, box, widget) {
+                  if (box.get('isGuest') == true) {
+                    return Container(
+                      padding: const EdgeInsets.only(top: 50),
+                    );
+                  }
+                  return AppointmentForDetails(box: box);
+                },
+              ),
               SizedBox(height: 20),
               ActionButton(),
             ],
@@ -233,19 +256,18 @@ class AppointmentForDetails extends StatelessWidget {
           SizedBox(height: 20),
           Text(
             'Appointment for',
-            style: Theme.of(context).textTheme.subtitle1,
+            style: Theme.of(context).textTheme.headline6,
             textAlign: TextAlign.left,
           ),
           SizedBox(height: 10),
           FieldValue(
-            label: 'Full Name',
+            label: 'Name',
             text: "${box.get("name")}",
           ),
           FieldValue(
             label: 'Contact No.',
             text: '${box.get("phone")}',
           ),
-          // TODO FieldValue(label: 'Note'),
         ],
       ),
     );
@@ -267,7 +289,7 @@ class ActionButton extends StatelessWidget {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             onPressed: state is SelectedSlot || state is BookedSlot
-                ? () {
+                ? () async {
                     if (state is BookedSlot) {
                       logger.d("pushing to homescreen");
                       Box index = Hive.box("index");
@@ -279,19 +301,25 @@ class ActionButton extends StatelessWidget {
                       return;
                     }
                     if (state is SelectedSlot) {
+                      Box box = await Hive.openBox("user");
+
                       // Go to appointment view
-                      Slot slot = state.slot;
-                      Reception reception = state.reception;
-                      Subscriber subscriber = state.subcriber;
-                      Navigator.pushReplacementNamed(
-                        context,
-                        AppointmentScreen.id,
-                        arguments: ApppointmentScreenArguments(
-                          reception: reception,
-                          slot: slot,
-                          subscriber: subscriber,
-                        ),
-                      );
+                      if (box.get('isGuest') != true) {
+                        Slot slot = state.slot;
+                        Reception reception = state.reception;
+                        Subscriber subscriber = state.subcriber;
+                        Navigator.pushReplacementNamed(
+                          context,
+                          AppointmentScreen.id,
+                          arguments: ApppointmentScreenArguments(
+                            reception: reception,
+                            slot: slot,
+                            subscriber: subscriber,
+                          ),
+                        );
+                      } else {
+                        showDialog(context: context, child: LoginSignUpAlert());
+                      }
                     }
                   }
                 : null,
