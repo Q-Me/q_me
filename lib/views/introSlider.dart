@@ -101,7 +101,7 @@ class IntroScreenState extends State<IntroScreen> {
                   RaisedButton(
                     onPressed: () {
                       _observer.analytics
-                          .logEvent(name: "SignUp Button clicked");
+                          .logEvent(name: "signUp_button_click");
                       Navigator.pushNamed(context, SignUpScreen.id);
                     },
                     child: Text("Sign Up",
@@ -131,7 +131,7 @@ class IntroScreenState extends State<IntroScreen> {
                   RaisedButton(
                     onPressed: () {
                       _observer.analytics
-                          .logEvent(name: "Login Button clicked");
+                          .logEvent(name: "login_button_click");
                       Navigator.pushNamedAndRemoveUntil(
                           context, SignInScreen.id, (route) => false);
                     },
@@ -163,7 +163,7 @@ class IntroScreenState extends State<IntroScreen> {
                     onPressed: () async {
                       logger.i('Skip for now');
                       await UserRepository().guestLogin();
-                      _observer.analytics.logEvent(name: "Chose Guest Login");
+                      _observer.analytics.logEvent(name: "guest_login_click");
                       Navigator.pushNamedAndRemoveUntil(
                           context, HomeScreen.id, (route) => false);
                     },

@@ -79,7 +79,7 @@ class ListItemBooked extends StatelessWidget {
                               .getAnalyticsObserver()
                               .analytics
                               .logEvent(
-                                name: "Map Directions Requested",
+                                name: "map_button_clicked",
                               );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
@@ -271,7 +271,7 @@ class ListItemFinished extends StatelessWidget {
                               .getAnalyticsObserver()
                               .analytics
                               .logEvent(
-                                name: "Map Directions Requested",
+                                name: "map_button_clicked",
                               );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
@@ -432,7 +432,7 @@ class ListItemCancelled extends StatelessWidget {
                               .getAnalyticsObserver()
                               .analytics
                               .logEvent(
-                                name: "Map Directions Requested",
+                                name: "map_button_clicked",
                               );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },

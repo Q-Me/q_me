@@ -51,10 +51,10 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       AnalyticsService()
           .getAnalyticsObserver()
           .analytics
-          .logEvent(name: "Booking successful", parameters: {
-        "Subscriber name": details.subscriberName,
+          .logEvent(name: "booking_success", parameters: {
+        "Subscriber_name": details.subscriberName,
         "Category": details.category,
-        "Is verified": details.verified,
+        "Is_verified": details.verified,
       });
       yield BookingLoadSuccess(msg, details);
     } catch (error) {

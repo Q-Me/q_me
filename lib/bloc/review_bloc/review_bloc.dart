@@ -34,7 +34,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
       );
       logger.d(response.toString());
       AnalyticsService().getAnalyticsObserver().analytics.logEvent(
-            name: "Added review",
+            name: "sdded_review",
           );
       yield ReviewSuccessful();
     } catch (e) {

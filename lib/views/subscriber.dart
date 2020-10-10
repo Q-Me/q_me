@@ -234,7 +234,7 @@ class SubscriberHeaderInfo extends StatelessWidget {
             padding: EdgeInsets.zero,
             onPressed: () {
               AnalyticsService().getAnalyticsObserver().analytics.logEvent(
-                    name: "Map Directions Requested",
+                    name: "map_button_clicked",
                   );
               MapsLauncher.launchCoordinates(
                 subscriber.latitude,
