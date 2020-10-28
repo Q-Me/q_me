@@ -216,11 +216,11 @@ class _OtpPageState extends State<OtpPage> {
                             fontWeight: FontWeight.bold,
                           ),
                           length: 6,
-                          obsecureText: false,
+                          obscureText: false,
                           animationType: AnimationType.fade,
                           validator: (v) {
                             if (v.length != 6) {
-                              return "Please enter valid otp";
+                              return "Please enter valid OTP";
                             } else {
                               return null;
                             }

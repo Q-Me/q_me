@@ -105,20 +105,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
             final code = _codeController.text.trim();
             try {
               Box box = await Hive.openBox("user");
-              formData['firstName'] = await box.get('userFirstNameSignup');
-              formData['lastName'] = await box.get('userLastNameSignup');
+              formData['firstName'] =
+                  await box.get('userFirstNameSignup').toString().trim();
+              formData['lastName'] =
+                  await box.get('userLastNameSignup').toString().trim();
               formData['phone'] = await box.get('userPhoneSignup');
               formData['password'] = await box.get('userPasswordSignup');
               formData['cpassword'] = await box.get('userCpasswordSignup');
-              formData['email'] = await box.get('userEmailSignup');
-
-              log('$formData');
-              formData['name'] =
-                  formData['firstName'] + " " + formData['lastName'];
+              formData['email'] =
+                  await box.get('userEmailSignup').toString().trim();
 
               UserRepository user = UserRepository();
               formData['name'] =
                   '${formData['firstName']} ${formData['lastName']}';
+              log('$formData');
               // Make SignUp API call
               Map response;
               try {
@@ -134,10 +134,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               if (response != null &&
                   response['msg'] == 'Registation successful') {
-                    AnalyticsService()
-                        .getAnalyticsObserver()
-                        .analytics
-                        .logSignUp(signUpMethod: "Normal");
+                AnalyticsService()
+                    .getAnalyticsObserver()
+                    .analytics
+                    .logSignUp(signUpMethod: "Normal");
                 // Make SignIn call
                 try {
                   response = await UserRepository().signInWithOtp(idToken);
