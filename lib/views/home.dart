@@ -1,15 +1,18 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:carousel_pro/carousel_pro.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:marquee_widget/marquee_widget.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
@@ -21,9 +24,8 @@ import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/subscriber.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:geocoding/geocoding.dart';
 
 final borderRadius = Radius.circular(20);
 
@@ -195,27 +197,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: <Widget>[
                           Icon(Icons.timer),
                           /* Positioned(
-                            right: 0,
-                            child: new Container(
-                              padding: EdgeInsets.all(1),
-                              decoration: new BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              constraints: BoxConstraints(
-                                minWidth: 12,
-                                minHeight: 12,
-                              ),
-                              /*  child: new Text(
-                                '${Hive.box("counter").get("counter")}',
-                                style: new TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
+                              right: 0,
+                              child: new Container(
+                                padding: EdgeInsets.all(1),
+                                decoration: new BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
-                                textAlign: TextAlign.center,
-                              ), */
-                            ),
-                          ) */
+                                constraints: BoxConstraints(
+                                  minWidth: 12,
+                                  minHeight: 12,
+                                ),
+                                /*  child: new Text(
+                                  '${Hive.box("counter").get("counter")}',
+                                  style: new TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 8,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ), */
+                              ),
+                            ) */
                         ],
                       )
                     : Icon(Icons.timer),
@@ -235,6 +237,39 @@ class HomeScreenPage extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
+  Future<String> getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    String _currentAddress = '';
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return Future.error(
+            'Location permissions are denied (actual value: $permission).');
+      }
+    }
+
+    Position _currentPosition = await Geolocator.getCurrentPosition();
+    List<Placemark> p = await placemarkFromCoordinates(
+        _currentPosition.latitude, _currentPosition.longitude);
+    Placemark place = p[0];
+    _currentAddress =
+        "${place.locality}";
+    return _currentAddress;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -244,63 +279,75 @@ class HomeScreenPage extends StatelessWidget {
           bloc.add(GetCategories());
           return bloc;
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            HomeHeader(
-              child: Column(
-                children: [
-                  OfferCarousal(),
-                  BlocConsumer<HomeBloc, HomeState>(
-                    listener: (context, state) {
-                      if (state is HomeFail) {
-                        if (state.msg.startsWith('Unauthorised')) {
-                          Navigator.pushReplacementNamed(
-                              context, SignInScreen.id);
-                        }
-                      }
-                    },
-                    builder: (context, state) {
-                      if (state is HomeLoading) {
-                        return Container(
-                          color: Colors.white,
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(state.msg ?? 'Loading..'),
-                              CircularProgressIndicator(),
-                            ],
-                          ),
-                        );
-                      } else if (state is PartCategoryReady) {
-                        List<CategorySubscriberList> categoryList =
-                            state.categoryList;
-                        return Column(
-                          children: [
-                            ReadySubscribersCategoriesList(
-                              categoryList: categoryList,
-                            ),
-                            CircularProgressIndicator(),
-                          ],
-                        );
-                      } else if (state is CategorySuccess) {
-                        List<CategorySubscriberList> categoryList =
-                            state.categoryList;
-                        return ReadySubscribersCategoriesList(
-                          categoryList: categoryList,
-                        );
-                      } else {
-                        return Text('Underminedstate');
-                      }
-                    },
+        child: FutureBuilder<String>(
+            future: getLocation(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData == true) {
+                BlocProvider.of<HomeBloc>(context).add(
+                  SetLocation(
+                    snapshot.data,
+                  ),
+                );
+                logger.i(snapshot.data);
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  HomeHeader(
+                    child: Column(
+                      children: [
+                        OfferCarousal(),
+                        BlocConsumer<HomeBloc, HomeState>(
+                          listener: (context, state) {
+                            if (state is HomeFail) {
+                              if (state.msg.startsWith('Unauthorised')) {
+                                Navigator.pushReplacementNamed(
+                                    context, SignInScreen.id);
+                              }
+                            }
+                          },
+                          builder: (context, state) {
+                            if (state is HomeLoading) {
+                              return Container(
+                                color: Colors.white,
+                                width: MediaQuery.of(context).size.width,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(state.msg ?? 'Loading..'),
+                                    CircularProgressIndicator(),
+                                  ],
+                                ),
+                              );
+                            } else if (state is PartCategoryReady) {
+                              List<CategorySubscriberList> categoryList =
+                                  state.categoryList;
+                              return Column(
+                                children: [
+                                  ReadySubscribersCategoriesList(
+                                    categoryList: categoryList,
+                                  ),
+                                  CircularProgressIndicator(),
+                                ],
+                              );
+                            } else if (state is CategorySuccess) {
+                              List<CategorySubscriberList> categoryList =
+                                  state.categoryList;
+                              return ReadySubscribersCategoriesList(
+                                categoryList: categoryList,
+                              );
+                            } else {
+                              return Text('Underminedstate');
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
-              ),
-            ),
-          ],
-        ),
+              );
+            }),
       ),
     );
   }

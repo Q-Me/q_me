@@ -68,7 +68,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           yield PartCategoryReady(categorizedSubscribers);
 
           for (CategorySubscriberList value in categorizedSubscribers) {
-            print(value.toJson());
+            logger.d(value.toJson());
           }
           print('');
         } on Exception catch (e) {

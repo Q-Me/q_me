@@ -55,6 +55,8 @@ dependencies:
   flutter_rating_bar: ^3.0.1+1
   maps_launcher: ^1.2.2+1
   marquee_widget: ^0.8.0
+  geolocator: ^6.1.13
+  geocoding: ^1.0.5
 
   # Firebase
   firebase_core: ^0.4.4
