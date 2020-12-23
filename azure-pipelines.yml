@@ -24,6 +24,8 @@ jobs:
           apksignerKeystorePassword: $(keypassword)
           apksignerKeystoreAlias: $(keyalias)
           apksignerKeyPassword: $(keypassword)
+        env:
+          KEY_PASSWORD: $(keypassword)
       - task: CopyFiles@2
         inputs:
           Contents: '**/app-release.apk'
