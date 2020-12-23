@@ -1,19 +1,35 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
-
-pool:
-  vmImage: 'ubuntu-latest'
-
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- azure-pipelines
+jobs:
+  - job: Android
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            sudo snap install flutter --classic
+            flutter pub get
+            flutter build apk --debug
+            flutter build apk --profile 
+            flutter build apk --split-debug-info --obfuscate --target-platform=android-arm64
+            cp ./build/app/outputs/flutter-apk/app-release.apk ./
+          workingDirectory: '$(Build.SourcesDirectory)'
+      - task: AndroidSigning@3
+        inputs:
+          zipalign: false
+          apkFiles: '**/app-release.apk'
+          apksignerKeystoreFile: 'qmeuser.jks'
+          apksignerKeystorePassword: $(keypassword)
+          apksignerKeystoreAlias: $(keyalias)
+          apksignerKeyPassword: $(keypassword)
+      - task: CopyFiles@2
+        inputs:
+          Contents: '**/app-release.apk'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: 'apks'
+          publishLocation: 'Container'
