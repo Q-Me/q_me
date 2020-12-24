@@ -2,9 +2,17 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:qme/utilities/logger.dart';
 
 import 'app_exceptions.dart';
 import 'kAPI.dart';
+
+String getPrettyJSONString(jsonObject) {
+  var encoder = new JsonEncoder.withIndent("     ");
+  return encoder.convert(jsonObject);
+}
+
+String bearerToken(String accessToken) => 'Bearer $accessToken';
 
 class ApiBaseHelper {
   Future<dynamic> get(String url) async {
@@ -19,15 +27,18 @@ class ApiBaseHelper {
   }
 
   Future<dynamic> post(String url,
-      {Map req, Map<String, String> headers}) async {
+      {Map req, Map<String, String> headers, String authToken}) async {
     var responseJson;
     try {
       if (req != null) {
         headers = headers == null ? {} : headers;
         headers['Accept'] = 'application/json';
         headers['Content-type'] = 'application/json';
+        if (authToken != null) {
+          headers[HttpHeaders.authorizationHeader] = bearerToken(authToken);
+        }
       }
-//      log('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
+      // logger.d('Posting to ${baseURL + url}\nRequest:$req\nHeader:$headers');
       final response = await http.post(
         baseURL + url,
         headers: headers,
@@ -36,15 +47,18 @@ class ApiBaseHelper {
       responseJson = _returnResponse(response);
     } on SocketException {
       throw FetchDataException('No Internet connection');
+    } finally {
+      // logger.d('Response' + getPrettyJSONString(responseJson));
     }
     return responseJson;
   }
 
   dynamic _returnResponse(http.Response response) {
+    // logger.d('Response:${json.decode(response.body.toString())}');
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body.toString());
-//        log('Response:$responseJson');
+       
         return responseJson;
       case 400:
         throw BadRequestException(response.body.toString());

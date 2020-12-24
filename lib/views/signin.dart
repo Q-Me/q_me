@@ -1,15 +1,19 @@
-//import 'dart:html';
-import 'dart:developer';
+import 'dart:io';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:qme/api/app_exceptions.dart';
 import 'package:flutter/services.dart';
-import 'nearby.dart';
-import 'signup.dart';
-import '../constants.dart';
-import '../widgets/formField.dart';
-import '../widgets/text.dart';
-import '../api/signin.dart';
+import 'package:hive/hive.dart';
+import 'package:qme/constants.dart';
+import 'package:qme/repository/user.dart';
+import 'package:qme/utilities/logger.dart';
+import 'package:qme/views/home.dart';
+import 'package:qme/views/otpPage.dart';
+import 'package:qme/views/signup.dart';
+import 'package:qme/widgets/text.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignInScreen extends StatefulWidget {
   static const id = '/signin';
@@ -21,22 +25,23 @@ class _SignInScreenState extends State<SignInScreen>
     with TickerProviderStateMixin {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _codeController = TextEditingController();
   TabController _controller;
-  var idToken;
-  var verificationIdVar;
-  var _authVar;
+  String idToken;
   String countryCodeVal;
   String countryCodePassword;
-  bool showOtpTextfield = false;
-
+  final FirebaseMessaging _messaging = FirebaseMessaging();
   final formKey =
       GlobalKey<FormState>(); // Used in login button and forget password
   String email;
   String password;
   String phoneNumber;
+  String _fcmToken;
+  bool passwordHidden = true;
 
-  Future<bool> loginUser(String phone, BuildContext context) async {
+  double get mediaHeight => MediaQuery.of(context).size.height;
+  double get mediaWidth => MediaQuery.of(context).size.width;
+
+  Future<bool> loginUser(BuildContext context, String phone) async {
     FirebaseAuth _auth = FirebaseAuth.instance;
 
     _auth.verifyPhoneNumber(
@@ -44,58 +49,121 @@ class _SignInScreenState extends State<SignInScreen>
         timeout: Duration(seconds: 60),
         verificationCompleted: (AuthCredential credential) async {
           AuthResult result = await _auth.signInWithCredential(credential);
-          print("printing the credential");
-          print(credential);
+          logger.d("printing the credential");
+          logger.d(credential);
 
           FirebaseUser user = result.user;
 
           if (user != null) {
             var token = await user.getIdToken().then((result) async {
               idToken = result.token;
-              print(" $idToken ");
-              FocusScope.of(context)
-                  .requestFocus(FocusNode()); // dismiss the keyboard
-              Scaffold.of(context)
-                  .showSnackBar(SnackBar(content: Text('Processing Data')));
+              logger.d("idToken: $idToken ");
+              FocusScope.of(context).requestFocus(FocusNode());
+
               var response;
               try {
+                Box box = await Hive.openBox("user");
+                await box.put('fcmToken', _fcmToken);
                 response =
                     // Make LOGIN API call
-                    response = await signInWithOtp(idToken);
+                    response = await UserRepository().signInWithOtp(idToken);
 
-                if (response['status'] == 200) {
-                  Navigator.pushNamed(context, NearbyScreen.id);
+                if (response['accessToken'] != null) {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, HomeScreen.id, (route) => false);
+                  var responsefcm =
+                      await UserRepository().fcmTokenSubmit(_fcmToken);
+                  logger.d("fcm token Api: $responsefcm");
                 } else {
                   return;
                 }
               } catch (e) {
-                print(" !!$e !!");
-                Scaffold.of(context)
-                    .showSnackBar(SnackBar(content: Text(e.toString())));
-                // _showSnackBar(e.toString());
-                log('Error in signIn API: ' + e.toString());
+                logger.d(" !!${e.toMap()["msg"].toString()}!!");
+                final errorMessage = e.toMap()["msg"].toString();
+                showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("SignIn Failed!"),
+                        content: Text(errorMessage),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text("OK"),
+                            textColor: Colors.white,
+                            color: Theme.of(context).primaryColor,
+                            onPressed: () {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SignInScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            },
+                          )
+                        ],
+                      );
+                    });
+                logger.d('Error in signIn API: ' + e.toString());
                 return;
               }
             });
           } else {
-            print("Error");
+            logger.d("Error");
           }
-
-          //This callback would gets called when verification is done auto maticlly
         },
         verificationFailed: (AuthException exception) {
-          print("here is exception error");
-          print(exception.message);
-          Scaffold.of(context).showSnackBar(
-              SnackBar(content: Text(exception.message.toString())));
-        },
-        codeSent: (String verificationId, [int forceResendingToken]) {
-          _authVar = _auth;
-          verificationIdVar = verificationId;
+          logger.d("here is exception error");
+          logger.d(exception.message);
+          String fireBaseError = exception.message.toString();
+          if (exception.message ==
+                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_LONG ]" ||
+              exception.message ==
+                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_SHORT ]") {
+            fireBaseError =
+                "Please verify and enter correct 10 digit phone number with country code.";
+          } else if (exception.message ==
+              "We have blocked all requests from this device due to unusual activity. Try again later.") {
+            fireBaseError =
+                "You have tried maximum number of signin.please retry after some time.";
+          }
 
-          setState(() {
-            showOtpTextfield = true;
-          });
+          showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Alert"),
+                  content: Text(fireBaseError),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text("OK"),
+                      textColor: Colors.white,
+                      color: Theme.of(context).primaryColor,
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SignInScreen(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                    )
+                  ],
+                );
+              });
+        },
+        codeSent: (String verificationId, [int forceResendingToken]) async {
+          // _authVar = _auth;
+          // verificationIdVar = verificationId;
+          verificationIdOtp = verificationId;
+          authOtp = _auth;
+          loginPage = "SignIn";
+          Box box = await Hive.openBox("user");
+
+          await box.put('fcmToken', _fcmToken);
         },
         codeAutoRetrievalTimeout: null);
   }
@@ -103,14 +171,49 @@ class _SignInScreenState extends State<SignInScreen>
   @override
   void initState() {
     super.initState();
-    _controller = new TabController(length: 2, vsync: this);
+    _controller = TabController(length: 2, vsync: this);
+    firebaseCloudMessagingListeners();
+    _messaging.getToken().then((token) {
+      logger.d("fcmToken: $token");
+      _fcmToken = token;
+    });
+  }
+
+  void firebaseCloudMessagingListeners() {
+    if (Platform.isIOS) iosPermission();
+
+    _messaging.getToken().then((token) {
+      logger.d("FCM TOKEN: \n$token");
+    });
+
+    _messaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        //showNotification(message['notification']);
+        logger.d('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        logger.d('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        logger.d('on launch $message');
+      },
+    );
+  }
+
+  void iosPermission() {
+    _messaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, badge: true, alert: true));
+    _messaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      logger.d("Settings registered: $settings");
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomPadding: true,
         body: Builder(
           builder: (context) => SingleChildScrollView(
             child: Column(
@@ -128,161 +231,85 @@ class _SignInScreenState extends State<SignInScreen>
                       child: Column(
                         children: <Widget>[
                           SizedBox(height: 20.0),
+                          LoginTabBar(controller: _controller),
                           Container(
-                            decoration: new BoxDecoration(
-                                color: Theme.of(context).primaryColor),
-                            child: new TabBar(
-                              controller: _controller,
-                              indicatorColor: Colors.white,
-                              tabs: [
-                                new Tab(
-                                  icon: const Icon(Icons.message),
-                                  text: 'Login with OTP',
-                                ),
-                                new Tab(
-                                  icon: const Icon(Icons.visibility_off),
-                                  text: 'Login with Password',
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            height: MediaQuery.of(context).size.height * 0.42,
+                            height: mediaHeight * 0.42,
                             child: TabBarView(
                               controller: _controller,
                               children: <Widget>[
                                 Column(
                                   children: <Widget>[
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.02),
-                                    Card(
-                                      child: new ListTile(
-                                        leading: CountryCodePicker(
-                                          onChanged: print,
-                                          initialSelection: 'In',
-                                          hideSearch: false,
-                                          showCountryOnly: false,
-                                          showOnlyCountryWhenClosed: false,
-                                          builder: (countryCode) {
-                                            var countryCodes = countryCode;
-                                            countryCodeVal =
-                                                countryCodes.toString();
-                                            return Container(
-                                                alignment: Alignment.center,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.15,
-                                                // height: 0.085,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: Text(
-                                                  '$countryCode',
-                                                  style: TextStyle(
-                                                      color: Colors.black),
-                                                ));
-                                          },
-                                        ),
-                                        title: TextFormField(
-                                          decoration: InputDecoration(
-                                              enabledBorder: OutlineInputBorder(
+                                    SizedBox(height: mediaHeight * 0.02),
+                                    ListTile(
+                                      leading: CountryCodePicker(
+                                        onChanged: print,
+                                        initialSelection: 'In',
+                                        hideSearch: false,
+                                        showCountryOnly: false,
+                                        showOnlyCountryWhenClosed: false,
+                                        builder: (countryCode) {
+                                          var countryCodes = countryCode;
+                                          countryCodeVal =
+                                              countryCodes.toString();
+                                          return Container(
+                                              alignment: Alignment.center,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.15,
+                                              // height: 0.085,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.grey[200],
                                                   borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8)),
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey[200])),
-                                              focusedBorder: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8)),
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey[300])),
-                                              filled: true,
-                                              fillColor: Colors.grey[100],
-                                              hintText: "Mobile Number"),
-                                          controller: _phoneController,
-                                          validator: (value) {
-                                            if (value.isEmpty) {
-                                              return 'This field cannot be left blank';
-                                            } else {
-                                              setState(() {
-                                                phoneNumber =
-                                                    countryCodeVal + value;
-                                              });
-                                              return null;
-                                            }
-                                          },
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Text(
+                                                '$countryCode',
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              ));
+                                        },
+                                      ),
+                                      title: TextFormField(
+                                        keyboardType: TextInputType.phone,
+                                        decoration: InputDecoration(
+                                          enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(8)),
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey[200])),
+                                          focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(8)),
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey[300])),
+                                          filled: true,
+                                          fillColor: Colors.grey[100],
+                                          hintText: "Mobile Number",
                                         ),
+                                        controller: _phoneController,
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return 'This field cannot be left blank';
+                                          } else {
+                                            setState(() {
+                                              phoneNumber =
+                                                  countryCodeVal + value;
+                                            });
+
+                                            return null;
+                                          }
+                                        },
                                       ),
                                     ),
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.02),
-                                    showOtpTextfield
-                                        ? Card(
-                                            child: new ListTile(
-                                              title: TextFormField(
-                                                decoration: InputDecoration(
-                                                    enabledBorder: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    8)),
-                                                        borderSide: BorderSide(
-                                                            color: Colors
-                                                                .grey[200])),
-                                                    focusedBorder: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    8)),
-                                                        borderSide: BorderSide(
-                                                            color: Colors.grey[300])),
-                                                    filled: true,
-                                                    fillColor: Colors.grey[100],
-                                                    hintText: "Enter OTP"),
-                                                controller: _codeController,
-                                              ),
-                                            ),
-                                          )
-                                        : Container(),
-                                    !showOtpTextfield
-                                        ? RaisedButton(
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                            onPressed: () {
-                                              final phone =
-                                                  _phoneController.text.trim();
-                                              print("phone number: $phone");
-                                              loginUser(countryCodeVal + phone,
-                                                  context);
-                                            },
-                                            child: const Text(
-                                              'GET OTP',
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          )
-                                        : Container(),
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.05),
+                                    SizedBox(height: mediaHeight * 0.02),
+                                    SizedBox(height: mediaHeight * 0.05),
                                     Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.06,
+                                      height: mediaHeight * 0.06,
                                       child: Material(
                                         borderRadius:
                                             BorderRadius.circular(20.0),
-                                        shadowColor: Colors.greenAccent,
-                                        color: Colors.green,
+                                        color: Theme.of(context).primaryColor,
                                         elevation: 7.0,
                                         child: InkWell(
                                           onTap: () async {
@@ -294,89 +321,58 @@ class _SignInScreenState extends State<SignInScreen>
                                                   SnackBar(
                                                       content: Text(
                                                           'Processing Data')));
-                                              final code =
-                                                  _codeController.text.trim();
-                                              try {
-                                                AuthCredential credential =
-                                                    PhoneAuthProvider
-                                                        .getCredential(
-                                                            verificationId:
-                                                                verificationIdVar,
-                                                            smsCode: code);
-
-                                                AuthResult result =
-                                                    await _authVar
-                                                        .signInWithCredential(
-                                                            credential);
-
-                                                FirebaseUser user = result.user;
-
-                                                if (user != null) {
-                                                  var token = await user
-                                                      .getIdToken()
-                                                      .then((result) {
-                                                    idToken = result.token;
-                                                    print("@@ $idToken @@");
+                                              final phone =
+                                                  _phoneController.text.trim();
+                                              logger.d("phone number: $phone");
+                                              Box box =
+                                                  await Hive.openBox("user");
+                                              box.put(
+                                                  'userPhoneSignup',
+                                                  countryCodeVal.toString() +
+                                                      phone.toString());
+                                              showDialog(
+                                                  context: context,
+                                                  barrierDismissible: false,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      title: Text("Alert!"),
+                                                      content: Text(
+                                                          "You might receive an SMS message for verification and standard rates apply."),
+                                                      actions: <Widget>[
+                                                        FlatButton(
+                                                          child:
+                                                              Text("Disagree"),
+                                                          textColor:
+                                                              Colors.white,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .primaryColor,
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                        ),
+                                                        FlatButton(
+                                                          child: Text("Agree"),
+                                                          textColor:
+                                                              Colors.white,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .primaryColor,
+                                                          onPressed: () async {
+                                                            Navigator.pushNamed(
+                                                                context,
+                                                                OtpPage.id);
+                                                            loginUser(
+                                                              context,
+                                                              countryCodeVal +
+                                                                  phone,
+                                                            );
+                                                          },
+                                                        ),
+                                                      ],
+                                                    );
                                                   });
-                                                } else {
-                                                  print("Error");
-                                                }
-                                              } on PlatformException catch (e) {
-                                                print("Looking for Error code");
-                                                print(e.message);
-                                                Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(e.code
-                                                            .toString())));
-                                                print(e.code);
-                                                setState(() {
-                                                  showOtpTextfield = false;
-                                                });
-                                              } on Exception catch (e) {
-                                                print(
-                                                    "Looking for Error message");
-                                                Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(
-                                                            e.toString())));
-                                                setState(() {
-                                                  showOtpTextfield = false;
-                                                });
-                                                print(e);
-                                              }
-
-                                              // email and password both are available here
-                                              Map response;
-                                              try {
-                                                response =
-                                                    // Make LOGIN API call
-                                                    response = await signInWithOtp(
-                                                        idToken);
-
-                                                if (response['status'] == 200) {
-                                                  print("respose of ${response['status']}");
-                                                  print(response);
-                                                  Navigator.pushNamed(
-                                                      context, NearbyScreen.id);
-                                                } else {
-                                                  print(response['status']);
-                                                  print(response);
-                                                   Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(
-                                                          response['status'].toString() +" " + response['error'].toString())));
-                                                  return print("error in api hit");
-                                                }
-                                              } catch (e) {
-                                                Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(
-                                                            e.toString())));
-                                                // _showSnackBar(e.toString());
-                                                log('Error in signIn API: ' +
-                                                    e.toString());
-                                                return;
-                                              }
                                             }
                                           },
                                           child: Center(
@@ -396,122 +392,123 @@ class _SignInScreenState extends State<SignInScreen>
                                 ),
                                 Column(
                                   children: <Widget>[
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.02),
-                                    Card(
-                                      child: ListTile(
-                                        leading: CountryCodePicker(
-                                          onChanged: print,
-                                          initialSelection: 'In',
-                                          hideSearch: false,
-                                          showCountryOnly: false,
-                                          showOnlyCountryWhenClosed: false,
-                                          builder: (countryCode) {
-                                            var countryCodes = countryCode;
-                                            countryCodePassword =
-                                                countryCodes.toString();
-                                            return Container(
-                                                alignment: Alignment.center,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.15,
-                                                // height: 0.085,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: Text(
-                                                  '$countryCode',
-                                                  style: TextStyle(
-                                                      color: Colors.black),
-                                                ));
-                                          },
+                                    SizedBox(height: mediaHeight * 0.02),
+                                    ListTile(
+                                      leading: CountryCodePicker(
+                                        onChanged: print,
+                                        initialSelection: 'In',
+                                        hideSearch: false,
+                                        showCountryOnly: false,
+                                        showOnlyCountryWhenClosed: false,
+                                        builder: (countryCode) {
+                                          var countryCodes = countryCode;
+                                          countryCodePassword =
+                                              countryCodes.toString();
+                                          return Container(
+                                              alignment: Alignment.center,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.15,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.grey[200],
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Text(
+                                                '$countryCode',
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              ));
+                                        },
+                                      ),
+                                      title: TextFormField(
+                                        decoration: InputDecoration(
+                                          enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(8)),
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey[200])),
+                                          focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(8)),
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey[300])),
+                                          filled: true,
+                                          fillColor: Colors.grey[100],
+                                          hintText: "Mobile Number",
                                         ),
-                                        title: TextFormField(
-                                          decoration: InputDecoration(
-                                              enabledBorder: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8)),
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey[200])),
-                                              focusedBorder: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8)),
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey[300])),
-                                              filled: true,
-                                              fillColor: Colors.grey[100],
-                                              hintText: "Mobile Number"),
-                                          controller: _phoneController,
-                                          validator: (value) {
-                                            if (value.isEmpty) {
-                                              return 'This field cannot be left blank';
-                                            } else {
+                                        keyboardType: TextInputType.number,
+                                        // controller: _phoneController,
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return 'This field cannot be left blank';
+                                          } else {
+                                            phoneNumber =
+                                                countryCodePassword + value;
+                                            return null;
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    SizedBox(height: mediaHeight * 0.02),
+                                    ListTile(
+                                      title: TextFormField(
+                                        obscureText: passwordHidden,
+                                        decoration: InputDecoration(
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(8),
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey[200],
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(8),
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey[300],
+                                            ),
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.grey[100],
+                                          hintText: "Password",
+                                          suffixIcon: GestureDetector(
+                                            onTap: () {
                                               setState(() {
-                                                phoneNumber =
-                                                    countryCodePassword + value;
+                                                passwordHidden =
+                                                    !passwordHidden;
                                               });
-                                              return null;
-                                            }
-                                          },
+                                            },
+                                            child: passwordHidden
+                                                ? Icon(Icons.visibility_off)
+                                                : Icon(Icons.visibility),
+                                          ),
                                         ),
+                                        style: GoogleFonts.roboto(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        controller: _passwordController,
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return 'This field cannot be left blank';
+                                          } else {
+                                            password = value;
+                                            return null;
+                                          }
+                                        },
                                       ),
                                     ),
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.02),
-                                    Card(
-                                      child: ListTile(
-                                        title: TextFormField(
-                                          obscureText: true,
-                                          decoration: InputDecoration(
-                                              enabledBorder: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8)),
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey[200])),
-                                              focusedBorder: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8)),
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey[300])),
-                                              filled: true,
-                                              fillColor: Colors.grey[100],
-                                              hintText: "Password"),
-                                          controller: _passwordController,
-                                          validator: (value) {
-                                            if (value.isEmpty) {
-                                              return 'This field cannot be left blank';
-                                            } else {
-                                              password = value;
-                                              return null;
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.05),
+                                    SizedBox(height: mediaHeight * 0.05),
                                     Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.06,
+                                      height: mediaHeight * 0.06,
                                       child: Material(
                                         borderRadius:
                                             BorderRadius.circular(20.0),
-                                        shadowColor: Colors.greenAccent,
-                                        color: Colors.green,
+                                        shadowColor: Colors.blueAccent,
+                                        color: Theme.of(context).primaryColor,
                                         elevation: 7.0,
                                         child: InkWell(
                                           onTap: () async {
@@ -523,52 +520,76 @@ class _SignInScreenState extends State<SignInScreen>
                                                   SnackBar(
                                                       content: Text(
                                                           'Processing Data')));
+
                                               // email and password both are available here
-                                              Map response;
+                                              logger.d(
+                                                  "phoneNumber : $phoneNumber and password: $password");
                                               try {
-                                                print("signInWithPassword api is called");
-                                                print("phoneNumber : $phoneNumber and password: $password");
-                                                response =
-                                                    // Make LOGIN API call
-                                                    response = await signInWithPassword(
-                                                        phoneNumber, password
-                                                        );
-                                                         print("signInWithPassword api call over");
-                                                if (response['status'] == 200) {
-                                                  print("respose of ${response['status']}");
-                                                  print(response);
-                                                  Navigator.pushNamed(
-                                                      context, NearbyScreen.id);
-                                                } else {
-                                                   print("respose of ${response['status']}");
-                                                  print(response);
-                                                  Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text( "statusCode : " +
-                                                            response['status'].toString())));
-                                                  return print("error in Api hit");
-                                                }
-                                              } catch (e) {
-                                                print(" !!$e !!");
+                                                final response =
+                                                    await UserRepository()
+                                                        .signInWithPassword(
+                                                  phoneNumber,
+                                                  password,
+                                                );
+                                              } on BadRequestException catch (_) {
                                                 Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                        content: Text(
-                                                            e.toString())));
-                                                // _showSnackBar(e.toString());
-                                                log('Error in signIn API: ' +
-                                                    e.toString());
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        "Invalid Credentials"),
+                                                  ),
+                                                );
+                                                return;
+                                              } catch (e) {
+                                                logger.e(e.toString());
+                                                Scaffold.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content:
+                                                        Text(e.toMap()["msg"]),
+                                                  ),
+                                                );
                                                 return;
                                               }
+                                              // Login Success
+                                              Box box =
+                                                  await Hive.openBox("user");
+                                              await box.put(
+                                                  'fcmToken', _fcmToken);
+                                              // register the fcm token
+                                              try {
+                                                await UserRepository()
+                                                    .fcmTokenSubmit(
+                                                  _fcmToken,
+                                                );
+                                              } catch (e) {
+                                                logger.e(e.toString());
+                                                Scaffold.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        'Something unexpected happened'),
+                                                  ),
+                                                );
+                                                return;
+                                              }
+                                              // FCM token success
+
+                                              Navigator.pushNamedAndRemoveUntil(
+                                                  context,
+                                                  HomeScreen.id,
+                                                  (route) => false);
                                             }
                                           },
                                           child: Center(
                                             child: Text(
                                               'Login with password ',
                                               style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16.0,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontFamily: 'Montserrat'),
+                                                color: Colors.white,
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.w600,
+                                                fontFamily: 'Montserrat',
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -581,8 +602,7 @@ class _SignInScreenState extends State<SignInScreen>
                           ),
                         ],
                       ),
-                    )
-                    ),
+                    )),
                 SizedBox(height: 15.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -595,7 +615,7 @@ class _SignInScreenState extends State<SignInScreen>
                     InkWell(
                       onTap: () {
                         Navigator.of(context).pushNamed(SignUpScreen.id);
-                        print('Register button pressed');
+                        logger.d('Register button pressed');
                       },
                       child: Text(
                         'Register',
@@ -608,6 +628,37 @@ class _SignInScreenState extends State<SignInScreen>
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class LoginTabBar extends StatelessWidget {
+  const LoginTabBar({
+    Key key,
+    @required TabController controller,
+  })  : _controller = controller,
+        super(key: key);
+
+  final TabController _controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: new BoxDecoration(color: Theme.of(context).primaryColor),
+      child: new TabBar(
+        controller: _controller,
+        indicatorColor: Colors.transparent,
+        tabs: [
+          Tab(
+            icon: const Icon(Icons.message),
+            text: '  OTP   ',
+          ),
+          Tab(
+            icon: const Icon(Icons.visibility_off),
+            text: 'Password',
+          ),
+        ],
       ),
     );
   }

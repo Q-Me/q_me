@@ -12,13 +12,11 @@ const kTextFieldDecoration = InputDecoration(
 );
 
 const kLinkTextStyle = TextStyle(
-    color: Colors.green,
+    color: Colors.blue,
     fontWeight: FontWeight.bold,
     fontFamily: 'Montserrat',
     decoration: TextDecoration.underline);
 
-//const kAppTheme = Theme( // TODO Make app wide theme
-//);
 
 const kBigTextStyle = TextStyle(
   fontSize: 32,

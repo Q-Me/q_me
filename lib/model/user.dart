@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:developer';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
+import 'package:qme/utilities/logger.dart';
 
 class UserData {
   String id, name, email, phone, accessToken, refreshToken;
@@ -38,40 +38,44 @@ class UserData {
 
 Future<void> storeUserData(UserData userData) async {
   // Set the user id, and other details are stored in local storage of the app
-  SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  if (userData.id != null) prefs.setString('id', userData.id);
-  if (userData.name != null) prefs.setString('name', userData.name);
+  Box box = await Hive.openBox("user");
+
+  if (userData.id != null) await box.put('id', userData.id);
+  if (userData.name != null) {
+    userData.name = userData.name.replaceAll('|', ' ');
+    await box.put('name', userData.name);
+  }
   if (userData.accessToken != null) {
-    prefs.setString('accessToken', userData.accessToken);
-    prefs.setString('expiry', DateTime.now().add(Duration(days: 1)).toString());
+    await box.put('accessToken', userData.accessToken);
+    await box.put('expiry', DateTime.now().add(Duration(days: 1)).toString());
   }
   if (userData.refreshToken != null)
-    prefs.setString('refreshToken', userData.refreshToken);
-  if (userData.email != null) prefs.setString('isUser', userData.email);
-  if (userData.phone != null) prefs.setString('isUser', userData.phone);
-
-  log('Storing user data success');
+    await box.put('refreshToken', userData.refreshToken);
+  if (userData.email != null) await box.put('email', userData.email);
+  if (userData.phone != null) await box.put('phone', userData.phone);
+  box.put('isGuest',false);
+  logger.d('Storing user data success');
 
   return;
 }
 
 Future<String> getAccessTokenFromStorage() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String accessToken = prefs.getString('accessToken') ?? null;
+  Box box = await Hive.openBox("user");
+  String accessToken = await box.get('accessToken') ?? null;
   return accessToken;
 }
 
 Future<UserData> getUserDataFromStorage() async {
   // See if user id, and other details are stored in local storage of the app
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+  Box box = await Hive.openBox("user");
 
-  String id = prefs.getString('id') ?? null;
-  String name = prefs.getString('name') ?? null;
-  String accessToken = prefs.getString('accessToken') ?? null;
-  String refreshToken = prefs.getString('refreshToken') ?? null;
-  String email = prefs.getString('email') ?? null;
-  String phone = prefs.getString('phone') ?? null;
+  String id = await await box.get('id') ?? null;
+  String name = await box.get('name') ?? null;
+  String accessToken = await box.get('accessToken') ?? null;
+  String refreshToken = await box.get('refreshToken') ?? null;
+  String email = await box.get('email') ?? null;
+  String phone = await box.get('phone') ?? null;
 
   return UserData(
     id: id,

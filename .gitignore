@@ -8,7 +8,9 @@
 .buildlog/
 .history
 .svn/
-
+--obfuscate
+--split-per-abi
+android\key.properties
 # IntelliJ related
 *.iml
 *.ipr
@@ -29,6 +31,7 @@
 .pub-cache/
 .pub/
 /build/
+pubspec.lock
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -44,3 +47,4 @@ API\ FORMAT.json
 /build/
 /.dart_tool/
 /.idea/
+/.vscode/* 
