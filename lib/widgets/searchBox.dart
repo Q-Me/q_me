@@ -66,7 +66,7 @@ class _SearchBoxState extends State<SearchBox> {
   }
 
   final FocusNode _searchFocus = FocusNode();
-  LocationFilterState state = LocationFilterState.off;
+  LocationFilterState state = LocationFilterState.on;
   final TextEditingController _controller = TextEditingController();
 
   @override

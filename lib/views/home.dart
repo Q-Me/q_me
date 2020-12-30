@@ -10,10 +10,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:marquee_widget/marquee_widget.dart';
+import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/subscriber.dart';
@@ -238,6 +241,48 @@ class HomeScreenPage extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
+  Future<String> getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    String _currentAddress = '';
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error(
+        GetLocationException(
+          'Please switch on Location services',
+        ),
+      );
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+        GetLocationException(
+          'Location permission has been permanently denied for this Application',
+        ),
+      );
+    }
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return Future.error(
+          GetLocationException(
+            'Location permissions are denied (actual value: $permission).',
+          ),
+        );
+      }
+    }
+
+    Position _currentPosition = await Geolocator.getCurrentPosition();
+    List<Placemark> p = await placemarkFromCoordinates(
+        _currentPosition.latitude, _currentPosition.longitude);
+    Placemark place = p[0];
+    _currentAddress = "${place.locality}";
+    return _currentAddress;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -247,64 +292,83 @@ class HomeScreenPage extends StatelessWidget {
           bloc.add(GetCategories());
           return bloc;
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            HomeHeader(
-              child: Column(
-                children: [
-                  OfferCarousal(),
-                  BlocConsumer<HomeBloc, HomeState>(
-                    listener: (context, state) {
-                      if (state is HomeFail) {
-                        if (state.msg.startsWith('Unauthorised')) {
-                          Navigator.pushReplacementNamed(
-                              context, SignInScreen.id);
-                        }
-                      }
-                    },
-                    builder: (context, state) {
-                      if (state is HomeLoading) {
-                        return Container(
-                          color: Colors.white,
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(state.msg ?? 'Loading..'),
-                              CircularProgressIndicator(),
-                            ],
-                          ),
-                        );
-                      } else if (state is PartCategoryReady) {
-                        List<CategorySubscriberList> categoryList =
-                            state.categoryList;
-                        return Column(
-                          children: [
-                            ReadySubscribersCategoriesList(
-                              categoryList: categoryList,
-                            ),
-                            CircularProgressIndicator(),
-                          ],
-                        );
-                      } else if (state is CategorySuccess) {
-                        List<CategorySubscriberList> categoryList =
-                            state.categoryList;
-                        return ReadySubscribersCategoriesList(
-                          categoryList: categoryList,
-                        );
-                      } else {
-                        return Text('Underminedstate');
-                      }
-                    },
+        child: FutureBuilder<String>(
+            future: getLocation(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                BlocProvider.of<HomeBloc>(context)
+                    .add(SetLocation(snapshot.data));
+              } else if (snapshot.hasError) {
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      snapshot.error.toString(),
+                    ),
                   ),
-                  NewsBanner(),
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  HomeHeader(
+                    child: Column(
+                      children: [
+                        OfferCarousal(),
+                        BlocConsumer<HomeBloc, HomeState>(
+                          listener: (context, state) async {
+                            if (state is HomeFail) {
+                              if (state.msg.startsWith('Unauthorised')) {
+                                Navigator.pushReplacementNamed(
+                                    context, SignInScreen.id);
+                              }
+                            }
+                          },
+                          builder: (context, state) {
+                            if (state is HomeLoading) {
+                              return Container(
+                                color: Colors.white,
+                                width: MediaQuery.of(context).size.width,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(state.msg ?? 'Loading..'),
+                                    CircularProgressIndicator(),
+                                  ],
+                                ),
+                              );
+                            } else if (state is PartCategoryReady) {
+                              List<CategorySubscriberList> categoryList =
+                                  state.categoryList;
+                              return Column(
+                                children: [
+                                  ReadySubscribersCategoriesList(
+                                    categoryList: categoryList,
+                                  ),
+                                  CircularProgressIndicator(),
+                                ],
+                              );
+                            } else if (state is CategorySuccess) {
+                              List<CategorySubscriberList> categoryList =
+                                  state.categoryList;
+                              return ReadySubscribersCategoriesList(
+                                categoryList: categoryList,
+                              );
+                            } else {
+                              return Text('Underminedstate');
+                            }
+                          },
+                        ),
+                        NewsBanner(),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
                 ],
-              ),
-            ),
-          ],
-        ),
+              );
+            }),
       ),
     );
   }
@@ -653,7 +717,7 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(top: 80, child: SearchBox()),
+        Positioned(top: 65, child: SearchBox()),
       ],
     );
   }
