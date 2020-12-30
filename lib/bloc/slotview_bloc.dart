@@ -33,6 +33,7 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
   Stream<SlotViewState> mapEventToState(SlotViewEvent event) async* {
     yield SlotViewLoading();
     if (event is DatedReceptionsRequested) {
+      selectedDate = event.date;
       datedReceptions = [];
       logger.d('Date requested ${event.date}');
       box = await Hive.openBox("user");
@@ -69,49 +70,49 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
         }
 
         if (box.get('isGuest') == false) {
-        // get any UPCOMING appointments for that reception
-        List<Appointment> receptionAppointments = [];
-        try {
-          receptionAppointments = await _repository.getReceptionAppointments(
-            receptionId: receptionId,
-            status: ["UPCOMING"],
-          );
-        } catch (e) {
-          final msg =
-              "Error occured while geting appopintments of reception:${datedReceptions[i].id}\n" +
-                  e.toString();
+          // get any UPCOMING appointments for that reception
+          List<Appointment> receptionAppointments = [];
+          try {
+            receptionAppointments = await _repository.getReceptionAppointments(
+              receptionId: receptionId,
+              status: ["UPCOMING"],
+            );
+          } catch (e) {
+            final msg =
+                "Error occured while geting appopintments of reception:${datedReceptions[i].id}\n" +
+                    e.toString();
 
-          logger.e(msg);
-          yield SlotViewLoadFail(msg);
-          return;
-        }
-        logger.d('Appointment for reception  $receptionId\n' +
-            receptionAppointments.toString());
+            logger.e(msg);
+            yield SlotViewLoadFail(msg);
+            return;
+          }
+          logger.d('Appointment for reception  $receptionId\n' +
+              receptionAppointments.toString());
 
-        if (receptionAppointments.length == 1) {
-          Slot appointmentSlot = receptionAppointments[0].slot;
-          final reception = datedReceptions[i];
+          if (receptionAppointments.length == 1) {
+            Slot appointmentSlot = receptionAppointments[0].slot;
+            final reception = datedReceptions[i];
 
-          // if there is an appointment is UPCOMING disable this reception for booking
-          datedReceptions[i].availableForBooking = false;
-          final recpetionSlots = reception.slotList;
+            // if there is an appointment is UPCOMING disable this reception for booking
+            datedReceptions[i].availableForBooking = false;
+            final recpetionSlots = reception.slotList;
 
-          for (int j = 0; j < recpetionSlots.length; j++) {
-            // get the corresponding booked slot from the reception
-            Slot slot = recpetionSlots[j];
-            if ((appointmentSlot.startTime.isAtSameMomentAs(slot.startTime) ||
-                    appointmentSlot.startTime.isAfter(slot.startTime)) &&
-                (appointmentSlot.endTime.isBefore(slot.endTime) ||
-                    appointmentSlot.endTime.isAtSameMomentAs(slot.endTime))) {
-              // disable booking for the slot
-              recpetionSlots[j].booked = true;
-              reception.bookedSlot = slot;
-              logger.d("Found matching slot for appointment" +
-                  recpetionSlots[j].toJson().toString());
-              break;
+            for (int j = 0; j < recpetionSlots.length; j++) {
+              // get the corresponding booked slot from the reception
+              Slot slot = recpetionSlots[j];
+              if ((appointmentSlot.startTime.isAtSameMomentAs(slot.startTime) ||
+                      appointmentSlot.startTime.isAfter(slot.startTime)) &&
+                  (appointmentSlot.endTime.isBefore(slot.endTime) ||
+                      appointmentSlot.endTime.isAtSameMomentAs(slot.endTime))) {
+                // disable booking for the slot
+                recpetionSlots[j].booked = true;
+                reception.bookedSlot = slot;
+                logger.d("Found matching slot for appointment" +
+                    recpetionSlots[j].toJson().toString());
+                break;
+              }
             }
           }
-        }
         }
 
         /* 

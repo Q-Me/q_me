@@ -9,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -24,8 +23,8 @@ import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/subscriber.dart';
+import 'package:qme/widgets/searchBox.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:geocoding/geocoding.dart';
 
 final borderRadius = Radius.circular(20);
 
@@ -48,13 +47,13 @@ class _HomeScreenState extends State<HomeScreen> {
       indexOfPage.put("index", index);
       if (index == 0) {
         _observer.analytics.setCurrentScreen(screenName: "Home Screen");
-        logger.i("logging firebase");
+        logger.i("logging firebase with screen index $index");
       } else if (index == 1) {
         _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
-        logger.i("logging firebase");
+        logger.i("logging firebase with screen index $index");
       } else {
         _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
-        logger.i("logging firebase");
+        logger.i("logging firebase with screen index $index");
       }
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
@@ -75,13 +74,13 @@ class _HomeScreenState extends State<HomeScreen> {
     _observer = AnalyticsService().getAnalyticsObserver();
     if (_selectedIndex == 0) {
       _observer.analytics.setCurrentScreen(screenName: "Home Screen");
-      logger.i("logging firebase");
+      logger.i("logging firebase with screen index $_selectedIndex");
     } else if (_selectedIndex == 1) {
       _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
-      logger.i("logging firebase");
+      logger.i("logging firebase with screen index $_selectedIndex");
     } else {
       _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
-      logger.i("logging firebase");
+      logger.i("logging firebase with screen index $_selectedIndex");
     }
     super.initState();
     firebaseCloudMessagingListeners();
@@ -237,39 +236,6 @@ class HomeScreenPage extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
-  Future<String> getLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-    String _currentAddress = '';
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return Future.error(
-            'Location permissions are denied (actual value: $permission).');
-      }
-    }
-
-    Position _currentPosition = await Geolocator.getCurrentPosition();
-    List<Placemark> p = await placemarkFromCoordinates(
-        _currentPosition.latitude, _currentPosition.longitude);
-    Placemark place = p[0];
-    _currentAddress =
-        "${place.locality}";
-    return _currentAddress;
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -279,18 +245,7 @@ class HomeScreenPage extends StatelessWidget {
           bloc.add(GetCategories());
           return bloc;
         },
-        child: FutureBuilder<String>(
-            future: getLocation(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData == true) {
-                BlocProvider.of<HomeBloc>(context).add(
-                  SetLocation(
-                    snapshot.data,
-                  ),
-                );
-                logger.i(snapshot.data);
-              }
-              return Column(
+        child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
@@ -346,8 +301,7 @@ class HomeScreenPage extends StatelessWidget {
                     ),
                   ),
                 ],
-              );
-            }),
+              ),
       ),
     );
   }
@@ -696,7 +650,7 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        // Positioned(top: 80, child: SearchBox()),
+        Positioned(top: 80, child: SearchBox()),
       ],
     );
   }
