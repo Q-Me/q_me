@@ -5,9 +5,6 @@ import 'package:hive/hive.dart';
 import 'package:qme/services/analytics.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
-import 'package:qme/repository/user.dart';
-import 'package:qme/utilities/logger.dart';
-import 'package:qme/utilities/session.dart';
 import 'package:qme/views/about_us.dart';
 import 'package:qme/views/business_enquiry.dart';
 import 'package:qme/views/contact_us.dart';
@@ -16,6 +13,7 @@ import 'package:qme/views/signin.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:qme/views/signup.dart';
+import 'package:qme/widgets/survey.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({
@@ -129,6 +127,12 @@ class MenuScreen extends StatelessWidget {
                         "about",
                         controller,
                       ),
+                      MenuListItem(
+                        "Recommend your saloon",
+                        FontAwesomeIcons.pollH,
+                        "survey",
+                        controller,
+                      ),
                     ],
                   ),
                 ),
@@ -225,6 +229,16 @@ class MenuListItem extends StatelessWidget {
                     break;
                   case "Sign Up":
                     Navigator.pushNamed(context, SignUpScreen.id);
+                    break;
+                  case "survey":
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Survey(
+                          key: UniqueKey(),
+                        ),
+                      ),
+                    );
                 }
               },
               child: Row(

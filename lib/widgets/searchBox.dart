@@ -14,8 +14,10 @@ enum LocationFilterState {
 }
 
 class SearchBox extends StatefulWidget {
+  final String initialAddress;
   SearchBox({
     Key key,
+    @required this.initialAddress,
   }) : super(key: key);
 
   @override
@@ -23,6 +25,18 @@ class SearchBox extends StatefulWidget {
 }
 
 class _SearchBoxState extends State<SearchBox> {
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialAddress);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   Future<String> getLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -67,7 +81,7 @@ class _SearchBoxState extends State<SearchBox> {
 
   final FocusNode _searchFocus = FocusNode();
   LocationFilterState state = LocationFilterState.on;
-  final TextEditingController _controller = TextEditingController();
+  TextEditingController _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -149,8 +163,10 @@ class _SearchBoxState extends State<SearchBox> {
                 String address = '';
                 try {
                   address = await getLocation();
-                } catch (e) {
-                  state = LocationFilterState.error;
+                } on GetLocationException catch (e) {
+                  setState(() {
+                    state = LocationFilterState.error;
+                  });
                   Scaffold.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -158,14 +174,26 @@ class _SearchBoxState extends State<SearchBox> {
                       ),
                     ),
                   );
+                } catch (e) {
+                  setState(() {
+                    state = LocationFilterState.error;
+                  });
+                  Scaffold.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          "An unknown error occurred while getting your location, please try refreshing"),
+                    ),
+                  );
                 }
-                logger.i(
-                    "setting location from onpressed and turning location on");
-                BlocProvider.of<HomeBloc>(context).add(SetLocation(address));
-                setState(() {
-                  _controller.text = address;
-                  state = LocationFilterState.on;
-                });
+                if (state != LocationFilterState.error) {
+                  logger.i(
+                      "setting location from onpressed and turning location on");
+                  BlocProvider.of<HomeBloc>(context).add(SetLocation(address));
+                  setState(() {
+                    _controller.text = address;
+                    state = LocationFilterState.on;
+                  });
+                }
               }
             },
           )

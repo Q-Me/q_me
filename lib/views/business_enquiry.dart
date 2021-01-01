@@ -44,7 +44,7 @@ class EmailAndPhoneNumberTiles extends StatelessWidget {
   Widget build(BuildContext context) {
     const String phone1 = "+91 9931059201";
     const String phone2 = "+91 8340342582";
-    const String beEmail = "aman.ks0224@gmail.com";
+    const String beEmail = "support@qme.company";
     _launchURL({String phoneNum, String email}) async {
       String url = phoneNum != null
           ? 'tel:$phoneNum'

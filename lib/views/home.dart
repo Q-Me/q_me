@@ -28,8 +28,8 @@ import 'package:qme/views/myBookingsScreen.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/subscriber.dart';
 import 'package:qme/widgets/searchBox.dart';
+import 'package:qme/widgets/survey.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 final borderRadius = Radius.circular(20);
 
@@ -294,15 +294,15 @@ class HomeScreenPage extends StatelessWidget {
         },
         child: FutureBuilder<String>(
             future: getLocation(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
+            builder: (context, future) {
+              if (future.hasData) {
                 BlocProvider.of<HomeBloc>(context)
-                    .add(SetLocation(snapshot.data));
-              } else if (snapshot.hasError) {
+                    .add(SetLocation(future.data));
+              } else if (future.hasError) {
                 Scaffold.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      snapshot.error.toString(),
+                      future.error.toString(),
                     ),
                   ),
                 );
@@ -312,6 +312,7 @@ class HomeScreenPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   HomeHeader(
+                    initialLocation: future.hasData ? future.data : '',
                     child: Column(
                       children: [
                         OfferCarousal(),
@@ -383,12 +384,12 @@ class OfferCarousal extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: Firestore.instance.collection("offers").snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> future) {
+        if (future.hasError) {
           return Text("Something went wrong");
         }
-        if (snapshot.connectionState == ConnectionState.done ||
-            snapshot.connectionState == ConnectionState.active) {
+        if (future.connectionState == ConnectionState.done ||
+            future.connectionState == ConnectionState.active) {
           return SizedBox(
             height: 200.0,
             width: MediaQuery.of(context).size.width - 20,
@@ -397,7 +398,7 @@ class OfferCarousal extends StatelessWidget {
                 logger.i('tapped image is at index $index');
               },
               dotBgColor: Colors.transparent,
-              images: snapshot.data.documents.map((DocumentSnapshot offer) {
+              images: future.data.documents.map((DocumentSnapshot offer) {
                 return ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(20.0)),
                   child: CachedNetworkImage(
@@ -660,7 +661,8 @@ class SubscriberRating extends StatelessWidget {
 
 class HomeHeader extends StatelessWidget {
   final Widget child;
-  const HomeHeader({Key key, @required this.child}) : super(key: key);
+  final String initialLocation;
+  const HomeHeader({Key key, @required this.child, @required this.initialLocation}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -717,7 +719,7 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(top: 65, child: SearchBox()),
+        Positioned(top: 65, child: SearchBox(initialAddress: this.initialLocation,)),
       ],
     );
   }
@@ -759,47 +761,6 @@ class NewsBanner extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class Survey extends StatefulWidget {
-  Survey({Key key}) : super(key: key);
-
-  @override
-  _SurveyState createState() => _SurveyState();
-}
-
-class _SurveyState extends State<Survey> {
-  WebViewController _controller;
-
-  final Completer<WebViewController> _controllerCompleter =
-      Completer<WebViewController>();
-  //Make sure this function return Future<bool> otherwise you will get an error
-  Future<bool> _onWillPop(BuildContext context) async {
-    logger.i(await _controller.canGoBack());
-    if (await _controller.canGoBack()) {
-      _controller.goBack();
-      return Future.value(false);
-    } else {
-      return Future.value(true);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => _onWillPop(context),
-      child: WebView(
-        gestureNavigationEnabled: true,
-        initialUrl: "http://qme.company/survey",
-        javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (WebViewController webViewController) {
-          _controllerCompleter.future.then((value) => _controller = value);
-          _controllerCompleter.complete(webViewController);
-        },
-        key: UniqueKey(),
       ),
     );
   }
