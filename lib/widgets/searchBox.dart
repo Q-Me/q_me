@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/utilities/location.dart';
 import 'package:qme/views/set_location.dart';
@@ -71,8 +72,10 @@ class SearchBox extends StatelessWidget {
                       padding: EdgeInsets.symmetric(
                         horizontal: 10,
                       ),
-                      child: Text(
-                        "$value",
+                      child: Material(
+                        child: Text(
+                          value != '' ? "$value" : Hive.box('user').get("location"),
+                        ),
                       ),
                     ),
                   ],

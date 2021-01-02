@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qme/utilities/location.dart';
 import 'package:qme/widgets/searchBox.dart';
 import 'package:latlong/latlong.dart';
@@ -132,14 +133,30 @@ class _SetLocationScreenState extends State<SetLocationScreen> {
                         new MarkerLayerOptions(
                           markers: [
                             new Marker(
-                              width: 50,
-                              height: 50,
+                              width: 150,
+                              height: 85,
                               point: widget.locationCoords,
                               builder: (ctx) => new Container(
-                                child: Icon(
-                                  Icons.location_on,
-                                  color: Colors.red,
-                                  size: 50,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          color: Theme.of(context).primaryColor,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: Text("Current location"),
+                                      padding: EdgeInsets.all(5),
+                                    ),
+                                    Icon(
+                                      Icons.location_on,
+                                      size: 50,
+                                      color: Colors.red,
+                                    )
+                                  ],
                                 ),
                               ),
                             ),
@@ -219,7 +236,13 @@ class _SetLocationScreenState extends State<SetLocationScreen> {
                             child: IconButton(
                               icon: Icon(Icons.done),
                               onPressed: () {
-                                Navigator.pop(context, address.value);
+                                if (address.value ==
+                                    "Move the pointer on the map to select that location") {
+                                  Navigator.pop(
+                                      context, widget.locationAddress.value);
+                                } else {
+                                  Navigator.pop(context, address.value);
+                                }
                               },
                             ),
                             decoration: BoxDecoration(

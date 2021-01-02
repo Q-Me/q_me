@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -33,11 +34,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeEvent event,
   ) async* {
     if (event is SetLocation) {
-      yield HomeLoading('setting location to ${event.location}');
-      location.value = event.location;
-      categorizedSubscribers = [];
-      logger.i('Location set to ${event.location}');
-      this.add(GetSubscribersAllCategory());
+      if (!Hive.box('user').containsKey("location")) {
+        yield HomeLoading('setting location to ${event.location}');
+        Hive.box('user').put("location", event.location);
+        location.value = event.location;
+        categorizedSubscribers = [];
+        logger.i('Location set to ${event.location}');
+        this.add(GetSubscribersAllCategory());
+      }
+      if (Hive.box('user').containsKey("location") && Hive.box('user').get('location') != event.location) {
+        yield HomeLoading('setting location to ${event.location}');
+        Hive.box('user').put('location', event.location);
+        location.value = event.location;
+        categorizedSubscribers = [];
+        logger.i('Location set to ${event.location}');
+        this.add(GetSubscribersAllCategory());
+      }
     } else if (event is GetCategories) {
       yield HomeLoading('Getting categories...');
       try {
