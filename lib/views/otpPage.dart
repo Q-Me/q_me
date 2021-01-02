@@ -271,7 +271,7 @@ class _OtpPageState extends State<OtpPage> {
 
                                   _fcmToken = await box.get('fcmToken');
 
-                                  AuthResult result = await authOtp
+                                  UserCredential result = await authOtp
                                       .signInWithCredential(credential);
 
                                   FirebaseUser userFireBAse = result.user;
@@ -282,7 +282,7 @@ class _OtpPageState extends State<OtpPage> {
                                     var token = await userFireBAse
                                         .getIdToken()
                                         .then((result) {
-                                      idToken = result.token;
+                                      idToken = result;
                                       formData['token'] = idToken;
                                       logger.d("@@ $idToken @@");
                                     });

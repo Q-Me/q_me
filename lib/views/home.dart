@@ -22,9 +22,11 @@ import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/services/analytics.dart';
+import 'package:qme/utilities/location.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
+import 'package:qme/views/set_location.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/subscriber.dart';
 import 'package:qme/widgets/searchBox.dart';
@@ -241,48 +243,6 @@ class HomeScreenPage extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
-  Future<String> getLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-    String _currentAddress = '';
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error(
-        GetLocationException(
-          'Please switch on Location services',
-        ),
-      );
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-        GetLocationException(
-          'Location permission has been permanently denied for this Application',
-        ),
-      );
-    }
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return Future.error(
-          GetLocationException(
-            'Location permissions are denied (actual value: $permission).',
-          ),
-        );
-      }
-    }
-
-    Position _currentPosition = await Geolocator.getCurrentPosition();
-    List<Placemark> p = await placemarkFromCoordinates(
-        _currentPosition.latitude, _currentPosition.longitude);
-    Placemark place = p[0];
-    _currentAddress = "${place.locality}";
-    return _currentAddress;
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -312,7 +272,6 @@ class HomeScreenPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   HomeHeader(
-                    initialLocation: future.hasData ? future.data : '',
                     child: Column(
                       children: [
                         OfferCarousal(),
@@ -383,7 +342,7 @@ class OfferCarousal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Firestore.instance.collection("offers").snapshots(),
+      stream: FirebaseFirestore.instance.collection("offers").snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> future) {
         if (future.hasError) {
           return Text("Something went wrong");
@@ -402,7 +361,7 @@ class OfferCarousal extends StatelessWidget {
                 return ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(20.0)),
                   child: CachedNetworkImage(
-                    imageUrl: offer.data["imgUrl"].toString(),
+                    imageUrl: offer.data()["imgUrl"].toString(),
                     height: 200,
                     progressIndicatorBuilder: (context, url, progress) =>
                         ConstrainedBox(
@@ -661,8 +620,10 @@ class SubscriberRating extends StatelessWidget {
 
 class HomeHeader extends StatelessWidget {
   final Widget child;
-  final String initialLocation;
-  const HomeHeader({Key key, @required this.child, @required this.initialLocation}) : super(key: key);
+  const HomeHeader({
+    Key key,
+    @required this.child,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -719,7 +680,16 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(top: 65, child: SearchBox(initialAddress: this.initialLocation,)),
+        Positioned(
+          top: 65,
+          child: Hero(
+            tag: "search bar",
+            child: SearchBox(
+              setLocation: BlocProvider.of<HomeBloc>(context).currentLocation,
+              shouldNavigate: true,
+            ),
+          ),
+        ),
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -11,7 +12,7 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final String accessToken;
-  String location = '';
+  ValueNotifier<String> location = ValueNotifier('');
   SubscriberRepository repository;
   List<String> categories;
   List<CategorySubscriberList> categorizedSubscribers = [];
@@ -23,13 +24,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
+  ValueNotifier<String> get currentLocation {
+    return location;
+  }
+
   @override
   Stream<HomeState> mapEventToState(
     HomeEvent event,
   ) async* {
     if (event is SetLocation) {
       yield HomeLoading('setting location to ${event.location}');
-      location = event.location;
+      location.value = event.location;
       categorizedSubscribers = [];
       logger.i('Location set to ${event.location}');
       this.add(GetSubscribersAllCategory());
@@ -47,10 +52,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       yield HomeLoading('Getting ready...');
       for (String category in categories) {
         try {
-          if (location.length > 0) {
+          if (location.value.length > 0) {
             final response = await repository.subscriberByLocation(
               category: category,
-              location: location,
+              location: location.value,
             );
             categorizedSubscribers.add(CategorySubscriberList(
               categoryName: category,

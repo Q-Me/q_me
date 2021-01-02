@@ -48,7 +48,7 @@ class _SignInScreenState extends State<SignInScreen>
         phoneNumber: phone,
         timeout: Duration(seconds: 60),
         verificationCompleted: (AuthCredential credential) async {
-          AuthResult result = await _auth.signInWithCredential(credential);
+          UserCredential result = await _auth.signInWithCredential(credential);
           logger.d("printing the credential");
           logger.d(credential);
 
@@ -56,7 +56,7 @@ class _SignInScreenState extends State<SignInScreen>
 
           if (user != null) {
             var token = await user.getIdToken().then((result) async {
-              idToken = result.token;
+              idToken = result;
               logger.d("idToken: $idToken ");
               FocusScope.of(context).requestFocus(FocusNode());
 
@@ -113,7 +113,7 @@ class _SignInScreenState extends State<SignInScreen>
             logger.d("Error");
           }
         },
-        verificationFailed: (AuthException exception) {
+        verificationFailed: (FirebaseAuthException exception) {
           logger.d("here is exception error");
           logger.d(exception.message);
           String fireBaseError = exception.message.toString();

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/utilities/logger.dart';
@@ -106,4 +107,20 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
       */
   }
+}
+
+class LocationRoute extends PageRouteBuilder {
+  final Widget nextView;
+
+  LocationRoute({@required this.nextView})
+      : super(
+          pageBuilder: (context, animation, secondaryAnimation) => nextView,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            SlideTransition(
+              position: Tween<Offset>(begin: Offset(0, -1), end: Offset(0, 0)).animate(
+                animation,
+              ),
+              child: child,
+          ),
+        );
 }

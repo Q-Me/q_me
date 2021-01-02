@@ -92,13 +92,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
         phoneNumber: phone,
         timeout: Duration(seconds: 60),
         verificationCompleted: (AuthCredential credential) async {
-          AuthResult result = await _auth.signInWithCredential(credential);
+          UserCredential result = await _auth.signInWithCredential(credential);
 
           FirebaseUser user = result.user;
 
           if (user != null) {
             var token = await user.getIdToken().then((result) {
-              idToken = result.token;
+              idToken = result;
               formData['token'] = idToken;
               logger.d(" $idToken ");
             });
@@ -179,7 +179,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
           //This callback would gets called when verification is done auto maticlly
         },
-        verificationFailed: (AuthException exception) {
+        verificationFailed: (FirebaseAuthException exception) {
           logger.e(exception.message);
           String fireBaseError = exception.message.toString();
           if (exception.message ==
