@@ -1,12 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hive/hive.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:latlong/latlong.dart';
+import 'package:qme/model/location.dart';
 
-Future<String> getLocation() async {
+Future<LocationData> getLocationHelper() async {
   bool serviceEnabled;
   LocationPermission permission;
-  String _currentAddress = '';
   serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
     return Future.error(
@@ -41,51 +43,75 @@ Future<String> getLocation() async {
   List<Placemark> p = await placemarkFromCoordinates(
       _currentPosition.latitude, _currentPosition.longitude);
   Placemark place = p[0];
-  _currentAddress = "${place.locality}, ${place.subAdministrativeArea}";
-  return _currentAddress;
+  Box box = await Hive.openBox('location');
+  LocationData location = LocationData()
+    ..latitude = _currentPosition.latitude
+    ..longitude = _currentPosition.longitude
+    ..placeMark = place;
+  box.put("location", location);
+  return location;
 }
 
-Future<LatLng> getLocationLatLng() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    return Future.error(
-      GetLocationException(
-        'Please switch on Location services',
-      ),
-    );
-  }
+// Future<LatLng> getLocationLatLng() async {
+//   bool serviceEnabled;
+//   LocationPermission permission;
+//   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+//   if (!serviceEnabled) {
+//     return Future.error(
+//       GetLocationException(
+//         'Please switch on Location services',
+//       ),
+//     );
+//   }
 
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.deniedForever) {
-    return Future.error(
-      GetLocationException(
-        'Location permission has been permanently denied for this Application',
-      ),
-    );
-  }
+//   permission = await Geolocator.checkPermission();
+//   if (permission == LocationPermission.deniedForever) {
+//     return Future.error(
+//       GetLocationException(
+//         'Location permission has been permanently denied for this Application',
+//       ),
+//     );
+//   }
 
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission != LocationPermission.whileInUse &&
-        permission != LocationPermission.always) {
-      return Future.error(
-        GetLocationException(
-          'Location permissions are denied (actual value: $permission).',
-        ),
-      );
-    }
-  }
+//   if (permission == LocationPermission.denied) {
+//     permission = await Geolocator.requestPermission();
+//     if (permission != LocationPermission.whileInUse &&
+//         permission != LocationPermission.always) {
+//       return Future.error(
+//         GetLocationException(
+//           'Location permissions are denied (actual value: $permission).',
+//         ),
+//       );
+//     }
+//   }
 
-  Position _currentPosition = await Geolocator.getCurrentPosition();
-  return LatLng(_currentPosition.latitude, _currentPosition.longitude,);
+//   Position _currentPosition = await Geolocator.getCurrentPosition();
+//   return LatLng(_currentPosition.latitude, _currentPosition.longitude,);
+// }
+
+Future<LocationData> getLocation({@required bool override}) async {
+  Box box = await Hive.openBox('location');
+  if (!box.containsKey("location") || override) {
+    LocationData location = await getLocationHelper();
+    return location;
+  }
+  LocationData location = box.get("location");
+  return location;
 }
 
-Future<String> getAddressFromLatLng(LatLng coords) async {
-  List<Placemark> p = await placemarkFromCoordinates(
-      coords.latitude, coords.longitude);
+LocationData getLocationUnsafe() => Hive.box('location').get('location');
+
+Future<Placemark> getAddressFromLatLng(LatLng coords) async {
+  List<Placemark> p =
+      await placemarkFromCoordinates(coords.latitude, coords.longitude);
   Placemark place = p[0];
-  String address = place.locality != '' ? place.locality + ", " + place.subAdministrativeArea : place.subAdministrativeArea;
-  return address;
+  return place;
+}
+
+void updateStoredAddress(LocationData newLocationData) =>
+    Hive.box('location').put('location', newLocationData);
+
+void registerLocationAdapter() {
+  Hive.registerAdapter(LocationDataAdapter());
+  Hive.registerAdapter(PlacemarkAdapter());
 }

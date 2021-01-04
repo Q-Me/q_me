@@ -1,4 +1,3 @@
-import 'package:bloc/bloc.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -11,15 +10,12 @@ import 'package:qme/api/kAPI.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/router.dart' as router;
 import 'package:qme/services/analytics.dart';
-import 'package:qme/simple_bloc_observer.dart';
 import 'package:qme/utilities/logger.dart';
-import 'package:qme/utilities/session.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/initialScreen.dart';
-import 'package:qme/views/introSlider.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
-
+import 'package:qme/utilities/location.dart';
 import 'package:qme/views/noInternet.dart';
 
 String initialHome = InitialScreen.id;
@@ -38,6 +34,7 @@ void main() async {
   notificationIndicator = await Hive.openBox("counter");
   notificationIndicator.put("counter", 0);
   firstLogin = await box.get('firstLogin');
+  registerLocationAdapter();
   if (firstLogin == false) initialHome = SignInScreen.id;
 
   // Logger.level = Level.warning;

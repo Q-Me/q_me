@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
+import 'package:qme/model/location.dart';
 import 'package:qme/utilities/location.dart';
 import 'package:qme/views/set_location.dart';
 import 'package:latlong/latlong.dart';
@@ -24,8 +24,13 @@ class SearchBox extends StatelessWidget {
             child: GestureDetector(
               onTap: this.shouldNavigate
                   ? () async {
-                      LatLng coords = await getLocationLatLng();
-                      String chosenAddress = await Navigator.push(
+                      LocationData _locationData =
+                          await getLocation(override: false);
+                      LatLng coords = LatLng(
+                        _locationData.latitude,
+                        _locationData.longitude,
+                      );
+                      List _resultList = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => SetLocationScreen(
@@ -34,6 +39,9 @@ class SearchBox extends StatelessWidget {
                           ),
                         ),
                       );
+                      String chosenAddress = _resultList[0];
+                      LocationData data = _resultList[1];
+                      updateStoredAddress(data);
                       BlocProvider.of<HomeBloc>(context).add(
                         SetLocation(
                           chosenAddress,
@@ -73,9 +81,7 @@ class SearchBox extends StatelessWidget {
                         horizontal: 10,
                       ),
                       child: Material(
-                        child: Text(
-                          value != '' ? "$value" : Hive.box('user').get("location"),
-                        ),
+                        child: Text('$value'),
                       ),
                     ),
                   ],

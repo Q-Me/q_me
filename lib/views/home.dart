@@ -19,6 +19,7 @@ import 'package:marquee_widget/marquee_widget.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
+import 'package:qme/model/location.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/services/analytics.dart';
@@ -252,20 +253,25 @@ class HomeScreenPage extends StatelessWidget {
           bloc.add(GetCategories());
           return bloc;
         },
-        child: FutureBuilder<String>(
-            future: getLocation(),
+        child: FutureBuilder<LocationData>(
+            future: getLocation(override: false),
             builder: (context, future) {
-              if (future.hasData) {
-                BlocProvider.of<HomeBloc>(context)
-                    .add(SetLocation(future.data));
-              } else if (future.hasError) {
-                Scaffold.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      future.error.toString(),
-                    ),
+              if (future.hasData && BlocProvider.of<HomeBloc>(context).currentLocation.value == '') {
+                BlocProvider.of<HomeBloc>(context).add(
+                  SetLocation(
+                    future.data.placeMark.locality +
+                        ", " +
+                        future.data.placeMark.subAdministrativeArea,
                   ),
                 );
+              } else if (future.hasError) {
+                // Scaffold.of(context).showSnackBar(
+                //   SnackBar(
+                //     content: Text(
+                //       future.error.toString(),
+                //     ),
+                //   ),
+                // );
               }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,7 +375,7 @@ class OfferCarousal extends StatelessWidget {
                         maxHeight: 20,
                         maxWidth: 20,
                       ),
-                      child: CircularProgressIndicator(),
+                      child: Center(child: CircularProgressIndicator()),
                     ),
                     fit: BoxFit.fill,
                   ),

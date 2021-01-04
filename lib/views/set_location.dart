@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:qme/model/location.dart';
 import 'package:qme/utilities/location.dart';
 import 'package:qme/widgets/searchBox.dart';
 import 'package:latlong/latlong.dart';
@@ -30,6 +32,7 @@ class SetLocationScreen extends StatefulWidget {
 class _SetLocationScreenState extends State<SetLocationScreen> {
   MapController _mapController;
   ValueNotifier<String> address = ValueNotifier('');
+  LocationData correspondingData;
 
   @override
   void initState() {
@@ -52,8 +55,17 @@ class _SetLocationScreenState extends State<SetLocationScreen> {
         timer = new Timer(
           Duration(milliseconds: 500),
           () async {
-            // address.value = "loading";
-            address.value = await getAddressFromLatLng(point.center);
+            Placemark _selectedPlace = await getAddressFromLatLng(point.center);
+            address.value =
+                _selectedPlace.locality == '' || _selectedPlace == null
+                    ? _selectedPlace.subAdministrativeArea
+                    : _selectedPlace.locality +
+                        ', ' +
+                        _selectedPlace.subAdministrativeArea;
+            correspondingData = LocationData()
+            ..latitude = point.center.latitude
+            ..longitude = point.center.longitude
+            ..placeMark = _selectedPlace;
           },
         );
       }
@@ -170,7 +182,12 @@ class _SetLocationScreenState extends State<SetLocationScreen> {
                     child: FloatingActionButton(
                       child: Icon(Icons.my_location),
                       onPressed: () async {
-                        LatLng currentPos = await getLocationLatLng();
+                        LocationData _locationData =
+                            await getLocation(override: true);
+                        LatLng currentPos = LatLng(
+                          _locationData.latitude,
+                          _locationData.longitude,
+                        );
                         _mapController.move(currentPos, 13);
                       },
                       backgroundColor: Theme.of(context).primaryColor,
@@ -239,9 +256,9 @@ class _SetLocationScreenState extends State<SetLocationScreen> {
                                 if (address.value ==
                                     "Move the pointer on the map to select that location") {
                                   Navigator.pop(
-                                      context, widget.locationAddress.value);
+                                      context, [widget.locationAddress.value, correspondingData]);
                                 } else {
-                                  Navigator.pop(context, address.value);
+                                  Navigator.pop(context, [address.value, correspondingData]);
                                 }
                               },
                             ),

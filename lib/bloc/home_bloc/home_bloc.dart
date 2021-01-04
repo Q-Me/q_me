@@ -7,13 +7,14 @@ import 'package:equatable/equatable.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/subscribers.dart';
 import 'package:qme/utilities/logger.dart';
+import 'package:qme/utilities/location.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final String accessToken;
-  ValueNotifier<String> location = ValueNotifier('');
+  ValueNotifier<String> location;
   SubscriberRepository repository;
   List<String> categories;
   List<CategorySubscriberList> categorizedSubscribers = [];
@@ -22,6 +23,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     repository = SubscriberRepository(localAccessToken: accessToken);
     if (accessToken != null) {
       // logger.d('Access token:\n$accessToken');
+    }
+    try {
+      location = ValueNotifier(
+        getLocationUnsafe().placeMark.locality +
+            ", " +
+            getLocationUnsafe().placeMark.subAdministrativeArea,
+      );
+    } catch (e) {
+      location = ValueNotifier('');
     }
   }
 
@@ -34,22 +44,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeEvent event,
   ) async* {
     if (event is SetLocation) {
-      if (!Hive.box('user').containsKey("location")) {
-        yield HomeLoading('setting location to ${event.location}');
-        Hive.box('user').put("location", event.location);
-        location.value = event.location;
-        categorizedSubscribers = [];
-        logger.i('Location set to ${event.location}');
-        this.add(GetSubscribersAllCategory());
-      }
-      if (Hive.box('user').containsKey("location") && Hive.box('user').get('location') != event.location) {
-        yield HomeLoading('setting location to ${event.location}');
-        Hive.box('user').put('location', event.location);
-        location.value = event.location;
-        categorizedSubscribers = [];
-        logger.i('Location set to ${event.location}');
-        this.add(GetSubscribersAllCategory());
-      }
+      yield* _mapSetLocationToState(event);
     } else if (event is GetCategories) {
       yield HomeLoading('Getting categories...');
       try {
@@ -95,5 +90,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }
       yield CategorySuccess(categorizedSubscribers);
     }
+  }
+
+  Stream<HomeState> _mapSetLocationToState(SetLocation event) async* {
+    yield HomeLoading('setting location to ${event.location}');
+    Hive.box('user').put('location', event.location);
+    location.value = event.location;
+    categorizedSubscribers = [];
+    logger.i('Location set to ${event.location}');
+    this.add(GetSubscribersAllCategory());
   }
 }
