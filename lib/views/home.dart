@@ -10,13 +10,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:marquee_widget/marquee_widget.dart';
-import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/location.dart';
@@ -27,7 +24,6 @@ import 'package:qme/utilities/location.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/menu.dart';
 import 'package:qme/views/myBookingsScreen.dart';
-import 'package:qme/views/set_location.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/subscriber.dart';
 import 'package:qme/widgets/searchBox.dart';
@@ -256,12 +252,12 @@ class HomeScreenPage extends StatelessWidget {
         child: FutureBuilder<LocationData>(
             future: getLocation(override: false),
             builder: (context, future) {
-              if (future.hasData && BlocProvider.of<HomeBloc>(context).currentLocation.value == '') {
+              if (future.hasData &&
+                  BlocProvider.of<HomeBloc>(context).currentLocation.value ==
+                      null) {
                 BlocProvider.of<HomeBloc>(context).add(
                   SetLocation(
-                    future.data.placeMark.locality +
-                        ", " +
-                        future.data.placeMark.subAdministrativeArea,
+                    future.data,
                   ),
                 );
               } else if (future.hasError) {
@@ -691,8 +687,8 @@ class HomeHeader extends StatelessWidget {
           child: Hero(
             tag: "search bar",
             child: SearchBox(
-              setLocation: BlocProvider.of<HomeBloc>(context).currentLocation,
-              shouldNavigate: true,
+              locationChangeNotifier:
+                  BlocProvider.of<HomeBloc>(context).currentLocation,
             ),
           ),
         ),

@@ -4,51 +4,42 @@ import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/location.dart';
 import 'package:qme/utilities/location.dart';
 import 'package:qme/views/set_location.dart';
-import 'package:latlong/latlong.dart';
 
 class SearchBox extends StatelessWidget {
-  final ValueNotifier<String> setLocation;
-  final bool shouldNavigate;
+  final ValueNotifier<LocationData> locationChangeNotifier;
 
   SearchBox({
-    @required this.setLocation,
-    @required this.shouldNavigate,
+    @required this.locationChangeNotifier,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-        valueListenable: setLocation,
-        builder: (context, String value, Widget child) {
+    return ValueListenableBuilder<LocationData>(
+        valueListenable: locationChangeNotifier,
+        builder: (context, LocationData value, Widget child) {
           return Center(
             child: GestureDetector(
-              onTap: this.shouldNavigate
-                  ? () async {
-                      LocationData _locationData =
-                          await getLocation(override: false);
-                      LatLng coords = LatLng(
-                        _locationData.latitude,
-                        _locationData.longitude,
-                      );
-                      List _resultList = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SetLocationScreen(
-                            locationAddress: setLocation,
-                            locationCoords: coords,
-                          ),
-                        ),
-                      );
-                      String chosenAddress = _resultList[0];
-                      LocationData data = _resultList[1];
-                      updateStoredAddress(data);
-                      BlocProvider.of<HomeBloc>(context).add(
-                        SetLocation(
-                          chosenAddress,
-                        ),
-                      );
-                    }
-                  : () => Navigator.pop(context),
+              onTap: () async {
+                LocationData _locationData = await getLocation(override: false);
+                LocationData _result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SetLocationScreen(
+                      initialLocationData: _locationData,
+                    ),
+                  ),
+                );
+                if (_result == null) {
+                  _result = _locationData;
+                } else {
+                  updateStoredAddress(_result);
+                  BlocProvider.of<HomeBloc>(context).add(
+                    SetLocation(
+                      _result,
+                    ),
+                  );
+                }
+              },
               child: Container(
                 width: MediaQuery.of(context).size.width - 40,
                 margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -69,6 +60,7 @@ class SearchBox extends StatelessWidget {
                   ),
                 ),
                 child: Row(
+
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -76,12 +68,14 @@ class SearchBox extends StatelessWidget {
                         Icons.location_on,
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                      ),
-                      child: Material(
-                        child: Text('$value'),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
+                        child: Material(
+                          child: Text('${value.getSimplifiedAddress}', overflow: TextOverflow.fade,),
+                        ),
                       ),
                     ),
                   ],

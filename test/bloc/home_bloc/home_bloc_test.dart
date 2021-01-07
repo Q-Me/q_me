@@ -86,7 +86,7 @@ void main() {
     'Location test',
     build: () => HomeBloc(accessToken: accessToken),
     act: (bloc) {
-      bloc.add(SetLocation('Patna'));
+      // bloc.add(SetLocation('Patna'));
     },
     expect: [
       HomeLoading('setting location to Patna'),

@@ -16,10 +16,11 @@ class LocationDataAdapter extends TypeAdapter<LocationData> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return LocationData()
-      ..latitude = fields[0] as double
-      ..longitude = fields[1] as double
-      ..placeMark = fields[2] as Placemark;
+    return LocationData(
+      latitude: fields[0] as double,
+      longitude: fields[1] as double,
+      placeMark: fields[2] as Placemark,
+    );
   }
 
   @override

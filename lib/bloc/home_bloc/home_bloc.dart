@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:qme/model/location.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/subscribers.dart';
 import 'package:qme/utilities/logger.dart';
@@ -14,7 +15,7 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final String accessToken;
-  ValueNotifier<String> location;
+  ValueNotifier<LocationData> location;
   SubscriberRepository repository;
   List<String> categories;
   List<CategorySubscriberList> categorizedSubscribers = [];
@@ -25,17 +26,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       // logger.d('Access token:\n$accessToken');
     }
     try {
-      location = ValueNotifier(
-        getLocationUnsafe().placeMark.locality +
-            ", " +
-            getLocationUnsafe().placeMark.subAdministrativeArea,
-      );
+      location = ValueNotifier(getLocationUnsafe());
     } catch (e) {
-      location = ValueNotifier('');
+      location = ValueNotifier(null);
     }
   }
 
-  ValueNotifier<String> get currentLocation {
+  String get currentLocationString {
+    return location.value.getSimplifiedAddress;
+  }
+
+  ValueNotifier<LocationData> get currentLocation {
     return location;
   }
 
@@ -59,10 +60,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       yield HomeLoading('Getting ready...');
       for (String category in categories) {
         try {
-          if (location.value.length > 0) {
+          if (location.value != null) {
             final response = await repository.subscriberByLocation(
               category: category,
-              location: location.value,
+              location: location.value.getApiAddress,
             );
             categorizedSubscribers.add(CategorySubscriberList(
               categoryName: category,
@@ -94,7 +95,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Stream<HomeState> _mapSetLocationToState(SetLocation event) async* {
     yield HomeLoading('setting location to ${event.location}');
-    Hive.box('user').put('location', event.location);
+    updateStoredAddress(event.location);
     location.value = event.location;
     categorizedSubscribers = [];
     logger.i('Location set to ${event.location}');

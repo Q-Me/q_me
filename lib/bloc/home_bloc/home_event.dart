@@ -8,7 +8,7 @@ abstract class HomeEvent extends Equatable {
 }
 
 class SetLocation extends HomeEvent {
-  final String location;
+  final LocationData location;
 
   SetLocation(this.location);
 }
