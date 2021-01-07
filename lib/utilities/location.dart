@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:latlong/latlong.dart';
 import 'package:qme/model/location.dart';
+import 'package:qme/services/analytics.dart';
 
 Future<LocationData> getLocationHelper() async {
   bool serviceEnabled;
@@ -91,8 +92,18 @@ Future<LatLng> getCoordinatesFromAddress(String address) async {
   );
 }
 
-void updateStoredAddress(LocationData newLocationData) =>
-    Hive.box('location').put('location', newLocationData);
+void updateStoredAddress(LocationData newLocationData) {
+  Hive.box('location').put('location', newLocationData);
+  AnalyticsService().getAnalyticsObserver().analytics.logEvent(
+    name: "location_change",
+    parameters: {
+      "latitude": newLocationData.latitude,
+      "longitude": newLocationData.longitude,
+      "city": newLocationData.getApiAddress,
+      "address_complete": newLocationData.getAddressComplete,
+    },
+  );
+}
 
 void registerLocationAdapter() {
   Hive.registerAdapter(LocationDataAdapter());

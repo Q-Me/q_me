@@ -33,6 +33,7 @@ class SearchBox extends StatelessWidget {
                   _result = _locationData;
                 } else {
                   updateStoredAddress(_result);
+                  
                   BlocProvider.of<HomeBloc>(context).add(
                     SetLocation(
                       _result,
@@ -60,7 +61,6 @@ class SearchBox extends StatelessWidget {
                   ),
                 ),
                 child: Row(
-
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -74,7 +74,10 @@ class SearchBox extends StatelessWidget {
                           horizontal: 10,
                         ),
                         child: Material(
-                          child: Text('${value.getSimplifiedAddress}', overflow: TextOverflow.fade,),
+                          child: Text(
+                            '${value.getSimplifiedAddress}',
+                            overflow: TextOverflow.fade,
+                          ),
                         ),
                       ),
                     ),

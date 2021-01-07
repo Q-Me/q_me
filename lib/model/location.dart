@@ -67,6 +67,10 @@ class LocationData extends HiveObject with EquatableMixin {
 
   LatLng get getCoordinates => LatLng(latitude, longitude);
 
+  Map<String, dynamic> get getAddressJsonComplete => placeMark.toJson();
+
+  String get getAddressComplete => placeMark.toString();
+
   @override
   List<Object> get props => [latitude, longitude, loadStatus];
 }
