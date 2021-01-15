@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:hive/hive.dart';
+import 'package:http/http.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
+import 'package:qme/model/location.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/session.dart';
 
@@ -175,6 +177,23 @@ class UserRepository {
     } catch (e) {
       logger.e(e.toString());
       // box.clear();
+      return false;
+    }
+  }
+
+  Future<bool> updateUserLocation(LocationData location) async {
+    try {
+      final String _accessToken = await getAccessTokenFromStorage();
+      await _helper.post(
+        "/user/location",
+        req: {
+          "longitude": "${location.longitude}",
+          "latitude": "${location.latitude}"
+        },
+        authToken: _accessToken,
+      );
+      return true;
+    } catch (e) {
       return false;
     }
   }

@@ -7,6 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:qme/model/location.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/repository/subscribers.dart';
+import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/location.dart';
 
@@ -96,6 +97,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Stream<HomeState> _mapSetLocationToState(SetLocation event) async* {
     yield HomeLoading('setting location to ${event.location}');
     updateStoredAddress(event.location);
+    await UserRepository().updateUserLocation(event.location);
     location.value = event.location;
     categorizedSubscribers = [];
     logger.i('Location set to ${event.location}');

@@ -359,7 +359,7 @@ class OfferCarousal extends StatelessWidget {
                 logger.i('tapped image is at index $index');
               },
               dotBgColor: Colors.transparent,
-              images: future.data.documents.map((DocumentSnapshot offer) {
+              images: future.data.docs.map((DocumentSnapshot offer) {
                 return ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(20.0)),
                   child: CachedNetworkImage(
