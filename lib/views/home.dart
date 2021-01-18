@@ -14,10 +14,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:marquee_widget/marquee_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/location.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/model/user.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/location.dart';
@@ -95,10 +97,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void verifyFcmTokenChange(String _fcmToken) async {
-    Box box = await Hive.openBox("user");
-    await box.put('fcmToken', _fcmToken);
-    if (box.get('isGuest') == true) return;
-    String fcmToken = await box.get('fcmToken');
+    UserData user = Provider.of<UserData>(context);
+    user.save();
+    user.fcmToken = _fcmToken;
+    if (user.isGuest == true) return;
+    String fcmToken = user.fcmToken;
     if (fcmToken != _fcmToken) {
       try {
         await UserRepository().fcmTokenSubmit(_fcmToken);

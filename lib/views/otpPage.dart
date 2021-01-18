@@ -6,6 +6,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:provider/provider.dart';
+import 'package:qme/model/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
@@ -28,117 +30,117 @@ class _OtpPageState extends State<OtpPage> {
   final _codeController = TextEditingController();
   var _fcmToken;
   String mobileNumber = "Mobile number";
-  fcmTokenApiCall() async {
-    Box box = await Hive.openBox("user");
-    _fcmToken = await box.get('fcmToken');
-    var responsefcm = await UserRepository().fcmTokenSubmit(_fcmToken);
-    print("fcm token Api: $responsefcm");
-    // print("fcm token Api status: ${responsefcm['status']}");
-    await box.put('fcmToken', _fcmToken);
-    print(_fcmToken);
-  }
+  // fcmTokenApiCall() async {
+  //   // Box box = await hive.openbox("user");
+  //   _fcmToken = await box.get('fcmToken');
+  //   var responsefcm = await UserRepository().fcmTokenSubmit(_fcmToken);
+  //   print("fcm token Api: $responsefcm");
+  //   // print("fcm token Api status: ${responsefcm['status']}");
+  //   await box.put('fcmToken', _fcmToken);
+  //   print(_fcmToken);
+  // }
 
-  signInUser(BuildContext context) async {
-    Map response;
-    try {
-      response = await UserRepository().signInWithOtp(idToken);
+  // signInUser(BuildContext context) async {
+  //   Map response;
+  //   try {
+  //     response = await UserRepository().signInWithOtp(idToken);
 
-      if (response['accessToken'] != null) {
-        logger.d(response);
-        Navigator.pushNamedAndRemoveUntil(
-            context, HomeScreen.id, (route) => false);
+  //     if (response['accessToken'] != null) {
+  //       logger.d(response);
+  //       Navigator.pushNamedAndRemoveUntil(
+  //           context, HomeScreen.id, (route) => false);
 
-        fcmTokenApiCall();
-      } else {
-        logger.d("response of signin Otp: $response");
-        Scaffold.of(context)
-            .showSnackBar(SnackBar(content: Text(response['eror'].toString())));
-        return logger.d("error in api hit");
-      }
-    } catch (e) {
-      final errorMessage = e.toMap()["msg"].toString();
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text(errorMessage),
-        action: SnackBarAction(
-          label: 'Dismiss',
-          onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(
-                context, SignInScreen.id, (route) => false);
-          },
-        ),
-      ));
-      log('Error in signIn API: ' + e.toString());
-      return;
-    }
-  }
+  //       fcmTokenApiCall();
+  //     } else {
+  //       logger.d("response of signin Otp: $response");
+  //       Scaffold.of(context)
+  //           .showSnackBar(SnackBar(content: Text(response['eror'].toString())));
+  //       return logger.d("error in api hit");
+  //     }
+  //   } catch (e) {
+  //     final errorMessage = e.toMap()["msg"].toString();
+  //     Scaffold.of(context).showSnackBar(SnackBar(
+  //       content: Text(errorMessage),
+  //       action: SnackBarAction(
+  //         label: 'Dismiss',
+  //         onPressed: () {
+  //           Navigator.pushNamedAndRemoveUntil(
+  //               context, SignInScreen.id, (route) => false);
+  //         },
+  //       ),
+  //     ));
+  //     log('Error in signIn API: ' + e.toString());
+  //     return;
+  //   }
+  // }
 
-  signUpUser(BuildContext context) async {
-    Box box = await Hive.openBox("user");
-    formData['firstName'] = await box.get('userFirstNameSignup');
-    formData['lastName'] = await box.get('userLastNameSignup');
-    formData['phone'] = await box.get('userPhoneSignup');
-    formData['password'] = await box.get('userPasswordSignup');
-    formData['cpassword'] = await box.get('userCpasswordSignup');
-    formData['email'] = await box.get('userEmailSignup');
+  // signUpUser(BuildContext context) async {
+  //   // Box box = await hive.openbox("user");
+  //   formData['firstName'] = await box.get('userFirstNameSignup');
+  //   formData['lastName'] = await box.get('userLastNameSignup');
+  //   formData['phone'] = await box.get('userPhoneSignup');
+  //   formData['password'] = await box.get('userPasswordSignup');
+  //   formData['cpassword'] = await box.get('userCpasswordSignup');
+  //   formData['email'] = await box.get('userEmailSignup');
 
-    log('$formData');
+  //   log('$formData');
 
-    UserRepository user = UserRepository();
-    formData['name'] = '${formData['firstName']} ${formData['lastName']}';
-    // Make SignUp API call
-    Map response;
-    try {
-      logger.d(formData);
-      response = await user.signUp(formData);
-    } on BadRequestException catch (e) {
-      log('BadRequestException on SignUp:' + e.toString());
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text(
-          e.toMap()["msg"].toString(),
-        ),
-      ));
-    } catch (e) {
-      logger.e(e.toMap()['error']);
-      Scaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
-      );
-    }
-    log('SignUp response:${response.toString()}');
+  //   UserRepository user = UserRepository();
+  //   formData['name'] = '${formData['firstName']} ${formData['lastName']}';
+  //   // Make SignUp API call
+  //   Map response;
+  //   try {
+  //     logger.d(formData);
+  //     response = await user.signUp(formData);
+  //   } on BadRequestException catch (e) {
+  //     log('BadRequestException on SignUp:' + e.toString());
+  //     Scaffold.of(context).showSnackBar(SnackBar(
+  //       content: Text(
+  //         e.toMap()["msg"].toString(),
+  //       ),
+  //     ));
+  //   } catch (e) {
+  //     logger.e(e.toMap()['error']);
+  //     Scaffold.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(e.toString()),
+  //       ),
+  //     );
+  //   }
+  //   log('SignUp response:${response.toString()}');
 
-    if (response != null && response['msg'] == 'Registation successful') {
-      // Make SignIn call
-      try {
-        response = await UserRepository().signInWithOtp(idToken);
+  //   if (response != null && response['msg'] == 'Registation successful') {
+  //     // Make SignIn call
+  //     try {
+  //       response = await UserRepository().signInWithOtp(idToken);
 
-        if (response['accessToken'] != null) {
-          Navigator.pushNamedAndRemoveUntil(
-              context, HomeScreen.id, (route) => false);
-          fcmTokenApiCall();
-        } else {
-          logger.d("response of signin Otp: $response");
-          Scaffold.of(context).showSnackBar(
-              SnackBar(content: Text(response['error'].toString())));
-          return logger.d("error in api hit");
-        }
-      } catch (e) {
-        Scaffold.of(context)
-            .showSnackBar(SnackBar(content: Text(e.toString())));
-        log('Error in signIn API: ' + e.toString());
-        return;
-      }
-    } else {
-      logger.d("SignUp failed");
-      //Navigator.pushNamed(context, SignInScreen.id);
-      return;
-    }
-  }
+  //       if (response['accessToken'] != null) {
+  //         Navigator.pushNamedAndRemoveUntil(
+  //             context, HomeScreen.id, (route) => false);
+  //         fcmTokenApiCall();
+  //       } else {
+  //         logger.d("response of signin Otp: $response");
+  //         Scaffold.of(context).showSnackBar(
+  //             SnackBar(content: Text(response['error'].toString())));
+  //         return logger.d("error in api hit");
+  //       }
+  //     } catch (e) {
+  //       Scaffold.of(context)
+  //           .showSnackBar(SnackBar(content: Text(e.toString())));
+  //       log('Error in signIn API: ' + e.toString());
+  //       return;
+  //     }
+  //   } else {
+  //     logger.d("SignUp failed");
+  //     //Navigator.pushNamed(context, SignInScreen.id);
+  //     return;
+  //   }
+  // }
 
   fetchPhoneNumber() async {
-    Box box = await Hive.openBox("user");
+    // Box box = await hive.openbox("user");
     setState(() {
-      mobileNumber = box.get('userPhoneSignup');
+      mobileNumber = Provider.of<UserData>(context).phone;
     });
   }
 
@@ -257,95 +259,95 @@ class _OtpPageState extends State<OtpPage> {
                             color: Theme.of(context).primaryColor,
                             elevation: 7.0,
                             child: InkWell(
-                              onTap: () async {
-                                final code = _codeController.text.trim();
-                                try {
-                                  Scaffold.of(context).showSnackBar(SnackBar(
-                                      content: Text('Processing Data')));
-                                  AuthCredential credential =
-                                      PhoneAuthProvider.getCredential(
-                                          verificationId: verificationIdOtp,
-                                          smsCode: code);
+                              // onTap: () async {
+                              //   final code = _codeController.text.trim();
+                              //   try {
+                              //     Scaffold.of(context).showSnackBar(SnackBar(
+                              //         content: Text('Processing Data')));
+                              //     AuthCredential credential =
+                              //         PhoneAuthProvider.getCredential(
+                              //             verificationId: verificationIdOtp,
+                              //             smsCode: code);
 
-                                  Box box = await Hive.openBox("user");
+                              //     // Box box = await hive.openbox("user");
 
-                                  _fcmToken = await box.get('fcmToken');
+                              //     _fcmToken = await box.get('fcmToken');
 
-                                  UserCredential result = await authOtp
-                                      .signInWithCredential(credential);
+                              //     UserCredential result = await authOtp
+                              //         .signInWithCredential(credential);
 
-                                  FirebaseUser userFireBAse = result.user;
+                              //     FirebaseUser userFireBAse = result.user;
 
-                                  if (userFireBAse != null) {
-                                    Scaffold.of(context).showSnackBar(SnackBar(
-                                        content: Text('Processing Data')));
-                                    var token = await userFireBAse
-                                        .getIdToken()
-                                        .then((result) {
-                                      idToken = result;
-                                      formData['token'] = idToken;
-                                      logger.d("@@ $idToken @@");
-                                    });
-                                    logger.d(token);
-                                    if (loginPage == "SignUp") {
-                                      signUpUser(context);
-                                    } else {
-                                      signInUser(context);
-                                    }
-                                  } else {
-                                    logger.d("Some Error occured");
-                                  }
-                                } on PlatformException catch (e) {
-                                  String errorMessage;
-                                  e.code.toString() ==
-                                          "ERROR_INVALID_VERIFICATION_CODE"
-                                      ? errorMessage = "Invalid OTP was entered"
-                                      : errorMessage = e.code.toString();
-                                  showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: Text("Verification Failed"),
-                                          content: Text(errorMessage),
-                                          actions: <Widget>[
-                                            FlatButton(
-                                              child: Text("OK"),
-                                              textColor: Colors.white,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                            )
-                                          ],
-                                        );
-                                      });
-                                  logger.d(e.code);
-                                } on Exception catch (e) {
-                                  showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: Text("Verification Failed"),
-                                          content: Text(e.toString()),
-                                          actions: <Widget>[
-                                            FlatButton(
-                                              child: Text("OK"),
-                                              textColor: Colors.white,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              onPressed: () async {
-                                                Navigator.pop(context);
-                                              },
-                                            )
-                                          ],
-                                        );
-                                      });
-                                  logger.d(e);
-                                }
-                              },
+                              //     if (userFireBAse != null) {
+                              //       Scaffold.of(context).showSnackBar(SnackBar(
+                              //           content: Text('Processing Data')));
+                              //       var token = await userFireBAse
+                              //           .getIdToken()
+                              //           .then((result) {
+                              //         idToken = result;
+                              //         formData['token'] = idToken;
+                              //         logger.d("@@ $idToken @@");
+                              //       });
+                              //       logger.d(token);
+                              //       if (loginPage == "SignUp") {
+                              //         signUpUser(context);
+                              //       } else {
+                              //         signInUser(context);
+                              //       }
+                              //     } else {
+                              //       logger.d("Some Error occured");
+                              //     }
+                              //   } on PlatformException catch (e) {
+                              //     String errorMessage;
+                              //     e.code.toString() ==
+                              //             "ERROR_INVALID_VERIFICATION_CODE"
+                              //         ? errorMessage = "Invalid OTP was entered"
+                              //         : errorMessage = e.code.toString();
+                              //     showDialog(
+                              //         context: context,
+                              //         barrierDismissible: false,
+                              //         builder: (context) {
+                              //           return AlertDialog(
+                              //             title: Text("Verification Failed"),
+                              //             content: Text(errorMessage),
+                              //             actions: <Widget>[
+                              //               FlatButton(
+                              //                 child: Text("OK"),
+                              //                 textColor: Colors.white,
+                              //                 color: Theme.of(context)
+                              //                     .primaryColor,
+                              //                 onPressed: () {
+                              //                   Navigator.pop(context);
+                              //                 },
+                              //               )
+                              //             ],
+                              //           );
+                              //         });
+                              //     logger.d(e.code);
+                              //   } on Exception catch (e) {
+                              //     showDialog(
+                              //         context: context,
+                              //         barrierDismissible: false,
+                              //         builder: (context) {
+                              //           return AlertDialog(
+                              //             title: Text("Verification Failed"),
+                              //             content: Text(e.toString()),
+                              //             actions: <Widget>[
+                              //               FlatButton(
+                              //                 child: Text("OK"),
+                              //                 textColor: Colors.white,
+                              //                 color: Theme.of(context)
+                              //                     .primaryColor,
+                              //                 onPressed: () async {
+                              //                   Navigator.pop(context);
+                              //                 },
+                              //               )
+                              //             ],
+                              //           );
+                              //         });
+                              //     logger.d(e);
+                              //   }
+                              // },
                               child: Center(
                                 child: Text(
                                   'Verify',

@@ -41,132 +41,132 @@ class _SignInScreenState extends State<SignInScreen>
   double get mediaHeight => MediaQuery.of(context).size.height;
   double get mediaWidth => MediaQuery.of(context).size.width;
 
-  Future<bool> loginUser(BuildContext context, String phone) async {
-    FirebaseAuth _auth = FirebaseAuth.instance;
+  // Future<bool> loginUser(BuildContext context, String phone) async {
+  //   FirebaseAuth _auth = FirebaseAuth.instance;
 
-    _auth.verifyPhoneNumber(
-        phoneNumber: phone,
-        timeout: Duration(seconds: 60),
-        verificationCompleted: (AuthCredential credential) async {
-          UserCredential result = await _auth.signInWithCredential(credential);
-          logger.d("printing the credential");
-          logger.d(credential);
+  //   _auth.verifyPhoneNumber(
+  //       phoneNumber: phone,
+  //       timeout: Duration(seconds: 60),
+  //       verificationCompleted: (AuthCredential credential) async {
+  //         UserCredential result = await _auth.signInWithCredential(credential);
+  //         logger.d("printing the credential");
+  //         logger.d(credential);
 
-          FirebaseUser user = result.user;
+  //         FirebaseUser user = result.user;
 
-          if (user != null) {
-            var token = await user.getIdToken().then((result) async {
-              idToken = result;
-              logger.d("idToken: $idToken ");
-              FocusScope.of(context).requestFocus(FocusNode());
+  //         if (user != null) {
+  //           var token = await user.getIdToken().then((result) async {
+  //             idToken = result;
+  //             logger.d("idToken: $idToken ");
+  //             FocusScope.of(context).requestFocus(FocusNode());
 
-              var response;
-              try {
-                Box box = await Hive.openBox("user");
-                await box.put('fcmToken', _fcmToken);
-                response =
-                    // Make LOGIN API call
-                    response = await UserRepository().signInWithOtp(idToken);
+  //             var response;
+  //             try {
+  //               // Box box = await hive.openbox("user");
+  //               await box.put('fcmToken', _fcmToken);
+  //               response =
+  //                   // Make LOGIN API call
+  //                   response = await UserRepository().signInWithOtp(idToken);
 
-                if (response['accessToken'] != null) {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, HomeScreen.id, (route) => false);
-                  var responsefcm =
-                      await UserRepository().fcmTokenSubmit(_fcmToken);
-                  logger.d("fcm token Api: $responsefcm");
-                } else {
-                  return;
-                }
-              } catch (e) {
-                logger.d(" !!${e.toMap()["msg"].toString()}!!");
-                final errorMessage = e.toMap()["msg"].toString();
-                showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("SignIn Failed!"),
-                        content: Text(errorMessage),
-                        actions: <Widget>[
-                          FlatButton(
-                            child: Text("OK"),
-                            textColor: Colors.white,
-                            color: Theme.of(context).primaryColor,
-                            onPressed: () {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SignInScreen(),
-                                ),
-                                (route) => false,
-                              );
-                            },
-                          )
-                        ],
-                      );
-                    });
-                logger.d('Error in signIn API: ' + e.toString());
-                return;
-              }
-            });
-          } else {
-            logger.d("Error");
-          }
-        },
-        verificationFailed: (FirebaseAuthException exception) {
-          logger.d("here is exception error");
-          logger.d(exception.message);
-          String fireBaseError = exception.message.toString();
-          if (exception.message ==
-                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_LONG ]" ||
-              exception.message ==
-                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_SHORT ]") {
-            fireBaseError =
-                "Please verify and enter correct 10 digit phone number with country code.";
-          } else if (exception.message ==
-              "We have blocked all requests from this device due to unusual activity. Try again later.") {
-            fireBaseError =
-                "You have tried maximum number of signin.please retry after some time.";
-          }
+  //               if (response['accessToken'] != null) {
+  //                 Navigator.pushNamedAndRemoveUntil(
+  //                     context, HomeScreen.id, (route) => false);
+  //                 var responsefcm =
+  //                     await UserRepository().fcmTokenSubmit(_fcmToken);
+  //                 logger.d("fcm token Api: $responsefcm");
+  //               } else {
+  //                 return;
+  //               }
+  //             } catch (e) {
+  //               logger.d(" !!${e.toMap()["msg"].toString()}!!");
+  //               final errorMessage = e.toMap()["msg"].toString();
+  //               showDialog(
+  //                   context: context,
+  //                   barrierDismissible: false,
+  //                   builder: (context) {
+  //                     return AlertDialog(
+  //                       title: Text("SignIn Failed!"),
+  //                       content: Text(errorMessage),
+  //                       actions: <Widget>[
+  //                         FlatButton(
+  //                           child: Text("OK"),
+  //                           textColor: Colors.white,
+  //                           color: Theme.of(context).primaryColor,
+  //                           onPressed: () {
+  //                             Navigator.pushAndRemoveUntil(
+  //                               context,
+  //                               MaterialPageRoute(
+  //                                 builder: (context) => SignInScreen(),
+  //                               ),
+  //                               (route) => false,
+  //                             );
+  //                           },
+  //                         )
+  //                       ],
+  //                     );
+  //                   });
+  //               logger.d('Error in signIn API: ' + e.toString());
+  //               return;
+  //             }
+  //           });
+  //         } else {
+  //           logger.d("Error");
+  //         }
+  //       },
+  //       verificationFailed: (FirebaseAuthException exception) {
+  //         logger.d("here is exception error");
+  //         logger.d(exception.message);
+  //         String fireBaseError = exception.message.toString();
+  //         if (exception.message ==
+  //                 "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_LONG ]" ||
+  //             exception.message ==
+  //                 "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_SHORT ]") {
+  //           fireBaseError =
+  //               "Please verify and enter correct 10 digit phone number with country code.";
+  //         } else if (exception.message ==
+  //             "We have blocked all requests from this device due to unusual activity. Try again later.") {
+  //           fireBaseError =
+  //               "You have tried maximum number of signin.please retry after some time.";
+  //         }
 
-          showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text("Alert"),
-                  content: Text(fireBaseError),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text("OK"),
-                      textColor: Colors.white,
-                      color: Theme.of(context).primaryColor,
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SignInScreen(),
-                          ),
-                          (route) => false,
-                        );
-                      },
-                    )
-                  ],
-                );
-              });
-        },
-        codeSent: (String verificationId, [int forceResendingToken]) async {
-          // _authVar = _auth;
-          // verificationIdVar = verificationId;
-          verificationIdOtp = verificationId;
-          authOtp = _auth;
-          loginPage = "SignIn";
-          Box box = await Hive.openBox("user");
+  //         showDialog(
+  //             context: context,
+  //             barrierDismissible: false,
+  //             builder: (context) {
+  //               return AlertDialog(
+  //                 title: Text("Alert"),
+  //                 content: Text(fireBaseError),
+  //                 actions: <Widget>[
+  //                   FlatButton(
+  //                     child: Text("OK"),
+  //                     textColor: Colors.white,
+  //                     color: Theme.of(context).primaryColor,
+  //                     onPressed: () {
+  //                       Navigator.pushAndRemoveUntil(
+  //                         context,
+  //                         MaterialPageRoute(
+  //                           builder: (context) => SignInScreen(),
+  //                         ),
+  //                         (route) => false,
+  //                       );
+  //                     },
+  //                   )
+  //                 ],
+  //               );
+  //             });
+  //       },
+  //       codeSent: (String verificationId, [int forceResendingToken]) async {
+  //         // _authVar = _auth;
+  //         // verificationIdVar = verificationId;
+  //         verificationIdOtp = verificationId;
+  //         authOtp = _auth;
+  //         loginPage = "SignIn";
+  //         // Box box = await hive.openbox("user");
 
-          await box.put('fcmToken', _fcmToken);
-        },
-        codeAutoRetrievalTimeout: null);
-  }
+  //         await box.put('fcmToken', _fcmToken);
+  //       },
+  //       codeAutoRetrievalTimeout: null);
+  // }
 
   @override
   void initState() {
@@ -363,11 +363,11 @@ class _SignInScreenState extends State<SignInScreen>
                                                             Navigator.pushNamed(
                                                                 context,
                                                                 OtpPage.id);
-                                                            loginUser(
-                                                              context,
-                                                              countryCodeVal +
-                                                                  phone,
-                                                            );
+                                                            // loginUser(
+                                                            //   context,
+                                                            //   countryCodeVal +
+                                                            //       phone,
+                                                            // );
                                                           },
                                                         ),
                                                       ],

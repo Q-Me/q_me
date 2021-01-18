@@ -6,6 +6,7 @@ import 'package:qme/bloc/slotview_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/model/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
@@ -301,10 +302,10 @@ class ActionButton extends StatelessWidget {
                       return;
                     }
                     if (state is SelectedSlot) {
-                      Box box = await Hive.openBox("user");
+                      // Box box = await hive.openbox("user");
 
                       // Go to appointment view
-                      if (box.get('isGuest') != true) {
+                      if (context.read<UserData>().isGuest) {
                         Slot slot = state.slot;
                         Reception reception = state.reception;
                         Subscriber subscriber = state.subcriber;

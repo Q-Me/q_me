@@ -14,18 +14,19 @@ import '../api/endpoints.dart';
 import '../model/user.dart';
 
 Future<void> setGuestSession(Map<String, dynamic> response) async {
-  Box box = await Hive.openBox("user");
-  await box.put('id', response['id']);
-  await box.put('name', response['name']);
-  await box.put('isGuest', true);
-  await box.put('accessToken', response['accessToken']);
-  await box.put('expiry', DateTime.now().add(Duration(days: 1)).toString());
-  await box.put('firstLogin', false);
+  Box login = await Hive.openBox("firstLogin");
+  UserData userData = getUserDataFromStorage();
+  userData.id = response['id'];
+  userData.name = response['name'];
+  userData.isGuest = true;
+  userData.accessToken = response['accessToken'];
+  userData.expiry = DateTime.now().add(Duration(days: 1));
+  await login.put('firstLogin', false);
 }
 
-Future<void> clearGuestSession() async {
-  Box box = await Hive.openBox("user");
-  box.deleteAll(['accessToken', 'isGuest', 'name']);
+void clearGuestSession() {
+  UserData user = getUserDataFromStorage();
+  user.delete();
 }
 
 class UserRepository {
@@ -38,7 +39,7 @@ class UserRepository {
   }
 
   Future<UserData> fetchProfile() async {
-    final String accessToken = await getAccessTokenFromStorage();
+    final String accessToken = getAccessTokenFromStorage();
     final response = await _helper.post(kProfile,
         headers: {HttpHeaders.authorizationHeader: bearerToken(accessToken)});
     final userData = UserData(
@@ -46,17 +47,17 @@ class UserRepository {
       phone: response["phone"],
       email: response["email"],
     );
-    await storeUserData(userData);
+    storeUserData(userData);
     return userData;
   }
 
   Future<String> accessTokenFromApi() async {
-    final UserData userData = await getUserDataFromStorage();
+    final UserData userData = getUserDataFromStorage();
     final response = await _helper.post(
       kAccessToken,
       req: {"refreshToken": userData.refreshToken},
     );
-    await storeUserData(UserData.fromJson(response));
+    storeUserData(UserData.fromJson(response));
     return response['accessToken'];
   }
 
@@ -66,7 +67,7 @@ class UserRepository {
   }
 
   Future<String> signOut() async {
-    final String token = await getAccessTokenFromStorage();
+    final String token = getAccessTokenFromStorage();
     final response = await _helper.post(
       kSignOut,
       headers: {HttpHeaders.authorizationHeader: bearerToken(token)},
@@ -77,7 +78,7 @@ class UserRepository {
 
   Future<Map<String, dynamic>> signIn(Map<String, String> formData) async {
     final response = await _helper.post(kSignIn, req: formData);
-    await storeUserData(UserData.fromJson(response));
+    storeUserData(UserData.fromJson(response));
     await fetchProfile();
     return response;
   }
@@ -90,21 +91,21 @@ class UserRepository {
         'password': password,
       },
     );
-    await storeUserData(UserData.fromJson(response));
+    storeUserData(UserData.fromJson(response));
     await fetchProfile();
     return response;
   }
 
   Future<Map> signInWithOtp(String idToken) async {
     final response = await _helper.post(signInOtpUrl, req: {'token': idToken});
-    await storeUserData(UserData.fromJson(response));
+    storeUserData(UserData.fromJson(response));
     await fetchProfile();
     return response;
   }
 
   Future<String> fcmTokenSubmit(String fcmToken) async {
-    final String accessToken = await getAccessTokenFromStorage();
-    Box box = await Hive.openBox("user");
+    final String accessToken = getAccessTokenFromStorage();
+    // Box box = await hive.openbox("user");
     final response = await _helper.post(
       fcmUrl,
       req: {"token": fcmToken},
@@ -112,13 +113,15 @@ class UserRepository {
     );
 
     final msg = response["msg"];
-    await box.put('fcmToken', msg);
+    final user = getUserDataFromStorage();
+    user.fcmToken = msg;
+    user.save();
 
     return msg;
   }
 
   Future<List<Appointment>> fetchAppointments(List<String> status) async {
-    final String accessToken = await getAccessTokenFromStorage();
+    final String accessToken = getAccessTokenFromStorage();
     final response = await _helper.post(
       '/user/slot/slots',
       req: {"status": status.length != 4 ? status : "ALL"},
@@ -134,19 +137,22 @@ class UserRepository {
   Future<bool> isSessionReady() async {
     // If the session is not ready then try to set the session and after
     // successful session set return true else return false
-    Box box = await Hive.openBox("user");
-    final expiry = await box.get('expiry');
-    final refreshToken = await box.get('refreshToken');
-    final accessToken = await box.get('accessToken');
+    // Box box = await hive.openbox("user");
+    UserData user = getUserDataFromStorage();
+    final expiry = user.expiry; // final expiry = await box.get('expiry');
+    final refreshToken = user
+        .refreshToken; // final refreshToken = await box.get('refreshToken');
+    final accessToken =
+        user.accessToken; // final accessToken = await box.get('accessToken');
     if (expiry != null &&
-        DateTime.now().isBefore(DateTime.parse(expiry)) &&
+        DateTime.now().isBefore(expiry) &&
         accessToken != null) {
       // accessToken is valid
       return true;
     } else {
       // invalid accessToken
       if (refreshToken != null) {
-        if (box.get('isGuest') == true) {
+        if (user.isGuest) {
           return await sessionGuestLoginAttempt();
         }
         try {
@@ -183,7 +189,7 @@ class UserRepository {
 
   Future<bool> updateUserLocation(LocationData location) async {
     try {
-      final String _accessToken = await getAccessTokenFromStorage();
+      final String _accessToken = getAccessTokenFromStorage();
       await _helper.post(
         "/user/location",
         req: {

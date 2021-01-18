@@ -17,7 +17,7 @@ class SubscriberRepository {
 
   setAccessToken() async {
     localAccessToken = localAccessToken == null
-        ? await getAccessTokenFromStorage()
+        ? getAccessTokenFromStorage()
         : localAccessToken;
   }
 
@@ -28,13 +28,13 @@ class SubscriberRepository {
 
   Future<List<Subscriber>> fetchSubscriberList({String accessToken}) async {
     /*Get all subscribers list*/
-    UserData userData = await getUserDataFromStorage();
+    UserData userData = getUserDataFromStorage();
     dynamic response = await _helper.post(kGetAllSubscribers,
         headers: {'Authorization': 'Bearer ${userData.accessToken}'});
     if (response['error'] == 'Invalid access token') {
       final userRepo = UserRepository();
       String accessToken = await userRepo.accessTokenFromApi();
-      userData = await getUserDataFromStorage();
+      userData = getUserDataFromStorage();
       response = await _helper.post(kGetAllSubscribers,
           headers: {'Authorization': 'Bearer $accessToken'});
     }
@@ -50,7 +50,7 @@ class SubscriberRepository {
 
   Future<Subscriber> fetchSubscriberDetails(
       {@required String subscriberId}) async {
-    final String accessToken = await getAccessTokenFromStorage();
+    final String accessToken = getAccessTokenFromStorage();
     final response = await _helper.post(
       '/user/getsubscriber',
       req: {"subscriber_id": subscriberId},
@@ -62,7 +62,7 @@ class SubscriberRepository {
 
   Future<List<Review>> fetchSubscriberReviews(
       {@required String subscriberId}) async {
-    final String accessToken = await getAccessTokenFromStorage();
+    final String accessToken = getAccessTokenFromStorage();
     final response = await _helper.post(
       '/user/rating/subscriberrating',
       req: {"subscriber_id": subscriberId},
@@ -122,7 +122,7 @@ class SubscriberRepository {
     String review,
     String rating,
   }) async {
-    final String accessToken = await getAccessTokenFromStorage();
+    final String accessToken = getAccessTokenFromStorage();
     final response = await _helper.post(
       reviewUrl,
       req: {

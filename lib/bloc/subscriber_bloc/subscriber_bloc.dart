@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:qme/model/review.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/repository/subscribers.dart';
 import 'package:qme/utilities/logger.dart';
+import 'package:provider/provider.dart';
 
 part 'subscriber_event.dart';
 part 'subscriber_state.dart';
@@ -36,7 +38,7 @@ Stream<SubscriberState> _mapInitialEventToState(subscriberId) async* {
   Subscriber subscriber;
   SubscriberRepository _subscriberRepository = SubscriberRepository();
   try {
-    _accessToken = await getAccessTokenFromStorage();
+    _accessToken = getAccessTokenFromStorage();
     subscriber = await _subscriberRepository.fetchSubscriberDetails(
         subscriberId: subscriberId);
 

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/kAPI.dart';
 import 'package:qme/repository/user.dart';
@@ -17,6 +18,7 @@ import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/theme.dart';
 import 'package:qme/utilities/location.dart';
 import 'package:qme/views/noInternet.dart';
+import 'package:qme/model/user.dart';
 
 String initialHome = InitialScreen.id;
 bool firstLogin;
@@ -27,14 +29,7 @@ void main() async {
   // Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp();
-  await Hive.initFlutter();
-  Box box = await Hive.openBox("user");
-  indexOfHomeScreen = await Hive.openBox("index");
-  indexOfHomeScreen.put("index", 0);
-  notificationIndicator = await Hive.openBox("counter");
-  notificationIndicator.put("counter", 0);
-  firstLogin = await box.get('firstLogin');
-  registerLocationAdapter();
+  await initHive();
   if (firstLogin == false) initialHome = SignInScreen.id;
 
   // Logger.level = Level.warning;
@@ -58,17 +53,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return MaterialApp(
-      theme: myTheme,
-      debugShowCheckedModeBanner: false,
-      onGenerateRoute: router.generateRoute,
-      initialRoute: initialHome,
-      routes: {
-        HomeScreen.id: (context) => HomeScreen(),
+    return Provider<UserData>(
+      create: (context) {
+        UserData user = UserData();
+        Hive.box("users").put("this", user);
+        return user;
       },
-      navigatorObservers: <NavigatorObserver>[
-        AnalyticsService().getAnalyticsObserver(),
-      ],
+      child: MaterialApp(
+        theme: myTheme,
+        debugShowCheckedModeBanner: false,
+        onGenerateRoute: router.generateRoute,
+        initialRoute: initialHome,
+        routes: {
+          HomeScreen.id: (context) => HomeScreen(),
+        },
+        navigatorObservers: <NavigatorObserver>[
+          AnalyticsService().getAnalyticsObserver(),
+        ],
+      ),
     );
   }
 }
@@ -89,4 +91,17 @@ Widget settingValue(RemoteConfig remoteConfig) {
   baseURL = remoteConfig.getString('apiBaseUrl');
   logger.e("after: $baseURL");
   return MyApp();
+}
+
+Future initHive() async {
+  await Hive.initFlutter();
+  Box login = await Hive.openBox("firstlogin");
+  await Hive.openBox("user");
+  indexOfHomeScreen = await Hive.openBox("index");
+  indexOfHomeScreen.put("index", 0);
+  notificationIndicator = await Hive.openBox("counter");
+  notificationIndicator.put("counter", 0);
+  firstLogin = await login.get('firstLogin');
+  registerLocationAdapter();
+  Hive.registerAdapter(UserDataAdapter());
 }

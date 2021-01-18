@@ -50,9 +50,10 @@ class BookingslistBloc extends Bloc<BookingslistEvent, BookingslistState> {
       log("${response.toString()}");
       yield BookingsListSuccess(response);
     } on UnauthorisedException catch (e) {
-      Box box = await Hive.openBox("user");
+      // Box box = await hive.openbox("user");
 
-      if (e.toMap()['error'] == 'Forbidden Access' && box.get('isGuest')) {
+      if (e.toMap()['error'] == 'Forbidden Access' &&
+          Hive.box("users").get("this").isGuest()) {
         yield BookingsListSuccess([]);
       } else {
         yield BookingsListFailure(e.toString());

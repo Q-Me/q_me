@@ -12,6 +12,7 @@ import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:provider/provider.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/constants.dart';
+import 'package:qme/model/user.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
@@ -48,12 +49,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _launched;
   final FirebaseMessaging _messaging = FirebaseMessaging();
   String idToken;
+
   fcmTokenApiCall() async {
-    Box box = await Hive.openBox("user");
-    _fcmToken = await box.get('fcmToken');
+    // Box box = await hive.openbox("user");
+    _fcmToken = context.read<UserData>().fcmToken;
     var responsefcm = await UserRepository().fcmTokenSubmit(_fcmToken);
     logger.d("fcm token Api: $responsefcm");
-    await box.put('fcmToken', _fcmToken);
+    // await box.put('fcmToken', _fcmToken);
   }
 
   showAlert(BuildContext context, String content) {
@@ -85,151 +87,151 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   // otp verification with firebase
-  Future<bool> loginUser(String phone, BuildContext context) async {
-    FirebaseAuth _auth = FirebaseAuth.instance;
+  // Future<bool> loginUser(String phone, BuildContext context) async {
+  //   FirebaseAuth _auth = FirebaseAuth.instance;
 
-    _auth.verifyPhoneNumber(
-        phoneNumber: phone,
-        timeout: Duration(seconds: 60),
-        verificationCompleted: (AuthCredential credential) async {
-          UserCredential result = await _auth.signInWithCredential(credential);
+  //   _auth.verifyPhoneNumber(
+  //       phoneNumber: phone,
+  //       timeout: Duration(seconds: 60),
+  //       verificationCompleted: (AuthCredential credential) async {
+  //         UserCredential result = await _auth.signInWithCredential(credential);
 
-          FirebaseUser user = result.user;
+  //         User user = result.user;
 
-          if (user != null) {
-            var token = await user.getIdToken().then((result) {
-              idToken = result;
-              formData['token'] = idToken;
-              logger.d(" $idToken ");
-            });
-            final code = _codeController.text.trim();
-            try {
-              Box box = await Hive.openBox("user");
-              formData['firstName'] =
-                  await box.get('userFirstNameSignup').toString().trim();
-              formData['lastName'] =
-                  await box.get('userLastNameSignup').toString().trim();
-              formData['phone'] = await box.get('userPhoneSignup');
-              formData['password'] = await box.get('userPasswordSignup');
-              formData['cpassword'] = await box.get('userCpasswordSignup');
-              formData['email'] =
-                  await box.get('userEmailSignup').toString().trim();
+  //         if (user != null) {
+  //           var token = await user.getIdToken().then((result) {
+  //             idToken = result;
+  //             formData['token'] = idToken;
+  //             logger.d(" $idToken ");
+  //           });
+  //           final code = _codeController.text.trim();
+  //           try {
+  //             // Box box = await hive.openbox("user");
+  //             // formData['firstName'] =
+  //             //     await box.get('userFirstNameSignup').toString().trim();
+  //             // formData['lastName'] =
+  //             //     await box.get('userLastNameSignup').toString().trim();
+  //             // formData['phone'] = await box.get('userPhoneSignup');
+  //             // formData['password'] = await box.get('userPasswordSignup');
+  //             // formData['cpassword'] = await box.get('userCpasswordSignup');
+  //             // formData['email'] =
+  //             //     await box.get('userEmailSignup').toString().trim();
 
-              UserRepository user = UserRepository();
-              formData['name'] =
-                  '${formData['firstName']} ${formData['lastName']}';
-              log('$formData');
-              // Make SignUp API call
-              Map response;
-              try {
-                logger.d(formData);
-                response = await user.signUp(formData);
-              } on BadRequestException catch (e) {
-                log('BadRequestException on SignUp:' + e.toString());
-                showAlert(context, e.toMap()["msg"].toString());
-              } catch (e) {
-                showAlert(context, e.toMap()["msg"].toString());
-              }
-              log('SignUp response:${response.toString()}');
+  //             UserRepository user = UserRepository();
+  //             formData['name'] =
+  //                 '${formData['firstName']} ${formData['lastName']}';
+  //             log('$formData');
+  //             // Make SignUp API call
+  //             Map response;
+  //             try {
+  //               logger.d(formData);
+  //               response = await user.signUp(formData);
+  //             } on BadRequestException catch (e) {
+  //               log('BadRequestException on SignUp:' + e.toString());
+  //               showAlert(context, e.toMap()["msg"].toString());
+  //             } catch (e) {
+  //               showAlert(context, e.toMap()["msg"].toString());
+  //             }
+  //             log('SignUp response:${response.toString()}');
 
-              if (response != null &&
-                  response['msg'] == 'Registation successful') {
-                AnalyticsService()
-                    .getAnalyticsObserver()
-                    .analytics
-                    .logSignUp(signUpMethod: "Normal");
-                // Make SignIn call
-                try {
-                  response = await UserRepository().signInWithOtp(idToken);
-                  if (response['accessToken'] != null) {
-                    logger.d("respose of ${response['status']}");
-                    logger.d(response);
-                    Navigator.pushNamedAndRemoveUntil(
-                        context, HomeScreen.id, (route) => false);
-                    fcmTokenApiCall();
-                  } else {
-                    return logger.d("error in api hit");
-                  }
-                } catch (e) {
-                  showAlert(context, e.toMap()["msg"].toString());
-                  log('Error in signIn API: ' + e.toString());
-                  return;
-                }
-              } else {
-                logger.d("SignUp failed");
-                return;
-              }
-            } on PlatformException catch (e) {
-              print("Looking for Error code");
-              print(e.message);
-              Navigator.of(context).pop();
+  //             if (response != null &&
+  //                 response['msg'] == 'Registation successful') {
+  //               AnalyticsService()
+  //                   .getAnalyticsObserver()
+  //                   .analytics
+  //                   .logSignUp(signUpMethod: "Normal");
+  //               // Make SignIn call
+  //               try {
+  //                 response = await UserRepository().signInWithOtp(idToken);
+  //                 if (response['accessToken'] != null) {
+  //                   logger.d("respose of ${response['status']}");
+  //                   logger.d(response);
+  //                   Navigator.pushNamedAndRemoveUntil(
+  //                       context, HomeScreen.id, (route) => false);
+  //                   fcmTokenApiCall();
+  //                 } else {
+  //                   return logger.d("error in api hit");
+  //                 }
+  //               } catch (e) {
+  //                 showAlert(context, e.toMap()["msg"].toString());
+  //                 log('Error in signIn API: ' + e.toString());
+  //                 return;
+  //               }
+  //             } else {
+  //               logger.d("SignUp failed");
+  //               return;
+  //             }
+  //           } on PlatformException catch (e) {
+  //             print("Looking for Error code");
+  //             print(e.message);
+  //             Navigator.of(context).pop();
 
-              showAlert(context, e.code.toString());
-              print(e.code);
-            } on Exception catch (e) {
-              Navigator.of(context).pop();
+  //             showAlert(context, e.code.toString());
+  //             print(e.code);
+  //           } on Exception catch (e) {
+  //             Navigator.of(context).pop();
 
-              showAlert(context, e.toString());
-              print("Looking for Error message");
-              print(e);
-            }
-          } else {
-            print("Error");
-          }
+  //             showAlert(context, e.toString());
+  //             print("Looking for Error message");
+  //             print(e);
+  //           }
+  //         } else {
+  //           print("Error");
+  //         }
 
-          //This callback would gets called when verification is done auto maticlly
-        },
-        verificationFailed: (FirebaseAuthException exception) {
-          logger.e(exception.message);
-          String fireBaseError = exception.message.toString();
-          if (exception.message ==
-                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_LONG ]" ||
-              exception.message ==
-                  "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_SHORT ]") {
-            fireBaseError =
-                "PPlease verify and enter correct 10 digit phone number with country code.";
-          } else if (exception.message ==
-              "We have blocked all requests from this device due to unusual activity. Try again later.") {
-            fireBaseError =
-                "You have tried maximum number of signup.please retry after some time.";
-          }
+  //         //This callback would gets called when verification is done auto maticlly
+  //       },
+  //       verificationFailed: (FirebaseAuthException exception) {
+  //         logger.e(exception.message);
+  //         String fireBaseError = exception.message.toString();
+  //         if (exception.message ==
+  //                 "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_LONG ]" ||
+  //             exception.message ==
+  //                 "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code]. [ TOO_SHORT ]") {
+  //           fireBaseError =
+  //               "PPlease verify and enter correct 10 digit phone number with country code.";
+  //         } else if (exception.message ==
+  //             "We have blocked all requests from this device due to unusual activity. Try again later.") {
+  //           fireBaseError =
+  //               "You have tried maximum number of signup.please retry after some time.";
+  //         }
 
-          showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text("Alert"),
-                  content: Text(fireBaseError),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text("OK"),
-                      textColor: Colors.white,
-                      color: Theme.of(context).primaryColor,
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SignInScreen(),
-                          ),
-                          (route) => false,
-                        );
-                      },
-                    )
-                  ],
-                );
-              });
-        },
-        codeSent: (String verificationId, [int forceResendingToken]) {
-          verificationIdOtp = verificationId;
-          authOtp = _auth;
-          loginPage = "SignUp";
+  //         showDialog(
+  //             context: context,
+  //             barrierDismissible: false,
+  //             builder: (context) {
+  //               return AlertDialog(
+  //                 title: Text("Alert"),
+  //                 content: Text(fireBaseError),
+  //                 actions: <Widget>[
+  //                   FlatButton(
+  //                     child: Text("OK"),
+  //                     textColor: Colors.white,
+  //                     color: Theme.of(context).primaryColor,
+  //                     onPressed: () {
+  //                       Navigator.pushAndRemoveUntil(
+  //                         context,
+  //                         MaterialPageRoute(
+  //                           builder: (context) => SignInScreen(),
+  //                         ),
+  //                         (route) => false,
+  //                       );
+  //                     },
+  //                   )
+  //                 ],
+  //               );
+  //             });
+  //       },
+  //       codeSent: (String verificationId, [int forceResendingToken]) {
+  //         verificationIdOtp = verificationId;
+  //         authOtp = _auth;
+  //         loginPage = "SignUp";
 
-          Navigator.of(context).pushNamed(OtpPage.id);
-          //
-        },
-        codeAutoRetrievalTimeout: null);
-  }
+  //         Navigator.of(context).pushNamed(OtpPage.id);
+  //         //
+  //       },
+  //       codeAutoRetrievalTimeout: null);
+  // }
 
   Future<void> _launchInBrowser(String url) async {
     if (await canLaunch(url)) {
@@ -528,24 +530,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   final phone = _phoneController.text.trim();
                                   print("phone number: $phone");
                                   print(formData);
-                                  Box box = await Hive.openBox("user");
+                                  // Box box = await hive.openbox("user");
 
-                                  await box.put('userFirstNameSignup',
-                                      formData['firstName']);
-                                  await box.put('userLastNameSignup',
-                                      formData['lastName']);
-                                  await box.put(
-                                      'userPhoneSignup', formData['phone']);
+                                  // await box.put('userFirstNameSignup',
+                                  //     formData['firstName']);
+                                  // await box.put('userLastNameSignup',
+                                  //     formData['lastName']);
+                                  // await box.put(
+                                  //     'userPhoneSignup', formData['phone']);
 
-                                  await box.put('userPasswordSignup',
-                                      formData['password']);
-                                  await box.put('userCpasswordSignup',
-                                      formData['cpassword']);
+                                  // await box.put('userPasswordSignup',
+                                  //     formData['password']);
+                                  // await box.put('userCpasswordSignup',
+                                  //     formData['cpassword']);
 
-                                  await box.put(
-                                      'userEmailSignup', formData['email']);
+                                  // await box.put(
+                                  //     'userEmailSignup', formData['email']);
 
-                                  await box.put('fcmToken', _fcmToken);
+                                  // await box.put('fcmToken', _fcmToken);
                                   showDialog(
                                       context: context,
                                       barrierDismissible: false,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/api/endpoints.dart';
 import 'package:qme/model/user.dart';
@@ -23,7 +24,7 @@ class _AppointmentsHistoryScreenState extends State<AppointmentsHistoryScreen> {
   ApiBaseHelper _helper = ApiBaseHelper();
 
   Future appointHistory() async {
-    final UserData userData = await getUserDataFromStorage();
+    final UserData userData = Provider.of<UserData>(context);
     final response = await _helper.post(
       appHistory,
       headers: {'Authorization': 'Bearer ${userData.accessToken}'},

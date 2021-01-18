@@ -1,11 +1,31 @@
 import 'dart:convert';
 
 import 'package:hive/hive.dart';
-import 'package:qme/utilities/logger.dart';
 
-class UserData {
-  String id, name, email, phone, accessToken, refreshToken;
+part 'user.g.dart';
+
+@HiveType(typeId: 1)
+class UserData extends HiveObject {
+  @HiveField(0)
+  String id;
+  @HiveField(1)
+  String name;
+  @HiveField(2)
+  String email;
+  @HiveField(3)
+  String phone;
+  @HiveField(4)
+  String accessToken;
+  @HiveField(5)
+  String refreshToken;
+  @HiveField(6)
   bool isUser;
+  @HiveField(7)
+  String fcmToken;
+  @HiveField(8)
+  bool isGuest;
+  @HiveField(9)
+  DateTime expiry;
 
   UserData({
     this.id,
@@ -36,55 +56,17 @@ class UserData {
       };
 }
 
-Future<void> storeUserData(UserData userData) async {
-  // Set the user id, and other details are stored in local storage of the app
+void storeUserData(UserData userData) =>
+    Hive.box("users").put("this", userData);
 
-  Box box = await Hive.openBox("user");
-
-  if (userData.id != null) await box.put('id', userData.id);
-  if (userData.name != null) {
-    userData.name = userData.name.replaceAll('|', ' ');
-    await box.put('name', userData.name);
-  }
-  if (userData.accessToken != null) {
-    await box.put('accessToken', userData.accessToken);
-    await box.put('expiry', DateTime.now().add(Duration(days: 1)).toString());
-  }
-  if (userData.refreshToken != null)
-    await box.put('refreshToken', userData.refreshToken);
-  if (userData.email != null) await box.put('email', userData.email);
-  if (userData.phone != null) await box.put('phone', userData.phone);
-  box.put('isGuest',false);
-  logger.d('Storing user data success');
-
-  return;
+String getAccessTokenFromStorage() {
+  UserData user = Hive.box("users").get("this");
+  return user.accessToken;
 }
 
-Future<String> getAccessTokenFromStorage() async {
-  Box box = await Hive.openBox("user");
-  String accessToken = await box.get('accessToken') ?? null;
-  return accessToken;
-}
-
-Future<UserData> getUserDataFromStorage() async {
-  // See if user id, and other details are stored in local storage of the app
-  Box box = await Hive.openBox("user");
-
-  String id = await await box.get('id') ?? null;
-  String name = await box.get('name') ?? null;
-  String accessToken = await box.get('accessToken') ?? null;
-  String refreshToken = await box.get('refreshToken') ?? null;
-  String email = await box.get('email') ?? null;
-  String phone = await box.get('phone') ?? null;
-
-  return UserData(
-    id: id,
-    name: name,
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-    email: email,
-    phone: phone,
-  );
+UserData getUserDataFromStorage() {
+  UserData user = Hive.box("users").get("this");
+  return user;
 }
 
 UserData userDataFromJson(String str) => UserData.fromJson(json.decode(str));

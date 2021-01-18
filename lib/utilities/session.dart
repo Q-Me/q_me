@@ -8,14 +8,12 @@ Future<void> setSession() async {
     "phone": "+919673582517",
     "password": "P1yush.123",
   });
-  await storeUserData(UserData.fromJson(signInResponse));
+  storeUserData(UserData.fromJson(signInResponse));
   logger.i('SignIn session: ${signInResponse.toString()}');
 }
 
 Future<void> clearSession() async {
-  Box box = await Hive.openBox("user");
-  // box.deleteAll(['accessToken', 'refreshToken', 'name', 'email']);
-  await box.clear();
+  getUserDataFromStorage().delete();
 
   Box indexBox = await Hive.openBox("index");
   await indexBox.clear();
@@ -28,6 +26,6 @@ void setSessionFromRefreshToken() async {
 
 void test() async {
   setSession();
-  UserData userData = await getUserDataFromStorage();
+  UserData userData = getUserDataFromStorage();
   print(userData.toJson());
 }

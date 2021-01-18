@@ -100,8 +100,7 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
-                      _observer.analytics
-                          .logEvent(name: "signUp_button_click");
+                      _observer.analytics.logEvent(name: "signUp_button_click");
                       Navigator.pushNamed(context, SignUpScreen.id);
                     },
                     child: Text("Sign Up",
@@ -130,8 +129,7 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
-                      _observer.analytics
-                          .logEvent(name: "login_button_click");
+                      _observer.analytics.logEvent(name: "login_button_click");
                       Navigator.pushNamedAndRemoveUntil(
                           context, SignInScreen.id, (route) => false);
                     },
@@ -199,8 +197,8 @@ class IntroScreenState extends State<IntroScreen> {
 
   void onDonePress() async {
     Navigator.pushNamed(context, SignInScreen.id);
-    Box box = await Hive.openBox("user");
-    await box.put('firstLogin', false);
+    Box login = await Hive.openBox("user");
+    await login.put('firstLogin', false);
   }
 
   void onTabChangeCompleted(index) {}
