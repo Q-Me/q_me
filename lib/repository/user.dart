@@ -22,6 +22,7 @@ Future<void> setGuestSession(Map<String, dynamic> response) async {
   userData.isGuest = true;
   userData.accessToken = response['accessToken'];
   userData.expiry = DateTime.now().add(Duration(days: 1));
+  updateUserData(userData);
   await login.put('firstLogin', false);
 }
 
