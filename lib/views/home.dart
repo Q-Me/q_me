@@ -47,6 +47,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Box indexOfPage;
   FirebaseAnalyticsObserver _observer;
 
+@override
+void didUpdateWidget (oldWidget) {
+  super.didUpdateWidget(oldWidget);
+  
+}
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -97,8 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void verifyFcmTokenChange(String _fcmToken) async {
-    UserData user = Provider.of<UserData>(context);
-    user.save();
+    UserData user = Provider.of<UserData>(context, listen: false);
     user.fcmToken = _fcmToken;
     if (user.isGuest == true) return;
     String fcmToken = user.fcmToken;
@@ -504,15 +509,15 @@ class SubscriberBox extends StatelessWidget {
                 topRight: borderRadius,
               ),
               child: ValueListenableBuilder(
-                valueListenable: Hive.box('user').listenable(
-                  keys: ['accessToken'],
+                valueListenable: Hive.box('users').listenable(
+                  keys: ['this'],
                 ),
                 builder: (context, box, widget) => CachedNetworkImage(
                   imageUrl: subscriber.imgURL,
                   fit: BoxFit.cover,
                   httpHeaders: {
                     HttpHeaders.authorizationHeader:
-                        bearerToken(box.get('accessToken'))
+                        bearerToken(box.get('this').accessToken)
                   },
                   placeholder: (context, url) {
                     return SizedBox(
@@ -642,10 +647,11 @@ class HomeHeader extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: ValueListenableBuilder(
-                  valueListenable: Hive.box('user').listenable(keys: ['name']),
+                child: ValueListenableBuilder<Box>(
+                  valueListenable: Hive.box('users').listenable(keys: ['this']),
                   builder: (context, box, widget) {
-                    final String fullName = box.get('name');
+                    final UserData userData = context.watch<UserData>();
+                    final String fullName = userData.name;
                     if (fullName.startsWith('guest')) {
                       return Text(
                         'Hello There!',

@@ -217,11 +217,11 @@ class _SlotViewState extends State<SlotView> {
                 ),
               ),
               ValueListenableBuilder(
-                valueListenable: Hive.box('user').listenable(
-                  keys: ['isGuest'],
+                valueListenable: Hive.box('users').listenable(
+                  keys: ['this'],
                 ),
                 builder: (context, box, widget) {
-                  if (box.get('isGuest') == true) {
+                  if (box.get('this').isGuest == true) {
                     return Container(
                       padding: const EdgeInsets.only(top: 50),
                     );
@@ -249,6 +249,7 @@ class AppointmentForDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final UserData userData = box.get("this");
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -263,11 +264,11 @@ class AppointmentForDetails extends StatelessWidget {
           SizedBox(height: 10),
           FieldValue(
             label: 'Name',
-            text: "${box.get("name")}",
+            text: "${userData.name}",
           ),
           FieldValue(
             label: 'Contact No.',
-            text: '${box.get("phone")}',
+            text: '${userData.phone}',
           ),
         ],
       ),

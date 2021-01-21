@@ -36,14 +36,18 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
     case OtpPage.id:
       return MaterialPageRoute(
-        builder: (context) => OtpPage(),
+        builder: (context) => OtpPage(
+          args: settings.arguments,
+        ),
         settings: RouteSettings(name: OtpPage.id),
       );
 
     case HomeScreen.id:
       return MaterialPageRoute(
         builder: (context) => HomeScreen(),
-        settings: RouteSettings(name: HomeScreen.id),
+        settings: RouteSettings(
+          name: HomeScreen.id,
+        ),
       );
 
     /* 
@@ -116,11 +120,12 @@ class LocationRoute extends PageRouteBuilder {
       : super(
           pageBuilder: (context, animation, secondaryAnimation) => nextView,
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            SlideTransition(
-              position: Tween<Offset>(begin: Offset(0, -1), end: Offset(0, 0)).animate(
-                animation,
-              ),
-              child: child,
+              SlideTransition(
+            position:
+                Tween<Offset>(begin: Offset(0, -1), end: Offset(0, 0)).animate(
+              animation,
+            ),
+            child: child,
           ),
         );
 }

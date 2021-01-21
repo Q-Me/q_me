@@ -3,14 +3,14 @@ import 'package:qme/model/user.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 
-Future<void> setSession() async {
-  final Map<String, dynamic> signInResponse = await UserRepository().signIn({
-    "phone": "+919673582517",
-    "password": "P1yush.123",
-  });
-  storeUserData(UserData.fromJson(signInResponse));
-  logger.i('SignIn session: ${signInResponse.toString()}');
-}
+// Future<void> setSession() async {
+//   // final Map<String, dynamic> signInResponse = await UserRepository().signIn({
+//   //   "phone": "+919673582517",
+//   //   "password": "P1yush.123",
+//   // });
+//   updateUserData(UserData.fromJson(signInResponse));
+//   logger.i('SignIn session: ${signInResponse.toString()}');
+// }
 
 Future<void> clearSession() async {
   getUserDataFromStorage().delete();
@@ -24,8 +24,8 @@ void setSessionFromRefreshToken() async {
   logger.i('SignIn session: ${signInResponse.toString()}');
 }
 
-void test() async {
-  setSession();
-  UserData userData = getUserDataFromStorage();
-  print(userData.toJson());
-}
+// void test() async {
+//   setSession();
+//   UserData userData = getUserDataFromStorage();
+//   print(userData.toJson());
+// }

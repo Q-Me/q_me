@@ -50,7 +50,6 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     super.initState();
   }
 
-
   void confirmationDialog(BuildContext primaryContext, String note) {
     showCupertinoDialog(
         context: primaryContext,
@@ -235,8 +234,8 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                       alignment: Alignment.topLeft,
                       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                       child: ValueListenableBuilder(
-                        valueListenable: Hive.box('user').listenable(
-                          keys: ['name', 'phone'],
+                        valueListenable: Hive.box('users').listenable(
+                          keys: ["this"],
                         ),
                         builder: (context, box, widget) => Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,16 +255,17 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                 maxLines: 6,
                                 controller: editingController,
                                 decoration: InputDecoration(
-                                    prefixIcon: Icon(Icons.note_add),
-                                    // labelText: "Note",
-                                    hintText:
-                                        "Please add a note for your stylist. You can include the service you wish.",
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          width: 2,
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(8))),
+                                  prefixIcon: Icon(Icons.note_add),
+                                  // labelText: "Note",
+                                  hintText:
+                                      "Please add a note for your stylist. You can include the service you wish.",
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      width: 2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
                               ),
                             )
                           ],

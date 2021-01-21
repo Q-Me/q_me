@@ -2,6 +2,7 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:qme/model/user.dart';
 import 'package:qme/services/analytics.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
@@ -10,6 +11,7 @@ import 'package:qme/views/business_enquiry.dart';
 import 'package:qme/views/contact_us.dart';
 import 'package:qme/views/profileview.dart';
 import 'package:qme/views/signin.dart';
+import 'package:provider/provider.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:qme/views/signup.dart';
@@ -64,9 +66,10 @@ class MenuScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       ValueListenableBuilder(
-                        valueListenable: Hive.box('user').listenable(),
+                        valueListenable: Hive.box('users').listenable(),
                         builder: (context, box, widget) {
-                          String name = box.get('name');
+                          final UserData userData = box.get("this");
+                          String name = userData.name;
                           if (name != null && !name.startsWith('guest')) {
                             return Text(
                               name.length > 1
@@ -97,9 +100,10 @@ class MenuScreen extends StatelessWidget {
                         controller,
                       ),
                       ValueListenableBuilder(
-                        valueListenable: Hive.box('user').listenable(),
+                        valueListenable: Hive.box('users').listenable(),
                         builder: (context, box, widget) {
-                          bool isGuest = box.get('isGuest') ?? false;
+                          final UserData userData = box.get("this");
+                          bool isGuest = userData.isGuest ?? false;
                           if (!isGuest)
                             return MenuListItem(
                               "Log Out",
@@ -183,8 +187,8 @@ class MenuListItem extends StatelessWidget {
               onTap: () async {
                 switch (index) {
                   case "profile":
-                    Box box = Hive.box('user');
-                    if (box.get('isGuest')) {
+                    // Box box = Hive.box('user');
+                    if (context.read<UserData>().isGuest) {
                       showDialog(context: context, child: LoginSignUpAlert());
                     } else {
                       Navigator.push(context,

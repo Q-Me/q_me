@@ -95,12 +95,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Stream<HomeState> _mapSetLocationToState(SetLocation event) async* {
-    yield HomeLoading('setting location to ${event.location}');
+    yield HomeLoading('setting location to ${event.location.getSimplifiedAddress}');
     updateStoredAddress(event.location);
     await UserRepository().updateUserLocation(event.location);
     location.value = event.location;
     categorizedSubscribers = [];
-    logger.i('Location set to ${event.location}');
+    logger.i('Location set to ${event.location.getAddressComplete}');
     this.add(GetSubscribersAllCategory());
   }
 }

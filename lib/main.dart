@@ -55,6 +55,9 @@ class MyApp extends StatelessWidget {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return Provider<UserData>(
       create: (context) {
+        if (Hive.box("users").containsKey("this")) {
+          return Hive.box("users").get("this");
+        }
         UserData user = UserData();
         Hive.box("users").put("this", user);
         return user;
@@ -94,14 +97,14 @@ Widget settingValue(RemoteConfig remoteConfig) {
 }
 
 Future initHive() async {
+  registerLocationAdapter();
+  Hive.registerAdapter(UserDataAdapter());
   await Hive.initFlutter();
   Box login = await Hive.openBox("firstlogin");
-  await Hive.openBox("user");
+  await Hive.openBox("users");
   indexOfHomeScreen = await Hive.openBox("index");
   indexOfHomeScreen.put("index", 0);
   notificationIndicator = await Hive.openBox("counter");
   notificationIndicator.put("counter", 0);
   firstLogin = await login.get('firstLogin');
-  registerLocationAdapter();
-  Hive.registerAdapter(UserDataAdapter());
 }

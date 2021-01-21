@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:hive/hive.dart';
-import 'package:http/http.dart';
 import 'package:qme/api/app_exceptions.dart';
+import 'package:qme/model/api_params/login.dart';
+import 'package:qme/model/api_params/signup.dart';
 import 'package:qme/model/appointment.dart';
 import 'package:qme/model/location.dart';
 import 'package:qme/utilities/logger.dart';
@@ -47,7 +48,7 @@ class UserRepository {
       phone: response["phone"],
       email: response["email"],
     );
-    storeUserData(userData);
+    updateUserData(userData);
     return userData;
   }
 
@@ -57,13 +58,14 @@ class UserRepository {
       kAccessToken,
       req: {"refreshToken": userData.refreshToken},
     );
-    storeUserData(UserData.fromJson(response));
+    updateUserData(UserData.fromJson(response));
     return response['accessToken'];
   }
 
-  Future<Map<String, dynamic>> signUp(Map<String, String> formData) async {
-    final response = await _helper.post(kSignUp, req: formData);
-    return response;
+  Future<String> signUp(SignUpParams params) async {
+    final Map<String, String> response =
+        await _helper.post(kSignUp, req: params.json);
+    return response["msg"];
   }
 
   Future<String> signOut() async {
@@ -76,14 +78,19 @@ class UserRepository {
     return response["msg"];
   }
 
-  Future<Map<String, dynamic>> signIn(Map<String, String> formData) async {
-    final response = await _helper.post(kSignIn, req: formData);
-    storeUserData(UserData.fromJson(response));
-    await fetchProfile();
-    return response;
+  Future<UserData> signIn(LoginWithPasswordParams params) async {
+    final response = await _helper.post(
+      kSignIn,
+      req: params.json,
+    );
+    UserData user = UserData.fromJson(response);
+    user.isGuest = false;
+    updateUserData(user);
+    return user;
   }
 
-  Future<Map> signInWithPassword(String phoneNumber, String password) async {
+  Future<UserData> signInWithPassword(
+      String phoneNumber, String password) async {
     final response = await _helper.post(
       signInPasswordUrl,
       req: {
@@ -91,16 +98,18 @@ class UserRepository {
         'password': password,
       },
     );
-    storeUserData(UserData.fromJson(response));
-    await fetchProfile();
-    return response;
+    UserData user = UserData.fromJson(response);
+    user.isGuest = false;
+    updateUserData(user);
+    return user;
   }
 
-  Future<Map> signInWithOtp(String idToken) async {
+  Future<UserData> signInWithOtp(String idToken) async {
     final response = await _helper.post(signInOtpUrl, req: {'token': idToken});
-    storeUserData(UserData.fromJson(response));
-    await fetchProfile();
-    return response;
+    UserData user = UserData.fromJson(response);
+    user.isGuest = false;
+    updateUserData(user);
+    return user;
   }
 
   Future<String> fcmTokenSubmit(String fcmToken) async {
@@ -115,7 +124,7 @@ class UserRepository {
     final msg = response["msg"];
     final user = getUserDataFromStorage();
     user.fcmToken = msg;
-    user.save();
+    updateUserData(user);
 
     return msg;
   }
@@ -138,40 +147,49 @@ class UserRepository {
     // If the session is not ready then try to set the session and after
     // successful session set return true else return false
     // Box box = await hive.openbox("user");
-    UserData user = getUserDataFromStorage();
-    final expiry = user.expiry; // final expiry = await box.get('expiry');
-    final refreshToken = user
-        .refreshToken; // final refreshToken = await box.get('refreshToken');
-    final accessToken =
-        user.accessToken; // final accessToken = await box.get('accessToken');
-    if (expiry != null &&
-        DateTime.now().isBefore(expiry) &&
-        accessToken != null) {
-      // accessToken is valid
-      return true;
-    } else {
-      // invalid accessToken
-      if (refreshToken != null) {
-        if (user.isGuest) {
-          return await sessionGuestLoginAttempt();
-        }
-        try {
-          // Get new accessToken from refreshToken
-          final result = await accessTokenFromApi();
-          logger.i('new accessToken set to:$result');
-          return result != '-1' ? true : false;
-        } on BadRequestException catch (e) {
-          if (e.toMap()["error"] == "Invalid refresh token") {
-            logger.e(e.toMap()["error"]);
-          }
-          return false;
-        } catch (e) {
-          logger.e('Getting new accessToken from API failed\n' + e.toString());
-          return false;
-        }
-      } else {
+    try {
+      if (!await isUserDataInStorage()) {
         return false;
       }
+      UserData user = getUserDataFromStorage();
+      final expiry = user.expiry; // final expiry = await box.get('expiry');
+      final refreshToken = user
+          .refreshToken; // final refreshToken = await box.get('refreshToken');
+      final accessToken =
+          user.accessToken; // final accessToken = await box.get('accessToken');
+      if (expiry != null &&
+          DateTime.now().isBefore(expiry) &&
+          accessToken != null) {
+        // accessToken is valid
+        return true;
+      } else {
+        // invalid accessToken
+        if (refreshToken != null) {
+          if (user.isGuest) {
+            return await sessionGuestLoginAttempt();
+          }
+          try {
+            // Get new accessToken from refreshToken
+            final result = await accessTokenFromApi();
+            logger.i('new accessToken set to:$result');
+            return result != '-1' ? true : false;
+          } on BadRequestException catch (e) {
+            if (e.toMap()["error"] == "Invalid refresh token") {
+              logger.e(e.toMap()["error"]);
+            }
+            return false;
+          } catch (e) {
+            logger
+                .e('Getting new accessToken from API failed\n' + e.toString());
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+    } catch (e) {
+      logger.e(e.toString());
+      return false;
     }
   }
 

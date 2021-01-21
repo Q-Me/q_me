@@ -15,6 +15,7 @@ import 'package:qme/constants.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/services/analytics.dart';
+import 'package:qme/services/firebase_auth_service.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/otpPage.dart';
@@ -497,7 +498,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             color: Theme.of(context).primaryColor,
                             elevation: 7.0,
                             child: InkWell(
-                              onTap: () async {
+                              onTap: () {
                                 FocusScope.of(context).requestFocus(
                                     FocusNode()); // dismiss the keyboard
                                 if (formKey.currentState.validate()) {
@@ -528,26 +529,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ),
                                   );
                                   final phone = _phoneController.text.trim();
-                                  print("phone number: $phone");
-                                  print(formData);
+                                  logger.i("phone number: $phone");
+                                  logger.i(formData);
+                                  UserData user = context.read<UserData>();
                                   // Box box = await hive.openbox("user");
 
-                                  // await box.put('userFirstNameSignup',
-                                  //     formData['firstName']);
-                                  // await box.put('userLastNameSignup',
-                                  //     formData['lastName']);
-                                  // await box.put(
-                                  //     'userPhoneSignup', formData['phone']);
+                                  user.name = formData['firstName'] +
+                                      " " +
+                                      formData['lastName'];
+                                  user.phone = phone;
 
-                                  // await box.put('userPasswordSignup',
-                                  //     formData['password']);
-                                  // await box.put('userCpasswordSignup',
-                                  //     formData['cpassword']);
+                                  user.password = formData['password'];
 
-                                  // await box.put(
-                                  //     'userEmailSignup', formData['email']);
+                                  user.email = formData['email'];
 
-                                  // await box.put('fcmToken', _fcmToken);
+                                  user.fcmToken = _fcmToken;
+                                  updateUserData(user);
                                   showDialog(
                                       context: context,
                                       barrierDismissible: false,
@@ -564,9 +561,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                               color: Theme.of(context)
                                                   .primaryColor,
                                               onPressed: () async {
-                                                Navigator.of(context)
-                                                    .pushNamed(OtpPage.id);
-                                                loginUser(phone, context);
+                                                BuildContext dialogContext;
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    dialogContext = context;
+                                                    return AlertDialog(
+                                                      title: Text(
+                                                          "Attempting automatic OTP resolution"),
+                                                      content: Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                                FirebaseAuthService()
+                                                    .phoneNumberAuth(
+                                                  phoneNumber: phone,
+                                                  context: context,
+                                                  isLogin: false,
+                                                  dialogContext: dialogContext,
+                                                );
                                               },
                                             ),
                                           ],
