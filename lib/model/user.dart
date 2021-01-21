@@ -1,10 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'user.g.dart';
 
-@HiveType(typeId: 1)
+@HiveType(typeId: 3)
 class UserData extends HiveObject {
   @HiveField(0)
   String id;
@@ -26,6 +27,10 @@ class UserData extends HiveObject {
   bool isGuest;
   @HiveField(9)
   DateTime expiry;
+  @HiveField(10)
+  String password;
+  @HiveField(11)
+  String idToken;
 
   UserData({
     this.id,
@@ -35,6 +40,11 @@ class UserData extends HiveObject {
     this.refreshToken,
     this.email,
     this.phone,
+    this.expiry,
+    this.fcmToken,
+    this.isGuest,
+    this.password,
+    this.idToken,
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
@@ -46,7 +56,7 @@ class UserData extends HiveObject {
         phone: json['phone'],
       );
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => <String, String>{
         "id": id,
         "name": name,
         "accessToken": accessToken,
@@ -56,8 +66,27 @@ class UserData extends HiveObject {
       };
 }
 
-void storeUserData(UserData userData) =>
-    Hive.box("users").put("this", userData);
+void updateUserData(UserData updated) {
+  UserData old = Hive.box("users").get("this");
+  if (old != null) {
+    if (updated.id != null) old.id = updated.id;
+    if (updated.name != null) old.name = updated.name;
+    if (updated.isUser != null) old.isUser = updated.isUser;
+    if (updated.accessToken != null) old.accessToken = updated.accessToken;
+    if (updated.refreshToken != null) old.refreshToken = updated.refreshToken;
+    if (updated.email != null) old.email = updated.email;
+    if (updated.phone != null) old.phone = updated.phone;
+    if (updated.expiry != null) old.expiry = updated.expiry;
+    if (updated.fcmToken != null) old.fcmToken = updated.fcmToken;
+    if (updated.isGuest != null) old.isGuest = updated.isGuest;
+    if (updated.password != null) old.password = updated.password;
+    if (updated.idToken != null) old.idToken = updated.idToken;
+    old.save();
+  } else {
+    old = updated;
+    Hive.box("users").put("this", old);
+  }
+}
 
 String getAccessTokenFromStorage() {
   UserData user = Hive.box("users").get("this");
@@ -67,6 +96,14 @@ String getAccessTokenFromStorage() {
 UserData getUserDataFromStorage() {
   UserData user = Hive.box("users").get("this");
   return user;
+}
+
+Future<bool> isUserDataInStorage() async {
+  if (!(await Hive.boxExists("users"))) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 UserData userDataFromJson(String str) => UserData.fromJson(json.decode(str));
