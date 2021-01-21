@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
+import 'package:qme/model/api_params/signup.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
@@ -16,8 +17,18 @@ import '../api/app_exceptions.dart';
 import '../repository/user.dart';
 import 'signup.dart';
 
+class OtpPageArguments {
+  String verificationId;
+  bool isLogin;
+
+  OtpPageArguments({this.isLogin, this.verificationId});
+}
+
 class OtpPage extends StatefulWidget {
   static const id = '/otpPage';
+  final OtpPageArguments args;
+
+  OtpPage({@required this.args});
 
   @override
   _OtpPageState createState() => _OtpPageState();
@@ -259,6 +270,9 @@ class _OtpPageState extends State<OtpPage> {
                             color: Theme.of(context).primaryColor,
                             elevation: 7.0,
                             child: InkWell(
+                              onTap: () {
+                                authenticateUsingOtp(context);
+                              },
                               // onTap: () async {
                               //   final code = _codeController.text.trim();
                               //   try {
@@ -375,5 +389,43 @@ class _OtpPageState extends State<OtpPage> {
         ),
       )),
     );
+  }
+
+  void authenticateUsingOtp(BuildContext context) async {
+    try {
+      final AuthCredential authCredential = PhoneAuthProvider.credential(
+        smsCode: _codeController.text.trim(),
+        verificationId: widget.args.verificationId,
+      );
+      UserCredential creds = await FirebaseAuth.instance.signInWithCredential(authCredential);
+      String idToken = await creds.user.getIdToken();
+      if (widget.args.isLogin) {
+        await UserRepository().signInWithOtp(idToken);
+      } else {
+        UserData user = context.read<UserData>();
+        await UserRepository().signUp(
+          SignUpParams(
+            idToken: idToken,
+            name: user.name,
+            password: user.password,
+            phone: user.phone,
+            email: user?.email,
+          ),
+        );
+        await UserRepository().signInWithOtp(idToken);
+      }
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        HomeScreen.id,
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      logger.e(e.toString());
+      Scaffold.of(context).hideCurrentSnackBar();
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text("An uunexpected error occurred. Please try again"),
+        ),
+      );
+    }
   }
 }
