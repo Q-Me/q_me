@@ -309,7 +309,7 @@ class HomeScreenPage extends StatelessWidget {
                               );
                             } else if (state is PartCategoryReady) {
                               List<CategorySubscriberList> categoryList =
-                                  state.categoryList;
+                                  state.categoryList.toList();
                               return Column(
                                 children: [
                                   ReadySubscribersCategoriesList(
@@ -320,7 +320,7 @@ class HomeScreenPage extends StatelessWidget {
                               );
                             } else if (state is CategorySuccess) {
                               List<CategorySubscriberList> categoryList =
-                                  state.categoryList;
+                                  state.categoryList.toList();
                               return ReadySubscribersCategoriesList(
                                 categoryList: categoryList,
                               );

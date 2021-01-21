@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
@@ -19,7 +20,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ValueNotifier<LocationData> location;
   SubscriberRepository repository;
   List<String> categories;
-  List<CategorySubscriberList> categorizedSubscribers = [];
+  LinkedHashSet<CategorySubscriberList> categorizedSubscribers = LinkedHashSet();
 
   HomeBloc({this.accessToken}) : super(HomeInitial()) {
     repository = SubscriberRepository(localAccessToken: accessToken);
@@ -99,7 +100,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     updateStoredAddress(event.location);
     await UserRepository().updateUserLocation(event.location);
     location.value = event.location;
-    categorizedSubscribers = [];
+    categorizedSubscribers = LinkedHashSet();
     logger.i('Location set to ${event.location.getAddressComplete}');
     this.add(GetSubscribersAllCategory());
   }

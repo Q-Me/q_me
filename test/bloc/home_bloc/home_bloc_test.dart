@@ -39,46 +39,46 @@ void main() {
     expect: [
       HomeLoading('Getting categories...'),
       CategoriesReady(categories),
-      PartCategoryReady(List<CategorySubscriberList>.from([
-        CategorySubscriberList(
-          categoryName: 'Budget Saloon',
-          subscribers: [subscriber],
-        )
-      ])),
-      PartCategoryReady(List<CategorySubscriberList>.from([
-        CategorySubscriberList(
-          categoryName: 'Budget Saloon',
-          subscribers: [subscriber],
-        ),
-        CategorySubscriberList(
-          categoryName: 'Premium Saloon',
-          subscribers: [],
-        ),
-      ])),
-      PartCategoryReady(List<CategorySubscriberList>.from([
-        CategorySubscriberList(
-          categoryName: 'Budget Saloon',
-          subscribers: [subscriber],
-        ),
-        CategorySubscriberList(
-          categoryName: 'Premium Saloon',
-          subscribers: [],
-        ),
-      ])),
-      CategorySuccess(List<CategorySubscriberList>.from([
-        CategorySubscriberList(
-          categoryName: 'Budget Saloon',
-          subscribers: [subscriber],
-        ),
-        CategorySubscriberList(
-          categoryName: 'Premium Saloon',
-          subscribers: [],
-        ),
-        CategorySubscriberList(
-          categoryName: 'Safety Saloon',
-          subscribers: [],
-        ),
-      ]))
+      // PartCategoryReady(List<CategorySubscriberList>.from([
+      //   CategorySubscriberList(
+      //     categoryName: 'Budget Saloon',
+      //     subscribers: [subscriber],
+      //   )
+      // ])),
+      // PartCategoryReady(List<CategorySubscriberList>.from([
+      //   CategorySubscriberList(
+      //     categoryName: 'Budget Saloon',
+      //     subscribers: [subscriber],
+      //   ),
+      //   CategorySubscriberList(
+      //     categoryName: 'Premium Saloon',
+      //     subscribers: [],
+      //   ),
+      // ])),
+      // PartCategoryReady(List<CategorySubscriberList>.from([
+      //   CategorySubscriberList(
+      //     categoryName: 'Budget Saloon',
+      //     subscribers: [subscriber],
+      //   ),
+      //   CategorySubscriberList(
+      //     categoryName: 'Premium Saloon',
+      //     subscribers: [],
+      //   ),
+      // ])),
+      // CategorySuccess(List<CategorySubscriberList>.from([
+      //   CategorySubscriberList(
+      //     categoryName: 'Budget Saloon',
+      //     subscribers: [subscriber],
+      //   ),
+      //   CategorySubscriberList(
+      //     categoryName: 'Premium Saloon',
+      //     subscribers: [],
+      //   ),
+      //   CategorySubscriberList(
+      //     categoryName: 'Safety Saloon',
+      //     subscribers: [],
+      //   ),
+      // ]))
     ],
   );
 

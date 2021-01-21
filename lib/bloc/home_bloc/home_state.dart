@@ -61,13 +61,13 @@ class CategoryLoadingFail extends HomeState {
 }
 
 class CategorySuccess extends HomeState {
-  final List<CategorySubscriberList> categoryList;
+  final LinkedHashSet<CategorySubscriberList> categoryList;
 
   CategorySuccess(this.categoryList);
 }
 
 class PartCategoryReady extends HomeState {
-  final List<CategorySubscriberList> categoryList;
+  final LinkedHashSet<CategorySubscriberList> categoryList;
   
   PartCategoryReady(this.categoryList);
 

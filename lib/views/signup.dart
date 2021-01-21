@@ -546,48 +546,49 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   user.fcmToken = _fcmToken;
                                   updateUserData(user);
                                   showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: Text("Alert!"),
-                                          content: Text(
-                                              "You might receive an SMS message for verification and standard rates apply."),
-                                          actions: <Widget>[
-                                            DisagreeButton(),
-                                            FlatButton(
-                                              child: Text("Agree"),
-                                              textColor: Colors.white,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              onPressed: () async {
-                                                BuildContext dialogContext;
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    dialogContext = context;
-                                                    return AlertDialog(
-                                                      title: Text(
-                                                          "Attempting automatic OTP resolution"),
-                                                      content: Center(
-                                                        child:
-                                                            CircularProgressIndicator(),
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                                FirebaseAuthService()
-                                                    .phoneNumberAuth(
-                                                  phoneNumber: phone,
-                                                  context: context,
-                                                  isLogin: false,
-                                                  dialogContext: dialogContext,
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      });
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text("Alert!"),
+                                        content: Text(
+                                            "You might receive an SMS message for verification and standard rates apply."),
+                                        actions: <Widget>[
+                                          DisagreeButton(),
+                                          FlatButton(
+                                            child: Text("Agree"),
+                                            textColor: Colors.white,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            onPressed: () async {
+                                              BuildContext dialogContext;
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  dialogContext = context;
+                                                  return AlertDialog(
+                                                    title: Text(
+                                                        "Attempting automatic OTP resolution"),
+                                                    content: Center(
+                                                      child:
+                                                          CircularProgressIndicator(),
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                              FirebaseAuthService()
+                                                  .phoneNumberAuth(
+                                                phoneNumber: phone,
+                                                context: context,
+                                                isLogin: false,
+                                                dialogContext: dialogContext,
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
                                 }
                               },
                               child: Center(
