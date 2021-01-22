@@ -17,7 +17,7 @@ import '../model/user.dart';
 Future<void> setGuestSession(Map<String, dynamic> response) async {
   Box login = await Hive.openBox("firstLogin");
   UserData userData = getUserDataFromStorage();
-  userData.id = response['id'];
+  userData.id = response['id'].toString();
   userData.name = response['name'];
   userData.isGuest = true;
   userData.accessToken = response['accessToken'];

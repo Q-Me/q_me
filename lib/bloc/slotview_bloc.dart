@@ -6,6 +6,7 @@ import 'package:qme/model/appointment.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/model/user.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/utilities/logger.dart';
 
@@ -36,7 +37,7 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
       selectedDate = event.date;
       datedReceptions = [];
       logger.d('Date requested ${event.date}');
-      box = await Hive.openBox("user");
+      bool isGuest = getUserDataFromStorage().isGuest;
 
       try {
         datedReceptions = await _repository.getDatedReceptions(
@@ -69,7 +70,7 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
           return;
         }
 
-        if (box.get('isGuest') == false) {
+        if (isGuest == false) {
           // get any UPCOMING appointments for that reception
           List<Appointment> receptionAppointments = [];
           try {

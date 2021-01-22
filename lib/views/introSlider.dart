@@ -25,6 +25,7 @@ class IntroScreenState extends State<IntroScreen> {
   List<Slide> slides = new List();
   FirebaseAnalyticsObserver _observer;
   Function goToTab;
+  GlobalKey<ScaffoldState> key = GlobalKey();
 
   @override
   void initState() {
@@ -160,10 +161,20 @@ class IntroScreenState extends State<IntroScreen> {
                   RaisedButton(
                     onPressed: () async {
                       logger.i('Skip for now');
-                      await UserRepository().guestLogin();
-                      _observer.analytics.logEvent(name: "guest_login_click");
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, HomeScreen.id, (route) => false);
+                      try {
+                        await UserRepository().guestLogin();
+                        _observer.analytics.logEvent(name: "guest_login_click");
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, HomeScreen.id, (route) => false);
+                      } catch (e) {
+                        key.currentState.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              e.toString(),
+                            ),
+                          ),
+                        );
+                      }
                     },
                     child: Text("Skip",
                         style: TextStyle(
@@ -197,7 +208,7 @@ class IntroScreenState extends State<IntroScreen> {
 
   void onDonePress() async {
     Navigator.pushNamed(context, SignInScreen.id);
-    Box login = await Hive.openBox("user");
+    Box login = await Hive.openBox("firstLogin");
     await login.put('firstLogin', false);
   }
 
@@ -228,6 +239,7 @@ class IntroScreenState extends State<IntroScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: key,
       body: IntroSlider(
         // List slides
         slides: this.slides,

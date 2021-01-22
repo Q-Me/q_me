@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/appointment.dart';
+import 'package:qme/model/user.dart';
 import 'package:qme/repository/appointment.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
@@ -53,7 +54,7 @@ class BookingslistBloc extends Bloc<BookingslistEvent, BookingslistState> {
       // Box box = await hive.openbox("user");
 
       if (e.toMap()['error'] == 'Forbidden Access' &&
-          Hive.box("users").get("this").isGuest()) {
+          getUserDataFromStorage().isGuest) {
         yield BookingsListSuccess([]);
       } else {
         yield BookingsListFailure(e.toString());
