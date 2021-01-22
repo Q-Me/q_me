@@ -15,9 +15,11 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:marquee_widget/marquee_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/api/base_helper.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/location.dart';
+import 'package:qme/model/page_view_index.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/repository/user.dart';
@@ -46,31 +48,29 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   Box indexOfPage;
   FirebaseAnalyticsObserver _observer;
+  GlobalKey key = GlobalKey();
 
-@override
-void didUpdateWidget (oldWidget) {
-  super.didUpdateWidget(oldWidget);
-  
-}
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      indexOfPage.put("index", index);
-      if (index == 0) {
-        _observer.analytics.setCurrentScreen(screenName: "Home Screen");
-        logger.i("logging firebase with screen index $index");
-      } else if (index == 1) {
-        _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
-        logger.i("logging firebase with screen index $index");
-      } else {
-        _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
-        logger.i("logging firebase with screen index $index");
-      }
-      pageController.animateToPage(index,
-          duration: Duration(milliseconds: 500), curve: Curves.ease);
-      // logger.d('Navigation bar index: $_selectedIndex');
-    });
+  void _onItemTapped(int index, BuildContext context) {
+    pageController.animateToPage(index,
+        duration: Duration(milliseconds: 500), curve: Curves.ease);
+    Provider.of<HomeViewPageIndex>(context, listen: false).changeIndex(index);
+    indexOfPage.put("index", index);
+    if (index == 0) {
+      _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+      logger.i("logging firebase with screen index $index");
+    } else if (index == 1) {
+      _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
+      logger.i("logging firebase with screen index $index");
+    } else {
+      _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
+      logger.i("logging firebase with screen index $index");
+    }
+    // logger.d('Navigation bar index: $_selectedIndex');
   }
 
   final FirebaseMessaging _messaging = FirebaseMessaging();
@@ -128,9 +128,9 @@ void didUpdateWidget (oldWidget) {
     _messaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         //showNotification(message['notification']);
-        setState(() {
-          logger.i('on message $message');
-        });
+        // setState(() {
+        //   logger.i('on message $message');
+        // });
       },
       onResume: (Map<String, dynamic> message) async {
         logger.i('on resume $message');
@@ -165,180 +165,195 @@ void didUpdateWidget (oldWidget) {
           return Future.value(true);
         }
       },
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          body: PageView(
-            controller: pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _selectedIndex = index;
-                if (_selectedIndex == 0) {
-                  _observer.analytics
-                      .setCurrentScreen(screenName: "Home Screen");
-                  logger.i("logging firebase");
-                } else if (_selectedIndex == 1) {
-                  _observer.analytics
-                      .setCurrentScreen(screenName: "My Bookings Screen");
-                  logger.i("logging firebase");
-                } else {
-                  _observer.analytics
-                      .setCurrentScreen(screenName: "Menu Screen");
-                  logger.i("logging firebase");
-                }
-              });
-            },
-            children: <Widget>[
-              HomeScreenPage(),
-              BookingsScreen(controller: pageController),
-              MenuScreen(
-                controller: pageController,
-                observer: _observer,
-              ),
-            ],
-          ),
-          bottomNavigationBar: CupertinoTabBar(
-            currentIndex: _selectedIndex ?? 0,
-            onTap: _onItemTapped,
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(icon: Icon(Icons.home)),
-              BottomNavigationBarItem(
-                icon: Hive.box("counter").get("counter") > 0
-                    ? Stack(
-                        children: <Widget>[
-                          Icon(Icons.timer),
-                          /* Positioned(
-                              right: 0,
-                              child: new Container(
-                                padding: EdgeInsets.all(1),
-                                decoration: new BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                constraints: BoxConstraints(
-                                  minWidth: 12,
-                                  minHeight: 12,
-                                ),
-                                /*  child: new Text(
-                                  '${Hive.box("counter").get("counter")}',
-                                  style: new TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ), */
-                              ),
-                            ) */
-                        ],
-                      )
-                    : Icon(Icons.timer),
-              ),
-              BottomNavigationBarItem(icon: Icon(Icons.person)),
-            ],
-            activeColor: Theme.of(context).primaryColor,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class HomeScreenPage extends StatelessWidget {
-  const HomeScreenPage({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: BlocProvider(
+      child: BlocProvider<HomeBloc>(
         create: (context) {
           HomeBloc bloc = HomeBloc();
           bloc.add(GetCategories());
           return bloc;
         },
-        child: FutureBuilder<LocationData>(
-            future: getLocation(override: false),
-            builder: (context, future) {
-              if (future.hasData &&
-                  BlocProvider.of<HomeBloc>(context).currentLocation.value ==
-                      null) {
-                BlocProvider.of<HomeBloc>(context).add(
-                  SetLocation(
-                    future.data,
+        child: ChangeNotifierProvider(
+            create: (context) => HomeViewPageIndex(),
+            child: SafeArea(
+              child: Scaffold(
+                backgroundColor: Colors.white,
+                body: Builder(
+                  builder: (context) => PageView(
+                    controller: pageController,
+                    onPageChanged: (index) {
+                      Provider.of<HomeViewPageIndex>(key.currentContext,
+                              listen: false)
+                          .changeIndex(index);
+                      indexOfPage.put("index", index);
+                      if (index == 0) {
+                        _observer.analytics
+                            .setCurrentScreen(screenName: "Home Screen");
+                        logger.i("logging firebase with screen index $index");
+                      } else if (index == 1) {
+                        _observer.analytics
+                            .setCurrentScreen(screenName: "My Bookings Screen");
+                        logger.i("logging firebase with screen index $index");
+                      } else {
+                        _observer.analytics
+                            .setCurrentScreen(screenName: "Menu Screen");
+                        logger.i("logging firebase with screen index $index");
+                      }
+                    },
+                    children: <Widget>[
+                      HomeScreenPage(),
+                      BookingsScreen(controller: pageController),
+                      MenuScreen(
+                        controller: pageController,
+                        observer: _observer,
+                      ),
+                    ],
                   ),
-                );
-              } else if (future.hasError) {
-                // Scaffold.of(context).showSnackBar(
-                //   SnackBar(
-                //     content: Text(
-                //       future.error.toString(),
-                //     ),
-                //   ),
-                // );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  HomeHeader(
-                    child: Column(
-                      children: [
-                        OfferCarousal(),
-                        BlocConsumer<HomeBloc, HomeState>(
-                          listener: (context, state) async {
-                            if (state is HomeFail) {
-                              if (state.msg.startsWith('Unauthorised')) {
-                                Navigator.pushReplacementNamed(
-                                    context, SignInScreen.id);
-                              }
-                            }
-                          },
-                          builder: (context, state) {
-                            if (state is HomeLoading) {
-                              return Container(
-                                color: Colors.white,
-                                width: MediaQuery.of(context).size.width,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(state.msg ?? 'Loading..'),
-                                    CircularProgressIndicator(),
+                ),
+                bottomNavigationBar: Consumer<HomeViewPageIndex>(
+                  key: key,
+                  builder: (context, currentIndex, _) {
+                    return CupertinoTabBar(
+                      currentIndex: currentIndex.index,
+                      onTap: (index) => _onItemTapped(index, context),
+                      items: <BottomNavigationBarItem>[
+                        BottomNavigationBarItem(icon: Icon(Icons.home)),
+                        BottomNavigationBarItem(
+                          icon: Hive.box("counter").get("counter") > 0
+                              ? Stack(
+                                  children: <Widget>[
+                                    Icon(Icons.timer),
+                                    /* Positioned(
+                                                                  right: 0,
+                                                                  child: new Container(
+                                                                    padding: EdgeInsets.all(1),
+                                                                    decoration: new BoxDecoration(
+                                                                      color: Colors.red,
+                                                                      borderRadius: BorderRadius.circular(6),
+                                                                    ),
+                                                                    constraints: BoxConstraints(
+                                                                      minWidth: 12,
+                                                                      minHeight: 12,
+                                                                    ),
+                                                                    /*  child: new Text(
+                                                                      '${Hive.box("counter").get("counter")}',
+                                                                      style: new TextStyle(
+                                                                        color: Colors.white,
+                                                                        fontSize: 8,
+                                                                      ),
+                                                                      textAlign: TextAlign.center,
+                                                                    ), */
+                                                                  ),
+                                                                ) */
                                   ],
-                                ),
-                              );
-                            } else if (state is PartCategoryReady) {
-                              List<CategorySubscriberList> categoryList =
-                                  state.categoryList.toList();
-                              return Column(
-                                children: [
-                                  ReadySubscribersCategoriesList(
-                                    categoryList: categoryList,
-                                  ),
-                                  CircularProgressIndicator(),
-                                ],
-                              );
-                            } else if (state is CategorySuccess) {
-                              List<CategorySubscriberList> categoryList =
-                                  state.categoryList.toList();
-                              return ReadySubscribersCategoriesList(
-                                categoryList: categoryList,
-                              );
-                            } else {
-                              return Text('Underminedstate');
-                            }
-                          },
+                                )
+                              : Icon(Icons.timer),
                         ),
-                        NewsBanner(),
+                        BottomNavigationBarItem(icon: Icon(Icons.person)),
                       ],
-                    ),
+                      activeColor: Theme.of(context).primaryColor,
+                    );
+                  },
+                ),
+              ),
+            )),
+      ),
+    );
+  }
+}
+
+class HomeScreenPage extends StatefulWidget {
+  const HomeScreenPage({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  _HomeScreenPageState createState() => _HomeScreenPageState();
+}
+
+class _HomeScreenPageState extends State<HomeScreenPage> {
+  Completer _completer = Completer();
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        BlocProvider.of<HomeBloc>(context, listen: false).add(
+          SetLocation(
+            await getLocation(override: false),
+          ),
+        );
+        BlocProvider.of<HomeBloc>(context, listen: false).add(
+          GetCategories(),
+        );
+        return _completer.future;
+      },
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            HomeHeader(
+              child: Column(
+                children: [
+                  OfferCarousal(),
+                  BlocConsumer<HomeBloc, HomeState>(
+                    listener: (context, state) async {
+                      if (state is HomeFail) {
+                        if (state.msg.startsWith('Unauthorised')) {
+                          Navigator.pushReplacementNamed(
+                              context, SignInScreen.id);
+                        }
+                      }
+                      if (state is HomeFail || state is CategorySuccess) {
+                        _completer.complete();
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is HomeLoading) {
+                        return Container(
+                          color: Colors.white,
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(state.msg ?? 'Loading..'),
+                              CircularProgressIndicator(),
+                            ],
+                          ),
+                        );
+                      } else if (state is PartCategoryReady) {
+                        List<CategorySubscriberList> categoryList =
+                            state.categoryList.toList();
+                        return Column(
+                          children: [
+                            ReadySubscribersCategoriesList(
+                              categoryList: categoryList,
+                            ),
+                            CircularProgressIndicator(),
+                          ],
+                        );
+                      } else if (state is CategorySuccess) {
+                        List<CategorySubscriberList> categoryList =
+                            state.categoryList.toList();
+                        return ReadySubscribersCategoriesList(
+                          categoryList: categoryList,
+                        );
+                      } else if (state is HomeInitial) {
+                        BlocProvider.of<HomeBloc>(context).add(GetCategories());
+                        return Text("Loading...");
+                      } else {
+                        return Text('Underminedstate');
+                      }
+                    },
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  NewsBanner(),
                 ],
-              );
-            }),
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -691,16 +706,60 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(
-          top: 65,
-          child: Hero(
-            tag: "search bar",
-            child: SearchBox(
-              locationChangeNotifier:
-                  BlocProvider.of<HomeBloc>(context).currentLocation,
-            ),
-          ),
-        ),
+        FutureBuilder<LocationData>(
+            future: getLocation(override: false),
+            builder: (context, future) {
+              if (future.hasData &&
+                  BlocProvider.of<HomeBloc>(context).currentLocation.value ==
+                      null) {
+                BlocProvider.of<HomeBloc>(context).add(
+                  SetLocation(
+                    future.data,
+                  ),
+                );
+              } else if (future.hasError) {
+                if (future.error is GetLocationException) {
+                  GetLocationException exception = future.error;
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) {
+                      Scaffold.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              exception.toString(),
+                            ),
+                          ),
+                        );
+                    },
+                  );
+                } else {
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) {
+                      Scaffold.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              future.error.toString(),
+                            ),
+                          ),
+                        );
+                    },
+                  );
+                }
+              }
+              return Positioned(
+                top: 65,
+                child: Hero(
+                  tag: "search bar",
+                  child: SearchBox(
+                    locationChangeNotifier:
+                        BlocProvider.of<HomeBloc>(context).currentLocation,
+                  ),
+                ),
+              );
+            }),
       ],
     );
   }

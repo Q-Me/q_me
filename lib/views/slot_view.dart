@@ -306,7 +306,7 @@ class ActionButton extends StatelessWidget {
                       // Box box = await hive.openbox("user");
 
                       // Go to appointment view
-                      if (context.read<UserData>().isGuest) {
+                      if (!context.read<UserData>().isGuest) {
                         Slot slot = state.slot;
                         Reception reception = state.reception;
                         Subscriber subscriber = state.subcriber;

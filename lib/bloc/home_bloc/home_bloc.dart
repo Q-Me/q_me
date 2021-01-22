@@ -11,6 +11,7 @@ import 'package:qme/repository/subscribers.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/utilities/location.dart';
+// import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
@@ -20,9 +21,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ValueNotifier<LocationData> location;
   SubscriberRepository repository;
   List<String> categories;
-  LinkedHashSet<CategorySubscriberList> categorizedSubscribers = LinkedHashSet();
+  LinkedHashSet<CategorySubscriberList> categorizedSubscribers =
+      LinkedHashSet();
 
   HomeBloc({this.accessToken}) : super(HomeInitial()) {
+    // hydrate();
     repository = SubscriberRepository(localAccessToken: accessToken);
     if (accessToken != null) {
       // logger.d('Access token:\n$accessToken');
@@ -96,7 +99,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Stream<HomeState> _mapSetLocationToState(SetLocation event) async* {
-    yield HomeLoading('setting location to ${event.location.getSimplifiedAddress}');
+    yield HomeLoading(
+        'setting location to ${event.location.getSimplifiedAddress}');
     updateStoredAddress(event.location);
     await UserRepository().updateUserLocation(event.location);
     location.value = event.location;
@@ -104,4 +108,33 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     logger.i('Location set to ${event.location.getAddressComplete}');
     this.add(GetSubscribersAllCategory());
   }
+
+  // @override
+  // HomeState fromJson(Map<String, dynamic> json) {
+  //   return json["state"];
+  // }
+
+  // @override
+  // Map<String, String> toJson(HomeState state) {
+  //   if (state is HomeInitial) {
+  //     return {
+  //       "state": "HomeInital",
+  //     };
+  //   } else if (state is LocationSet) {
+  //     return {
+  //       "state": "LocationSet",
+  //       "location": state.location,
+  //     };
+  //   } else if (state is HomeFail) {
+  //     return {
+  //       "state": "HomeFail",
+  //       "msg": state.msg,
+  //     };
+  //   } else if (state is HomeLoading) {
+  //     return {
+  //       "state": "HomeFail",
+  //       "msg": state.msg,
+  //     };
+  //   }
+  // }
 }

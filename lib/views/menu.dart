@@ -128,7 +128,7 @@ class MenuScreen extends StatelessWidget {
                         "survey",
                         controller,
                       ),
-                      MenuListItem(
+                      isGuest ? Container() : MenuListItem(
                         "Log Out",
                         FontAwesomeIcons.signOutAlt,
                         "logout",
