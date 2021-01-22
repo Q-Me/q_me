@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hive/hive.dart';
+import 'package:qme/model/user.dart';
 
 class ProfileView extends StatelessWidget {
-  final String userName = Hive.box("user").get("name");
-  final String userPhone = Hive.box("user").get("phone");
-  final String userEmail = Hive.box("user").get("email");
-
   @override
   Widget build(BuildContext context) {
+    UserData userData = getUserDataFromStorage();
+    final String userName = userData.name;
+    final String userPhone = userData.phone;
+    final String userEmail = userData.email;
     double w = MediaQuery.of(context).size.width;
     double h = MediaQuery.of(context).size.height;
     return Scaffold(
