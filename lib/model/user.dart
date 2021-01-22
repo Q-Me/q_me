@@ -95,6 +95,11 @@ String getAccessTokenFromStorage() {
 
 UserData getUserDataFromStorage() {
   UserData user = Hive.box("users").get("this");
+  if (user == null) {
+    user = UserData();
+    updateUserData(user);
+    return getUserDataFromStorage();
+  }
   return user;
 }
 
