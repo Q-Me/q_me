@@ -27,6 +27,7 @@ class MenuScreen extends StatelessWidget {
   final FirebaseAnalyticsObserver observer;
   @override
   Widget build(BuildContext context) {
+    final isGuest = getUserDataFromStorage().isGuest;
     return SafeArea(
         child: Scaffold(
       backgroundColor: Color.fromRGBO(9, 79, 239, 1),
@@ -68,7 +69,7 @@ class MenuScreen extends StatelessWidget {
                       ValueListenableBuilder(
                         valueListenable: Hive.box('users').listenable(),
                         builder: (context, box, widget) {
-                          final UserData userData = box.get("this");
+                          final UserData userData = getUserDataFromStorage();
                           String name = userData.name;
                           if (name != null && !name.startsWith('guest')) {
                             return Text(
@@ -78,15 +79,25 @@ class MenuScreen extends StatelessWidget {
                               style: TextStyle(fontSize: 30),
                             );
                           }
-                          return SizedBox(height: 30);
+                          return Text(
+                            "Guest User",
+                            style: TextStyle(fontSize: 30),
+                          );
                         },
                       ),
-                      MenuListItem(
-                        "My Profile",
-                        FontAwesomeIcons.addressCard,
-                        "profile",
-                        controller,
-                      ),
+                      !isGuest
+                          ? MenuListItem(
+                              "My Profile",
+                              FontAwesomeIcons.addressCard,
+                              "profile",
+                              controller,
+                            )
+                          : MenuListItem(
+                              "Login/SignUp",
+                              FontAwesomeIcons.personBooth,
+                              "profile",
+                              controller,
+                            ),
                       MenuListItem(
                         "My Bookings",
                         FontAwesomeIcons.userCheck,
@@ -98,26 +109,6 @@ class MenuScreen extends StatelessWidget {
                         FontAwesomeIcons.phoneAlt,
                         "support",
                         controller,
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: Hive.box('users').listenable(),
-                        builder: (context, box, widget) {
-                          final UserData userData = box.get("this");
-                          bool isGuest = userData.isGuest ?? false;
-                          if (!isGuest)
-                            return MenuListItem(
-                              "Log Out",
-                              FontAwesomeIcons.signOutAlt,
-                              "logout",
-                              controller,
-                            );
-                          return MenuListItem(
-                            "Sign Up",
-                            FontAwesomeIcons.signInAlt,
-                            "Sign Up",
-                            controller,
-                          );
-                        },
                       ),
                       MenuListItem(
                         "Buisness Enquiry",
@@ -135,6 +126,12 @@ class MenuScreen extends StatelessWidget {
                         "Recommend your saloon",
                         FontAwesomeIcons.pollH,
                         "survey",
+                        controller,
+                      ),
+                      MenuListItem(
+                        "Log Out",
+                        FontAwesomeIcons.signOutAlt,
+                        "logout",
                         controller,
                       ),
                     ],
