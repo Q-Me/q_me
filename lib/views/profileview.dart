@@ -49,10 +49,10 @@ class ProfileView extends StatelessWidget {
                     label: "Phone Number",
                     text: "$userPhone",
                   ),
-                  FieldValue(
+                  userEmail != null ? FieldValue(
                     label: "Email",
                     text: "$userEmail",
-                  ),
+                  ) : Container(),
                 ],
               ),
             )

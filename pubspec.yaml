@@ -22,7 +22,7 @@ dependencies:
   assorted_layout_widgets: ^3.0.0
   bloc: ^6.1.1
   cached_network_image: ^2.5.0
-  calendar_strip: ^1.0.7
+  calendar_strip: ^1.0.5
   carousel_pro: ^1.0.0
   checkbox_formfield: ^0.1.0+3
   cloud_firestore: ^0.14.4
