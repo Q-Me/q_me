@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +21,18 @@ class BookingSuccess extends StatefulWidget {
 }
 
 class _BookingSuccessState extends State<BookingSuccess> {
+  ConfettiController _controller;
   String get otp => widget.args.otp;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ConfettiController(duration: Duration(seconds: 1));
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _controller.play(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,6 +41,19 @@ class _BookingSuccessState extends State<BookingSuccess> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Expanded(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+      // displayTarget: true,
+      confettiController: _controller,
+      blastDirectionality: BlastDirectionality.directional,
+      blastDirection: pi/2,
+      numberOfParticles: 30,
+      shouldLoop: false, 
+              ),
+            ),
+          ),
           Container(
             width: 200,
             height: 200,
@@ -41,26 +68,26 @@ class _BookingSuccessState extends State<BookingSuccess> {
           SizedBox(
             height: 40,
           ),
-          Text(
-            "OTP",
-            style: TextStyle(fontSize: 25),
-          ),
-          Text(
-            "Here is your OTP",
-            style: TextStyle(color: Colors.grey),
-          ),
-          Text(
-            '$otp',
-            style: TextStyle(
-              fontSize: 42,
-              letterSpacing: 12,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+          // Text(
+          //   "OTP",
+          //   style: TextStyle(fontSize: 25),
+          // ),
+          // Text(
+          //   "Here is your OTP",
+          //   style: TextStyle(color: Colors.grey),
+          // ),
+          // Text(
+          //   '$otp',
+          //   style: TextStyle(
+          //     fontSize: 42,
+          //     letterSpacing: 12,
+          //     fontWeight: FontWeight.w800,
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Text(
-              "Please try to reach 5 minutes before the scheduled time and show this OTP at the store.",
+              "Please try to reach 5 minutes before the scheduled time",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey),
             ),
@@ -71,11 +98,12 @@ class _BookingSuccessState extends State<BookingSuccess> {
           RaisedButton(
             splashColor: Colors.white,
             color: Theme.of(context).primaryColor,
-            onPressed: () => Navigator.pop(context),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            onPressed: () => _controller.play(),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15)),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
               child: Text(
                 "Nice!",
                 style: TextStyle(
@@ -84,6 +112,9 @@ class _BookingSuccessState extends State<BookingSuccess> {
                 ),
               ),
             ),
+          ),
+          Expanded(
+            child: Container()
           )
         ],
       ),

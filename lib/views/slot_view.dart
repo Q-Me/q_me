@@ -1,4 +1,4 @@
-import 'package:calendar_strip/calendar_strip.dart';
+import 'package:qme/widgets/calendar_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
@@ -77,22 +77,22 @@ class _SlotViewState extends State<SlotView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 100,
+                // height: 100,
                 child: BlocBuilder<SlotViewBloc, SlotViewState>(
                   builder: (context, state) => CalendarStrip(
-                    startDate: DateTime.now(),
-                    endDate: DateTime.now().add(Duration(days: 7)),
-                    onDateSelected: (date) {
+                    // startDate: DateTime.now(),
+                    // endDate: DateTime.now().add(Duration(days: 7)),
+                    onSelectDate: (date) {
                       logger.d('Selected date ${date.toString()}');
                       BlocProvider.of<SlotViewBloc>(context)
                           .add(DatedReceptionsRequested(date: date));
                     },
-                    selectedDate:
-                        BlocProvider.of<SlotViewBloc>(context).selectedDate,
-                    dateTileBuilder: dateTileBuilder,
-                    iconColor: Colors.black87,
-                    monthNameWidget: monthNameWidget,
-                    markedDates: [],
+                    // selectedDate:
+                    //     BlocProvider.of<SlotViewBloc>(context).selectedDate,
+                    // dateTileBuilder: dateTileBuilder,
+                    // iconColor: Colors.black87,
+                    // monthNameWidget: monthNameWidget,
+                    // markedDates: [],
                   ),
                 ),
               ),

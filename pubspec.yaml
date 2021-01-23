@@ -22,7 +22,7 @@ dependencies:
   assorted_layout_widgets: ^3.0.0
   bloc: ^6.1.1
   cached_network_image: ^2.5.0
-  calendar_strip: ^1.0.5
+  # calendar_strip: ^1.0.4
   carousel_pro: ^1.0.0
   checkbox_formfield: ^0.1.0+3
   cloud_firestore: ^0.14.4
@@ -62,6 +62,7 @@ dependencies:
   webview_flutter: ^1.0.7
   flutter_map: ^0.10.1+1
   lottie: ^0.7.0+1
+  confetti: ^0.5.4+1
 
 dev_dependencies:
   flutter_test:

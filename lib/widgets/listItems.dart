@@ -104,28 +104,28 @@ class ListItemBooked extends StatelessWidget {
         SizedBox(
           height: 20,
         ),
-        Column(
-          children: [
-            Container(
-              width: double.infinity,
-              child: Center(
-                child: Text(
-                  "OTP",
-                  style: TextStyle(
-                      color: Theme.of(context).primaryColor, fontSize: 20),
-                ),
-              ),
-            ),
-            Text(
-              '$otp',
-              style: TextStyle(
-                fontSize: 42,
-                letterSpacing: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            )
-          ],
-        ),
+        // Column(
+        //   children: [
+        //     Container(
+        //       width: double.infinity,
+        //       child: Center(
+        //         child: Text(
+        //           "OTP",
+        //           style: TextStyle(
+        //               color: Theme.of(context).primaryColor, fontSize: 20),
+        //         ),
+        //       ),
+        //     ),
+        //     Text(
+        //       '$otp',
+        //       style: TextStyle(
+        //         fontSize: 42,
+        //         letterSpacing: 12,
+        //         fontWeight: FontWeight.w800,
+        //       ),
+        //     )
+        //   ],
+        // ),
         Center(
           child: Material(
             child: InkWell(
@@ -144,7 +144,7 @@ class ListItemBooked extends StatelessWidget {
                                   .add(
                                 CancelRequested(
                                   counterId,
-                                  await getAccessTokenFromStorage(),
+                                  getAccessTokenFromStorage(),
                                 ),
                               );
                               int previousVal =
