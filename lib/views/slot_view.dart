@@ -147,6 +147,7 @@ class _SlotViewState extends State<SlotView> {
                         now.minute,
                         now.millisecond,
                       );
+                      now = now.add(BlocProvider.of<SlotViewBloc>(context).delay);
                       for (Reception reception in receptions) {
                         boxesOfSlot.addAll(reception.slotList.map(
                           (e) {

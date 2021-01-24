@@ -8,6 +8,7 @@ import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/repository/appointment.dart';
+import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 
 part 'slotview_event.dart';
@@ -19,6 +20,7 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
   DateTime selectedDate;
   List<Reception> datedReceptions;
   final String accessToken;
+  Duration delay;
   Box box;
   SlotViewBloc({@required this.subscriber, this.accessToken, this.selectedDate})
       : super(SlotViewStateInitial(subscriber.id)) {
@@ -38,8 +40,8 @@ class SlotViewBloc extends Bloc<SlotViewEvent, SlotViewState> {
       datedReceptions = [];
       logger.d('Date requested ${event.date}');
       bool isGuest = getUserDataFromStorage().isGuest;
-
       try {
+    delay = await UserRepository().getDelayFromApi();
         datedReceptions = await _repository.getDatedReceptions(
           subscriberId: subscriber.id,
           status: ["UPCOMING", "ACTIVE"],

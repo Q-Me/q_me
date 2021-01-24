@@ -18,6 +18,7 @@ class _CalendarStripState extends State<CalendarStrip> {
   DateTime _selectedDate = DateTime.now();
   StreamController<DateTime> _controller = StreamController<DateTime>();
   DateTime startDate = DateTime.now();
+  int tracker = 0;
 
   Stream<DateTime> get selectedDateStream => _controller.stream;
 
@@ -28,12 +29,14 @@ class _CalendarStripState extends State<CalendarStrip> {
   }
 
   void goBack() {
+    tracker--;
     setState(() {
       startDate = startDate.add(Duration(days: -5));
     });
   }
 
   void goNext() {
+    tracker++;
     setState(() {
       startDate = startDate.add(Duration(days: 5));
     });
@@ -43,9 +46,9 @@ class _CalendarStripState extends State<CalendarStrip> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onHorizontalDragEnd: (details) {
-        if (details.primaryVelocity > 0) {
+        if (details.primaryVelocity > 100) {
           goBack();
-        } else {
+        } else if (details.primaryVelocity < -100) {
           goNext();
         }
       },
@@ -65,7 +68,9 @@ class _CalendarStripState extends State<CalendarStrip> {
               Row(
                 children: [
                   IconButton(
-                    onPressed: () => goBack(),
+                    onPressed: tracker == 0
+                        ? null
+                        : () => goBack(),
                     icon: Icon(Icons.chevron_left),
                     padding: EdgeInsets.zero,
                   ),
@@ -75,7 +80,7 @@ class _CalendarStripState extends State<CalendarStrip> {
                       padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
                       child: Text(
                         DateFormat("MMMM").format(
-                          _selectedDate,
+                          startDate,
                         ),
                         style: TextStyle(fontSize: 19),
                       ),
@@ -83,7 +88,7 @@ class _CalendarStripState extends State<CalendarStrip> {
                   ),
                   IconButton(
                     icon: Icon(Icons.chevron_right),
-                    onPressed: () => goNext(),
+                    onPressed: tracker == 1 ? null : () => goNext(),
                   )
                 ],
               ),
@@ -116,7 +121,9 @@ class DayTileList extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> widgets = [];
     for (int i = 0; i < this.number; i++) {
-      if (i == selected.day - startDate.day) {
+      if (startDate.add(Duration(days: i)).compareTo(selected) == 0 ||
+          (startDate.add(Duration(days: i)).month == selected.month &&
+              startDate.add(Duration(days: i)).day == selected.day)) {
         widgets.add(
           Expanded(
             child: SlideFadeTransition(

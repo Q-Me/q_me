@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
 import 'package:hive/hive.dart';
 import 'package:qme/api/app_exceptions.dart';
 import 'package:qme/model/api_params/login.dart';
@@ -220,6 +221,20 @@ class UserRepository {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  Future<Duration> getDelayFromApi() async {
+    try {
+      final String accessToken = getAccessTokenFromStorage();
+      Map<String, String> response = await _helper.post(
+        "/user/slot/cooldown",
+        authToken: accessToken,
+      );
+      return Duration(minutes: int.parse(response["time"]));
+    } catch (e) {
+      logger.e(e.toString());
+      return Duration(hours: 6);
     }
   }
 }
