@@ -98,7 +98,7 @@ class _BookingSuccessState extends State<BookingSuccess> {
           RaisedButton(
             splashColor: Colors.white,
             color: Theme.of(context).primaryColor,
-            onPressed: () => _controller.play(),
+            onPressed: () => Navigator.pop(context),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15)),
             child: Padding(
