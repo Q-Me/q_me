@@ -105,7 +105,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     await UserRepository().updateUserLocation(event.location);
     location.value = event.location;
     categorizedSubscribers = LinkedHashSet();
-    logger.i('Location set to ${event.location.getAddressComplete}');
+    logger.i('Location set to ${event.location.getAddressComplete} \n ${event.location.latitude}, ${event.location.longitude}');
     this.add(GetSubscribersAllCategory());
   }
 

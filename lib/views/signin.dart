@@ -380,14 +380,10 @@ class _SignInScreenState extends State<SignInScreen>
                                                                 dialogContext =
                                                                     context;
                                                                 return AlertDialog(
-                                                                  title: Text(
-                                                                      "Attempting automatic OTP resolution"),
-                                                                  content:
-                                                                      Center(
-                                                                    child:
-                                                                        CircularProgressIndicator(),
-                                                                  ),
-                                                                );
+                                                                    title: Text(
+                                                                        "Attempting automatic OTP resolution"),
+                                                                    content: Text(
+                                                                        "Please wait"));
                                                               },
                                                             );
                                                             FirebaseAuthService()

@@ -22,6 +22,7 @@ class SignUpParams {
       "name": name,
       "phone": phone,
       "password": password,
+      "token": idToken,
     };
     if (email != null) {
       response.addAll({

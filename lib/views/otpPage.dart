@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +12,7 @@ import 'package:qme/model/api_params/signup.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
+import 'package:qme/services/firebase_auth_service.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/widgets/button.dart';
 import '../api/app_exceptions.dart';
@@ -20,8 +22,9 @@ import 'signup.dart';
 class OtpPageArguments {
   String verificationId;
   bool isLogin;
+  FirebaseErrorNotifier errorNotif;
 
-  OtpPageArguments({this.isLogin, this.verificationId});
+  OtpPageArguments({this.isLogin, this.verificationId, this.errorNotif});
 }
 
 class OtpPage extends StatefulWidget {
@@ -376,9 +379,25 @@ class _OtpPageState extends State<OtpPage> {
                           ),
                         ),
                         SizedBox(height: 20.0),
-                        SizedBox(
-                          height: MediaQuery.of(context).viewInsets.bottom,
-                        )
+                        ValueListenableBuilder<FirebaseError>(
+                            valueListenable: widget.args.errorNotif,
+                            builder: (context, value, child) {
+                              if (value.error) {
+                                WidgetsBinding.instance.addPostFrameCallback(
+                                  (_) => Scaffold.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "An unexpected error ocurred. Please try again later\n${value.message}",
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              return SizedBox(
+                                height:
+                                    MediaQuery.of(context).viewInsets.bottom,
+                              );
+                            })
                       ],
                     ),
                   ),
@@ -397,7 +416,8 @@ class _OtpPageState extends State<OtpPage> {
         smsCode: _codeController.text.trim(),
         verificationId: widget.args.verificationId,
       );
-      UserCredential creds = await FirebaseAuth.instance.signInWithCredential(authCredential);
+      UserCredential creds =
+          await FirebaseAuth.instance.signInWithCredential(authCredential);
       String idToken = await creds.user.getIdToken();
       if (widget.args.isLogin) {
         await UserRepository().signInWithOtp(idToken);

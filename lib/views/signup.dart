@@ -571,7 +571,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                         "Attempting automatic OTP resolution"),
                                                     content: Center(
                                                       child:
-                                                          CircularProgressIndicator(),
+                                                          Text("Please wait"),
                                                     ),
                                                   );
                                                 },

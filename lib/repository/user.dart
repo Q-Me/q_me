@@ -65,7 +65,7 @@ class UserRepository {
   }
 
   Future<String> signUp(SignUpParams params) async {
-    final Map<String, String> response =
+    final Map<String, dynamic> response =
         await _helper.post(kSignUp, req: params.json);
     return response["msg"];
   }
