@@ -75,12 +75,12 @@ class ListItemBooked extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          AnalyticsService()
-                              .getAnalyticsObserver()
-                              .analytics
-                              .logEvent(
-                                name: "map_button_clicked",
-                              );
+                          // AnalyticsService()
+                          //     .getAnalyticsObserver()
+                          //     .analytics
+                          //     .logEvent(
+                          //       name: "map_button_clicked",
+                          //     );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -267,12 +267,12 @@ class ListItemFinished extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          AnalyticsService()
-                              .getAnalyticsObserver()
-                              .analytics
-                              .logEvent(
-                                name: "map_button_clicked",
-                              );
+                          // AnalyticsService()
+                              // .getAnalyticsObserver()
+                              // .analytics
+                              // .logEvent(
+                              //   name: "map_button_clicked",
+                              // );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -428,12 +428,12 @@ class ListItemCancelled extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          AnalyticsService()
-                              .getAnalyticsObserver()
-                              .analytics
-                              .logEvent(
-                                name: "map_button_clicked",
-                              );
+                          // AnalyticsService()
+                          //     .getAnalyticsObserver()
+                          //     .analytics
+                          //     .logEvent(
+                          //       name: "map_button_clicked",
+                          //     );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),

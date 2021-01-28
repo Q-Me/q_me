@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   PageController pageController;
   int _selectedIndex = 0;
   Box indexOfPage;
-  FirebaseAnalyticsObserver _observer;
+  // FirebaseAnalyticsObserver _observer;
   GlobalKey key = GlobalKey();
 
   @override
@@ -60,16 +59,16 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: Duration(milliseconds: 500), curve: Curves.ease);
     Provider.of<HomeViewPageIndex>(context, listen: false).changeIndex(index);
     indexOfPage.put("index", index);
-    if (index == 0) {
-      _observer.analytics.setCurrentScreen(screenName: "Home Screen");
-      logger.i("logging firebase with screen index $index");
-    } else if (index == 1) {
-      _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
-      logger.i("logging firebase with screen index $index");
-    } else {
-      _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
-      logger.i("logging firebase with screen index $index");
-    }
+    // if (index == 0) {
+    //   _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+    //   logger.i("logging firebase with screen index $index");
+    // } else if (index == 1) {
+    //   _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
+    //   logger.i("logging firebase with screen index $index");
+    // } else {
+    //   _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
+    //   logger.i("logging firebase with screen index $index");
+    // }
     // logger.d('Navigation bar index: $_selectedIndex');
   }
 
@@ -83,17 +82,17 @@ class _HomeScreenState extends State<HomeScreen> {
     pageController = PageController(
       initialPage: _selectedIndex ?? 0,
     );
-    _observer = AnalyticsService().getAnalyticsObserver();
-    if (_selectedIndex == 0) {
-      _observer.analytics.setCurrentScreen(screenName: "Home Screen");
-      logger.i("logging firebase with screen index $_selectedIndex");
-    } else if (_selectedIndex == 1) {
-      _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
-      logger.i("logging firebase with screen index $_selectedIndex");
-    } else {
-      _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
-      logger.i("logging firebase with screen index $_selectedIndex");
-    }
+    // _observer = AnalyticsService().getAnalyticsObserver();
+    // if (_selectedIndex == 0) {
+    //   _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+    //   logger.i("logging firebase with screen index $_selectedIndex");
+    // } else if (_selectedIndex == 1) {
+    //   _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
+    //   logger.i("logging firebase with screen index $_selectedIndex");
+    // } else {
+    //   _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
+    //   logger.i("logging firebase with screen index $_selectedIndex");
+    // }
     super.initState();
     firebaseCloudMessagingListeners();
     _messaging.getToken().then((token) {
@@ -158,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (_selectedIndex != 0) {
           pageController.animateToPage(0,
               duration: Duration(milliseconds: 500), curve: Curves.ease);
-          _observer.analytics.setCurrentScreen(screenName: "Home Screen");
+          // _observer.analytics.setCurrentScreen(screenName: "Home Screen");
           logger.i("logging firebase");
           return Future.value(false);
         } else {
@@ -184,26 +183,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               listen: false)
                           .changeIndex(index);
                       indexOfPage.put("index", index);
-                      if (index == 0) {
-                        _observer.analytics
-                            .setCurrentScreen(screenName: "Home Screen");
-                        logger.i("logging firebase with screen index $index");
-                      } else if (index == 1) {
-                        _observer.analytics
-                            .setCurrentScreen(screenName: "My Bookings Screen");
-                        logger.i("logging firebase with screen index $index");
-                      } else {
-                        _observer.analytics
-                            .setCurrentScreen(screenName: "Menu Screen");
-                        logger.i("logging firebase with screen index $index");
-                      }
+                      // if (index == 0) {
+                      //   _observer.analytics
+                      //       .setCurrentScreen(screenName: "Home Screen");
+                      //   logger.i("logging firebase with screen index $index");
+                      // } else if (index == 1) {
+                      //   _observer.analytics
+                      //       .setCurrentScreen(screenName: "My Bookings Screen");
+                      //   logger.i("logging firebase with screen index $index");
+                      // } else {
+                      //   _observer.analytics
+                      //       .setCurrentScreen(screenName: "Menu Screen");
+                      //   logger.i("logging firebase with screen index $index");
+                      // }
                     },
                     children: <Widget>[
                       HomeScreenPage(),
                       BookingsScreen(controller: pageController),
                       MenuScreen(
                         controller: pageController,
-                        observer: _observer,
+                        // observer: _observer,
                       ),
                     ],
                   ),

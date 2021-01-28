@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:qme/repository/subscribers.dart';
-import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
 
 part 'review_event.dart';
@@ -33,9 +32,6 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
         rating: event.rating,
       );
       logger.d(response.toString());
-      AnalyticsService().getAnalyticsObserver().analytics.logEvent(
-            name: "sdded_review",
-          );
       yield ReviewSuccessful();
     } catch (e) {
       logger.e(e.toString());
