@@ -233,9 +233,6 @@ class SubscriberHeaderInfo extends StatelessWidget {
           trailing: IconButton(
             padding: EdgeInsets.zero,
             onPressed: () {
-              AnalyticsService().getAnalyticsObserver().analytics.logEvent(
-                    name: "map_button_clicked",
-                  );
               MapsLauncher.launchCoordinates(
                 subscriber.latitude,
                 subscriber.longitude,

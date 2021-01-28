@@ -94,15 +94,6 @@ Future<LatLng> getCoordinatesFromAddress(String address) async {
 
 void updateStoredAddress(LocationData newLocationData) {
   Hive.box('location').put('location', newLocationData);
-  AnalyticsService().getAnalyticsObserver().analytics.logEvent(
-    name: "location_change",
-    parameters: {
-      "latitude": newLocationData.latitude,
-      "longitude": newLocationData.longitude,
-      "city": newLocationData.getApiAddress,
-      "address_complete": newLocationData.getAddressComplete,
-    },
-  );
 }
 
 void registerLocationAdapter() {

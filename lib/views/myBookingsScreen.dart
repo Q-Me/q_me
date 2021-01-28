@@ -32,10 +32,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       controller.animateToPage(0,
                           duration: Duration(milliseconds: 500),
                           curve: Curves.ease);
-                      AnalyticsService()
-                          .getAnalyticsObserver()
-                          .analytics
-                          .setCurrentScreen(screenName: "Home Screen");
+                      // AnalyticsService()
+                      //     .getAnalyticsObserver()
+                      //     .analytics
+                      //     .setCurrentScreen(screenName: "Home Screen");
                     },
                     child: FaIcon(
                       FontAwesomeIcons.arrowLeft,

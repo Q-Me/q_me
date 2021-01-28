@@ -1,5 +1,3 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intro_slider/dot_animation_enum.dart';
@@ -23,14 +21,14 @@ class IntroScreen extends StatefulWidget {
 
 class IntroScreenState extends State<IntroScreen> {
   List<Slide> slides = new List();
-  FirebaseAnalyticsObserver _observer;
+  // FirebaseAnalyticsObserver _observer;
   Function goToTab;
   GlobalKey<ScaffoldState> key = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _observer = AnalyticsService().getAnalyticsObserver();
+    // _observer = AnalyticsService().getAnalyticsObserver();
     slides.add(
       new Slide(
           title: "Convenience",
@@ -101,7 +99,6 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
-                      _observer.analytics.logEvent(name: "signUp_button_click");
                       Navigator.pushNamed(context, SignUpScreen.id);
                     },
                     child: Text("Sign Up",
@@ -130,7 +127,6 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
-                      _observer.analytics.logEvent(name: "login_button_click");
                       Navigator.pushNamedAndRemoveUntil(
                           context, SignInScreen.id, (route) => false);
                     },
@@ -163,7 +159,6 @@ class IntroScreenState extends State<IntroScreen> {
                       logger.i('Skip for now');
                       try {
                         await UserRepository().guestLogin();
-                        _observer.analytics.logEvent(name: "guest_login_click");
                         Navigator.pushNamedAndRemoveUntil(
                             context, HomeScreen.id, (route) => false);
                       } catch (e) {

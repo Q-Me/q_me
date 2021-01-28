@@ -48,14 +48,14 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       message = msg;
       detail = details;
       logger.i(msg, details);
-      AnalyticsService()
-          .getAnalyticsObserver()
-          .analytics
-          .logEvent(name: "booking_success", parameters: {
-        "Subscriber_name": details.subscriberName,
-        "Category": details.category,
-        "Is_verified": details.verified,
-      });
+      // AnalyticsService()
+      //     .getAnalyticsObserver()
+      //     .analytics
+      //     .logEvent(name: "booking_success", parameters: {
+      //   "Subscriber_name": details.subscriberName,
+      //   "Category": details.category,
+      //   "Is_verified": details.verified,
+      // });
       yield BookingLoadSuccess(msg, details);
     } catch (error) {
       logger.e(error.toString());

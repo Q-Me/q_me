@@ -1,4 +1,3 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +50,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  static FirebaseAnalytics analytics = FirebaseAnalytics();
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -73,7 +71,7 @@ class MyApp extends StatelessWidget {
           HomeScreen.id: (context) => HomeScreen(),
         },
         navigatorObservers: <NavigatorObserver>[
-          AnalyticsService().getAnalyticsObserver(),
+          // AnalyticsService().getAnalyticsObserver(),
         ],
       ),
     );
