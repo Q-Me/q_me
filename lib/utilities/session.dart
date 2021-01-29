@@ -1,22 +1,31 @@
-import 'dart:convert';
+import 'package:hive/hive.dart';
+import 'package:qme/model/user.dart';
+import 'package:qme/repository/user.dart';
+import 'package:qme/utilities/logger.dart';
 
-import '../model/user.dart';
+// Future<void> setSession() async {
+//   // final Map<String, dynamic> signInResponse = await UserRepository().signIn({
+//   //   "phone": "+919673582517",
+//   //   "password": "P1yush.123",
+//   // });
+//   updateUserData(UserData.fromJson(signInResponse));
+//   logger.i('SignIn session: ${signInResponse.toString()}');
+// }
 
-void setSession() async {
-  final Map<String, dynamic> signInResponse = jsonDecode('''
-  {
-    "id": "Epq4hLrOt",
-    "name": "Mr. B",
-    "phone": "+919673582517",
-    "isUser": true,
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkVwcTRoTHJPdCIsIm5hbWUiOiJNci4gQiIsInBob25lIjoiKzkxOTY3MzU4MjUxNyIsImlzVXNlciI6dHJ1ZSwiaWF0IjoxNTkzOTQ0MDY2LCJleHAiOjE1OTQwMzA0NjZ9.BTGO9RmJVL6Z6Hj6p3flS2YYDqU_gukJtWZm4n8CFWw",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkVwcTRoTHJPdCIsIm5hbWUiOiJNci4gQiIsInBob25lIjoiKzkxOTY3MzU4MjUxNyIsImlzVXNlciI6dHJ1ZSwiaWF0IjoxNTkzOTQ0MDY2fQ.HK8CNaSj2Ac6auPalP-R68_I2wrnKu2dUonJS9039gM"
-}''');
-  await storeUserData(UserData.fromJson(signInResponse));
+Future<void> clearSession() async {
+  getUserDataFromStorage().delete();
+
+  Box indexBox = await Hive.openBox("index");
+  await indexBox.clear();
 }
 
-void test() async {
-  setSession();
-  UserData userData = await getUserDataFromStorage();
-  print(userData.toJson());
+void setSessionFromRefreshToken() async {
+  final signInResponse = await UserRepository().accessTokenFromApi();
+  logger.i('SignIn session: ${signInResponse.toString()}');
 }
+
+// void test() async {
+//   setSession();
+//   UserData userData = getUserDataFromStorage();
+//   print(userData.toJson());
+// }

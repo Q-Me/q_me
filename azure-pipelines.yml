@@ -1,0 +1,37 @@
+trigger:
+- azure-pipelines
+jobs:
+  - job: Android
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            sudo snap install flutter --classic
+            flutter pub get
+            flutter build apk --debug
+            flutter build apk --profile 
+            flutter build apk --split-debug-info --obfuscate --target-platform=android-arm64
+            cp ./build/app/outputs/flutter-apk/app-release.apk ./
+          workingDirectory: '$(Build.SourcesDirectory)'
+      - task: AndroidSigning@3
+        inputs:
+          zipalign: false
+          apkFiles: '**/app-release.apk'
+          apksignerKeystoreFile: 'qmeuser.jks'
+          apksignerKeystorePassword: $(keypassword)
+          apksignerKeystoreAlias: $(keyalias)
+          apksignerKeyPassword: $(keypassword)
+        env:
+          KEY_PASSWORD: $(keypassword)
+      - task: CopyFiles@2
+        inputs:
+          Contents: '**/app-release.apk'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: 'apks'
+          publishLocation: 'Container'

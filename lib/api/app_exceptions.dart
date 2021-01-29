@@ -31,3 +31,12 @@ class UnauthorisedException extends AppException {
 class InvalidInputException extends AppException {
   InvalidInputException([String message]) : super(message, "Invalid Input: ");
 }
+
+class GetLocationException extends AppException {
+  GetLocationException(String message) : super(message, "Error getting location: ");
+
+  @override
+  String toString() {
+  return _message;
+   }
+}

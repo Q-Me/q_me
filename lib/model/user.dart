@@ -1,11 +1,36 @@
 import 'dart:convert';
-import 'dart:developer';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
-class UserData {
-  String id, name, email, phone, accessToken, refreshToken;
+part 'user.g.dart';
+
+@HiveType(typeId: 3)
+class UserData extends HiveObject {
+  @HiveField(0)
+  String id;
+  @HiveField(1)
+  String name;
+  @HiveField(2)
+  String email;
+  @HiveField(3)
+  String phone;
+  @HiveField(4)
+  String accessToken;
+  @HiveField(5)
+  String refreshToken;
+  @HiveField(6)
   bool isUser;
+  @HiveField(7)
+  String fcmToken;
+  @HiveField(8)
+  bool isGuest;
+  @HiveField(9)
+  DateTime expiry;
+  @HiveField(10)
+  String password;
+  @HiveField(11)
+  String idToken;
 
   UserData({
     this.id,
@@ -15,6 +40,11 @@ class UserData {
     this.refreshToken,
     this.email,
     this.phone,
+    this.expiry,
+    this.fcmToken,
+    this.isGuest,
+    this.password,
+    this.idToken,
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
@@ -26,7 +56,7 @@ class UserData {
         phone: json['phone'],
       );
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => <String, String>{
         "id": id,
         "name": name,
         "accessToken": accessToken,
@@ -36,51 +66,49 @@ class UserData {
       };
 }
 
-Future<void> storeUserData(UserData userData) async {
-  // Set the user id, and other details are stored in local storage of the app
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  if (userData.id != null) prefs.setString('id', userData.id);
-  if (userData.name != null) prefs.setString('name', userData.name);
-  if (userData.accessToken != null) {
-    prefs.setString('accessToken', userData.accessToken);
-    prefs.setString('expiry', DateTime.now().add(Duration(days: 1)).toString());
+void updateUserData(UserData updated) {
+  UserData old = Hive.box("users").get("this");
+  if (old != null) {
+    if (updated.id != null) old.id = updated.id;
+    if (updated.name != null) old.name = updated.name;
+    if (updated.isUser != null) old.isUser = updated.isUser;
+    if (updated.accessToken != null) old.accessToken = updated.accessToken;
+    if (updated.refreshToken != null) old.refreshToken = updated.refreshToken;
+    if (updated.email != null) old.email = updated.email;
+    if (updated.phone != null) old.phone = updated.phone;
+    if (updated.expiry != null) old.expiry = updated.expiry;
+    if (updated.fcmToken != null) old.fcmToken = updated.fcmToken;
+    if (updated.isGuest != null) old.isGuest = updated.isGuest;
+    if (updated.password != null) old.password = updated.password;
+    if (updated.idToken != null) old.idToken = updated.idToken;
+    old.save();
+  } else {
+    old = updated;
+    Hive.box("users").put("this", old);
   }
-  if (userData.refreshToken != null)
-    prefs.setString('refreshToken', userData.refreshToken);
-  if (userData.email != null) prefs.setString('isUser', userData.email);
-  if (userData.phone != null) prefs.setString('isUser', userData.phone);
-
-  log('Storing user data success');
-
-  return;
 }
 
-Future<String> getAccessTokenFromStorage() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String accessToken = prefs.getString('accessToken') ?? null;
-  return accessToken;
+String getAccessTokenFromStorage() {
+  UserData user = Hive.box("users").get("this");
+  return user.accessToken;
 }
 
-Future<UserData> getUserDataFromStorage() async {
-  // See if user id, and other details are stored in local storage of the app
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+UserData getUserDataFromStorage() {
+  UserData user = Hive.box("users").get("this");
+  if (user == null) {
+    user = UserData();
+    updateUserData(user);
+    return getUserDataFromStorage();
+  }
+  return user;
+}
 
-  String id = prefs.getString('id') ?? null;
-  String name = prefs.getString('name') ?? null;
-  String accessToken = prefs.getString('accessToken') ?? null;
-  String refreshToken = prefs.getString('refreshToken') ?? null;
-  String email = prefs.getString('email') ?? null;
-  String phone = prefs.getString('phone') ?? null;
-
-  return UserData(
-    id: id,
-    name: name,
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-    email: email,
-    phone: phone,
-  );
+Future<bool> isUserDataInStorage() async {
+  if (!(await Hive.boxExists("users"))) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 UserData userDataFromJson(String str) => UserData.fromJson(json.decode(str));

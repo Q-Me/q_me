@@ -1,51 +1,90 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
+import 'package:qme/model/review.dart';
+import 'package:qme/utilities/logger.dart';
+
 import '../api/base_helper.dart';
 import '../api/endpoints.dart';
 import '../model/subscriber.dart';
 import '../model/user.dart';
 import '../repository/user.dart';
 
-class SubscribersRepository {
+class SubscriberRepository {
   ApiBaseHelper _helper = ApiBaseHelper();
+  String localAccessToken;
+  String get accessToken => localAccessToken;
+
+  setAccessToken() async {
+    localAccessToken = localAccessToken == null
+        ? getAccessTokenFromStorage()
+        : localAccessToken;
+  }
+
+  SubscriberRepository({this.localAccessToken}) {
+    setAccessToken();
+    // logger.d('Repo accessToken:\n$accessToken');
+  }
 
   Future<List<Subscriber>> fetchSubscriberList({String accessToken}) async {
     /*Get all subscribers list*/
-    UserData userData = await getUserDataFromStorage();
+    UserData userData = getUserDataFromStorage();
     dynamic response = await _helper.post(kGetAllSubscribers,
         headers: {'Authorization': 'Bearer ${userData.accessToken}'});
     if (response['error'] == 'Invalid access token') {
       final userRepo = UserRepository();
       String accessToken = await userRepo.accessTokenFromApi();
-      userData = await getUserDataFromStorage();
+      userData = getUserDataFromStorage();
       response = await _helper.post(kGetAllSubscribers,
           headers: {'Authorization': 'Bearer $accessToken'});
     }
-//    log('fetchSubscriberList repository: ${response.toString()}');
+    logger.d('fetchSubscriberList repository: ${response.toString()}');
 //    log("${Subscribers.fromJson(response).list[0].toJson()}");
-    return Subscribers.fromJson(response).list;
+
+    return List<Subscriber>.from(
+      List.from(response["subscriber"])
+          .map((e) => Subscriber.fromJson(e))
+          .toList(),
+    );
   }
 
-  Future<List<Subscriber>> subscriberListByLocation({
-    String location,
-    String category,
-    String accessToken,
-  }) async {
+  Future<Subscriber> fetchSubscriberDetails(
+      {@required String subscriberId}) async {
+    final String accessToken = getAccessTokenFromStorage();
     final response = await _helper.post(
-      kSubscriberByLocation,
-      req: {
-        'location': location,
-        'category': category,
-      },
+      '/user/getsubscriber',
+      req: {"subscriber_id": subscriberId},
+      authToken: accessToken,
+    );
+
+    return Subscriber.fromJson(response);
+  }
+
+  Future<List<Review>> fetchSubscriberReviews(
+      {@required String subscriberId}) async {
+    final String accessToken = getAccessTokenFromStorage();
+    final response = await _helper.post(
+      '/user/rating/subscriberrating',
+      req: {"subscriber_id": subscriberId},
+      authToken: accessToken,
+    );
+    List<Review> reviews =
+        List.from(response["rating"]).map((e) => Review.fromJson(e)).toList();
+    return reviews;
+  }
+
+  Future<List<String>> subscriberCategories() async {
+    final response = await _helper.post(
+      '/user/categories',
+      // authToken: accessToken,
       headers: {'Authorization': 'Bearer $accessToken'},
     );
-    return Subscribers.fromJson(response).list;
+    return List<String>.from(response["categories"]);
   }
 
   Future<List<Subscriber>> subscriberByCategory({
     String location,
-    String category,
-    String accessToken,
+    @required String category,
   }) async {
     final response = await _helper.post(
       kSubscriberByCategory,
@@ -53,20 +92,47 @@ class SubscribersRepository {
         'location': location,
         'category': category,
       },
+      authToken: accessToken,
+    );
+    return List.from(response["subscriber"])
+        .map((e) => Subscriber.fromJson(e))
+        .toList();
+  }
+
+  Future<List<Subscriber>> subscriberByLocation({
+    String location,
+    @required String category,
+  }) async {
+    final response = await _helper.post(
+      kSubscriberByLocation,
+      req: {
+        'location': location,
+        'category': category,
+      },
+      authToken: accessToken,
+    );
+    return List.from(response["subscriber"])
+        .map((e) => Subscriber.fromJson(e))
+        .toList();
+  }
+
+  Future rateSubscriber({
+    String counterId,
+    String subscriberId,
+    String review,
+    String rating,
+  }) async {
+    final String accessToken = getAccessTokenFromStorage();
+    final response = await _helper.post(
+      reviewUrl,
+      req: {
+        "counter_id": counterId,
+        "subscriber_id": subscriberId,
+        "review": review, //OPTIONAL
+        "rating": rating,
+      },
       headers: {'Authorization': 'Bearer $accessToken'},
     );
-    return Subscribers.fromJson(response).list;
-  }
-}
-
-class SingleSubscriberRepository {
-  ApiBaseHelper _helper = ApiBaseHelper();
-
-  Future<Subscriber> fetchSubscriber(String subscriberId) async {
-    final UserData userData = await getUserDataFromStorage();
-    final response = await _helper.post(kGetSubscriberFromId,
-        headers: {'Authorization': 'Bearer ${userData.accessToken}'},
-        req: {'subscriber_id': subscriberId});
-    return Subscriber.fromJson(response);
+    return response;
   }
 }

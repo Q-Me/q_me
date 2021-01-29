@@ -1,68 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
-
-import '../api/base_helper.dart';
-import '../model/queue.dart';
-import '../repository/queue.dart';
-import '../repository/token.dart';
-
-class QueuesBloc {
-  String subscriberId, queueStatus;
-  List<Queue> queuesList;
-  QueuesListRepository _queuesRepository;
-
-  StreamController _queuesListController;
-
-  StreamSink<ApiResponse<List<Queue>>> get queuesListSink =>
-      _queuesListController.sink;
-
-  Stream<ApiResponse<List<Queue>>> get queuesListStream =>
-      _queuesListController.stream;
-  QueuesBloc(this.subscriberId) {
-    _queuesListController = StreamController<ApiResponse<List<Queue>>>();
-    _queuesRepository = QueuesListRepository();
-
-    fetchQueuesList();
-  }
-
-  fetchQueuesList() async {
-    queuesListSink.add(ApiResponse.loading('Fetching Queues'));
-    try {
-      queuesList = filterEndedQueues(
-          await _queuesRepository.fetchQueueList(subscriberId, "ACTIVE"));
-      final List<Queue> upcomingQueues = filterEndedQueues(
-          await _queuesRepository.fetchQueueList(subscriberId, "UPCOMING"));
-      queuesListSink.add(
-          ApiResponse.completed(List.from(queuesList)..addAll(upcomingQueues)));
-    } catch (e) {
-      queuesListSink.add(ApiResponse.error(e.toString()));
-      print(e);
-    }
-  }
-
-  dispose() {
-    _queuesListController?.close();
-  }
-}
-
-List<Queue> filterEndedQueues(List<Queue> queues) {
-  if (queues.length == 0) {
-    return queues;
-  }
-  Queue queue;
-  DateTime now = DateTime.now();
-  List<Queue> finalQueueList = [];
-  for (int i = 0; i < queues.length; i++) {
-    queue = queues[i];
-
-    if (!now.isAfter(queue.endDateTime)) {
-      finalQueueList.add(queue);
-    }
-  }
-  return finalQueueList;
-}
+import 'package:flutter/foundation.dart';
+import 'package:qme/api/base_helper.dart';
+import 'package:qme/model/queue.dart';
+import 'package:qme/repository/queue.dart';
+import 'package:qme/repository/token.dart';
 
 class QueueBloc with ChangeNotifier {
   String queueId;
@@ -138,9 +81,11 @@ class QueueBloc with ChangeNotifier {
     }
   }
 
+  @override
   dispose() {
     _queueController?.close();
     _tokenController?.close();
     _msgController?.close();
+    super.dispose();
   }
 }
