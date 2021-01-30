@@ -611,6 +611,9 @@ class _SignInScreenState extends State<SignInScreen>
                                                     "route": "password",
                                                   },
                                                 );
+                                                context
+                                                    .read<AnalyticsService>()
+                                                    .updateUserProp();
                                                 Navigator
                                                     .pushNamedAndRemoveUntil(
                                                         context,

@@ -245,6 +245,7 @@ class _OtpPageState extends State<OtpPage> {
           },
         );
       }
+      context.read<AnalyticsService>().updateUserProp();
       Navigator.of(context).pushNamedAndRemoveUntil(
         HomeScreen.id,
         (Route<dynamic> route) => false,

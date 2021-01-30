@@ -206,7 +206,7 @@ class MenuListItem extends StatelessWidget {
                     // .setCurrentScreen(screenName: "My Bookings Screen");
                     break;
                   case "support":
-                      context.read<AnalyticsService>().setScreen("/contact_us");
+                    context.read<AnalyticsService>().setScreen("/contact_us");
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return ContactUsView();
@@ -220,14 +220,16 @@ class MenuListItem extends StatelessWidget {
                         ));
                     break;
                   case "buisness":
-                      context.read<AnalyticsService>().setScreen("/business_enquiry");
+                    context
+                        .read<AnalyticsService>()
+                        .setScreen("/business_enquiry");
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return BusinessEnquiryView();
                     }));
                     break;
                   case "about":
-                      context.read<AnalyticsService>().setScreen("/about_us");
+                    context.read<AnalyticsService>().setScreen("/about_us");
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return AboutUsView();
@@ -237,7 +239,7 @@ class MenuListItem extends StatelessWidget {
                     Navigator.pushNamed(context, SignUpScreen.id);
                     break;
                   case "survey":
-                      context.read<AnalyticsService>().setScreen("/survey");
+                    context.read<AnalyticsService>().setScreen("/survey");
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -350,6 +352,7 @@ class AlertDialogRefactor extends StatelessWidget {
                     "phone": getUserDataFromStorage().phone,
                   },
                 );
+                context.read<AnalyticsService>().updateUserProp();
               } catch (e) {
                 logger.e(e.toString());
                 Navigator.pop(context);
