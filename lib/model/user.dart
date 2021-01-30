@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'user.g.dart';
@@ -63,6 +62,18 @@ class UserData extends HiveObject {
         "refreshToken": refreshToken,
         "email": email,
         "phone": phone,
+      };
+
+  Map<String, dynamic> toCompleteJson() => {
+        "id": id != null ? id : "null",
+        "name": name != null ? name : "null",
+        "isUser": isUser != null ? isUser : "null",
+        "email": email != null ? email : "null",
+        "phone": phone != null ? phone : "null",
+        "expiry": expiry != null ? expiry : "null",
+        "fcmToken": fcmToken != null ? fcmToken : "null",
+        "isGuest": isGuest != null ? isGuest : "null",
+        "idToken": idToken != null ? idToken : "null",
       };
 }
 

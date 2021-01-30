@@ -30,6 +30,8 @@ void main() async {
   // Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp();
+  AnalyticsService analytics;
+  await analytics.initAnalytics();
   await initHive();
   if (firstLogin == false) initialHome = SignInScreen.id;
 
@@ -46,35 +48,45 @@ void main() async {
     initialHome = NoInternetView.id;
   }
 
-  runApp(MyApp());
+  runApp(MyApp(analytics));
 }
 
 class MyApp extends StatelessWidget {
+  MyApp(this.analyticsService);
+
+  final AnalyticsService analyticsService;
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return Provider<UserData>(
-      create: (context) {
-        if (Hive.box("users").containsKey("this")) {
-          return Hive.box("users").get("this");
-        }
-        UserData user = UserData();
-        Hive.box("users").put("this", user);
-        return user;
-      },
-      child: MaterialApp(
-        theme: myTheme,
-        debugShowCheckedModeBanner: false,
-        onGenerateRoute: router.generateRoute,
-        initialRoute: initialHome,
-        routes: {
-          HomeScreen.id: (context) => HomeScreen(),
-        },
-        navigatorObservers: <NavigatorObserver>[
-          // AnalyticsService().getAnalyticsObserver(),
+    return MultiProvider(
+        providers: [
+          Provider<UserData>(
+            create: (context) {
+              if (Hive.box("users").containsKey("this")) {
+                return Hive.box("users").get("this");
+              }
+              UserData user = UserData();
+              Hive.box("users").put("this", user);
+              return user;
+            },
+          ),
+          Provider<AnalyticsService>.value(
+            value: analyticsService,
+          )
         ],
-      ),
-    );
+        builder:(context, child) => MaterialApp(
+          theme: myTheme,
+          debugShowCheckedModeBanner: false,
+          onGenerateRoute: (RouteSettings settings) => router.generateRoute(settings, context),
+          initialRoute: initialHome,
+          routes: {
+            HomeScreen.id: (context) => HomeScreen(),
+          },
+          navigatorObservers: <NavigatorObserver>[
+            // AnalyticsService().getAnalyticsObserver(),
+          ],
+        ));
   }
 }
 
@@ -88,13 +100,13 @@ Future<RemoteConfig> setupRemoteConfig() async {
   return remoteConfig;
 }
 
-Widget settingValue(RemoteConfig remoteConfig) {
-  logger.d("value of firebase config: ${remoteConfig.getString('apiBaseUrl')}");
-  logger.i("before: $baseURL");
-  baseURL = remoteConfig.getString('apiBaseUrl');
-  logger.e("after: $baseURL");
-  return MyApp();
-}
+// Widget settingValue(RemoteConfig remoteConfig) {
+//   logger.d("value of firebase config: ${remoteConfig.getString('apiBaseUrl')}");
+//   logger.i("before: $baseURL");
+//   baseURL = remoteConfig.getString('apiBaseUrl');
+//   logger.e("after: $baseURL");
+//   return MyApp();
+// }
 
 Future initHive() async {
   registerLocationAdapter();

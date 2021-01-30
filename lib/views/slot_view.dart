@@ -1,3 +1,4 @@
+import 'package:qme/services/analytics.dart';
 import 'package:qme/widgets/calendar_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,6 +124,17 @@ class _SlotViewState extends State<SlotView> {
                       return CircularProgressIndicator();
                     } else if (state is SlotViewStateInitial) {
                       logger.d(state);
+                      context.read<AnalyticsService>().logEvent(
+                        "check_available_slots",
+                        {
+                          "partner_id": subscriber.id,
+                          "partner_name": subscriber.name,
+                          "partner_address": subscriber.address,
+                          "route": context.read<UserData>().isGuest
+                              ? "guest"
+                              : "user",
+                        },
+                      );
                       BlocProvider.of<SlotViewBloc>(context)
                           .add(DatedReceptionsRequested(date: DateTime.now()));
                       return Center(
@@ -147,7 +159,8 @@ class _SlotViewState extends State<SlotView> {
                         now.minute,
                         now.millisecond,
                       );
-                      now = now.add(BlocProvider.of<SlotViewBloc>(context).delay);
+                      now =
+                          now.add(BlocProvider.of<SlotViewBloc>(context).delay);
                       for (Reception reception in receptions) {
                         boxesOfSlot.addAll(reception.slotList.map(
                           (e) {
@@ -175,6 +188,16 @@ class _SlotViewState extends State<SlotView> {
                                         e.startTime.isBefore(now)) {
                                       return;
                                     }
+                                    context.read<AnalyticsService>().logEvent(
+                                      "select_slot",
+                                      {
+                                        "id": context.read<UserData>().id,
+                                        "start_time":
+                                            slot.startTime.toIso8601String(),
+                                        "end_time":
+                                            slot.endTime.toIso8601String(),
+                                      },
+                                    );
                                     BlocProvider.of<SlotViewBloc>(context).add(
                                       SelectSlot(
                                         slot: e,

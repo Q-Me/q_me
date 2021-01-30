@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
+import 'package:qme/model/slot.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/services/analytics.dart';
 import 'package:qme/views/review.dart';
@@ -19,18 +20,20 @@ class ListItemBooked extends StatelessWidget {
     @required this.otp,
     @required this.counterId,
     @required this.primaryContext,
+    @required this.subscriberId,
     @required this.latitude,
     @required this.longitude,
   }) : super(key: key);
 
   final String name;
   final String location;
-  final DateTime slot;
+  final Slot slot;
   final String otp;
   final String counterId;
   final BuildContext primaryContext;
   final double latitude;
   final double longitude;
+  final String subscriberId;
 
   @override
   Widget build(BuildContext context) {
@@ -97,10 +100,10 @@ class ListItemBooked extends StatelessWidget {
         ),
         TimeAndDateItem(
             icon: FontAwesomeIcons.calendarAlt,
-            description: "${DateFormat.yMMMMEEEEd().format(slot)}"),
+            description: "${DateFormat.yMMMMEEEEd().format(slot.startTime)}"),
         TimeAndDateItem(
             icon: FontAwesomeIcons.clock,
-            description: "${DateFormat.jm().format(slot)}"),
+            description: "${DateFormat.jm().format(slot.startTime)}"),
         SizedBox(
           height: 20,
         ),
@@ -140,6 +143,16 @@ class ListItemBooked extends StatelessWidget {
                         actions: <Widget>[
                           new FlatButton(
                             onPressed: () async {
+                              context.read<AnalyticsService>().logEvent(
+                                "appointment_cancelled",
+                                {
+                                  "partner_name": name,
+                                  "partner_id": this.subscriberId,
+                                  "user_id": context.read<UserData>().id,
+                                  "start_time": this.slot.startTime.toIso8601String(),
+                                  "end_time": this.slot.endTime.toIso8601String(),
+                                },
+                              );
                               BlocProvider.of<BookingslistBloc>(primaryContext)
                                   .add(
                                 CancelRequested(
@@ -214,7 +227,7 @@ class ListItemFinished extends StatelessWidget {
 
   final String name;
   final String location;
-  final DateTime slot;
+  final Slot slot;
   final double rating;
   final String review;
   final String subscriberId;
@@ -268,11 +281,11 @@ class ListItemFinished extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         onPressed: () {
                           // AnalyticsService()
-                              // .getAnalyticsObserver()
-                              // .analytics
-                              // .logEvent(
-                              //   name: "map_button_clicked",
-                              // );
+                          // .getAnalyticsObserver()
+                          // .analytics
+                          // .logEvent(
+                          //   name: "map_button_clicked",
+                          // );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -289,10 +302,10 @@ class ListItemFinished extends StatelessWidget {
         ),
         TimeAndDateItem(
             icon: FontAwesomeIcons.calendarAlt,
-            description: "${DateFormat.yMMMMEEEEd().format(slot)}"),
+            description: "${DateFormat.yMMMMEEEEd().format(slot.startTime)}"),
         TimeAndDateItem(
             icon: FontAwesomeIcons.clock,
-            description: "${DateFormat.jm().format(slot)}"),
+            description: "${DateFormat.jm().format(slot.startTime)}"),
         SizedBox(
           height: 20,
         ),

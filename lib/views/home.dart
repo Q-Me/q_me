@@ -773,6 +773,7 @@ class NewsBanner extends StatelessWidget {
         child: Ink(
           child: InkWell(
             onTap: () {
+              context.read<AnalyticsService>().setScreen("/survey");
               Navigator.push(
                 context,
                 MaterialPageRoute(

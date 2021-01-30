@@ -127,12 +127,14 @@ class MenuScreen extends StatelessWidget {
                         "survey",
                         controller,
                       ),
-                      isGuest ? Container() : MenuListItem(
-                        "Log Out",
-                        FontAwesomeIcons.signOutAlt,
-                        "logout",
-                        controller,
-                      ),
+                      isGuest
+                          ? Container()
+                          : MenuListItem(
+                              "Log Out",
+                              FontAwesomeIcons.signOutAlt,
+                              "logout",
+                              controller,
+                            ),
                     ],
                   ),
                 ),
@@ -187,6 +189,7 @@ class MenuListItem extends StatelessWidget {
                     if (context.read<UserData>().isGuest) {
                       showDialog(context: context, child: LoginSignUpAlert());
                     } else {
+                      context.read<AnalyticsService>().setScreen("/profile");
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                         return ProfileView();
@@ -198,11 +201,12 @@ class MenuListItem extends StatelessWidget {
                         duration: Duration(milliseconds: 500),
                         curve: Curves.ease);
                     // AnalyticsService()
-                        // .getAnalyticsObserver()
-                        // .analytics
-                        // .setCurrentScreen(screenName: "My Bookings Screen");
+                    // .getAnalyticsObserver()
+                    // .analytics
+                    // .setCurrentScreen(screenName: "My Bookings Screen");
                     break;
                   case "support":
+                      context.read<AnalyticsService>().setScreen("/contact_us");
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return ContactUsView();
@@ -216,12 +220,14 @@ class MenuListItem extends StatelessWidget {
                         ));
                     break;
                   case "buisness":
+                      context.read<AnalyticsService>().setScreen("/business_enquiry");
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return BusinessEnquiryView();
                     }));
                     break;
                   case "about":
+                      context.read<AnalyticsService>().setScreen("/about_us");
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return AboutUsView();
@@ -231,6 +237,7 @@ class MenuListItem extends StatelessWidget {
                     Navigator.pushNamed(context, SignUpScreen.id);
                     break;
                   case "survey":
+                      context.read<AnalyticsService>().setScreen("/survey");
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -337,6 +344,12 @@ class AlertDialogRefactor extends StatelessWidget {
               try {
                 await UserRepository().signOut();
                 Navigator.pushReplacementNamed(context, SignInScreen.id);
+                context.read<AnalyticsService>().logEvent(
+                  "logout_successful",
+                  {
+                    "phone": getUserDataFromStorage().phone,
+                  },
+                );
               } catch (e) {
                 logger.e(e.toString());
                 Navigator.pop(context);

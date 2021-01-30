@@ -293,17 +293,18 @@ class _BookingsScreenState extends State<BookingsScreen> {
                             primaryContext: context,
                             name: list[index].subscriberName,
                             location: list[index].address,
-                            slot: list[index].slot.startTime,
+                            slot: list[index].slot,
                             otp: list[index].otp.toString(),
                             counterId: list[index].counterId,
                             latitude: list[index].latitude,
                             longitude: list[index].longitude,
+                            subscriberId: list[index].subscriberId,
                           );
                         } else if (list[index].slotStatus == "DONE") {
                           return ListItemFinished(
                             name: list[index].subscriberName,
                             location: list[index].address,
-                            slot: list[index].slot.startTime,
+                            slot: list[index].slot,
                             rating: list[index].reviewedByUser == 1
                                 ? list[index].userRating * 1.0
                                 : 0.0,
