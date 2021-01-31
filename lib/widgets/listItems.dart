@@ -144,7 +144,7 @@ class ListItemBooked extends StatelessWidget {
                           new FlatButton(
                             onPressed: () async {
                               context.read<AnalyticsService>().logEvent(
-                                "appointment_cancelled",
+                                "Cancel Appointment",
                                 {
                                   "partner_name": name,
                                   "partner_id": this.subscriberId,

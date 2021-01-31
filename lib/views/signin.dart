@@ -606,7 +606,7 @@ class _SignInScreenState extends State<SignInScreen>
                                                 context
                                                     .read<AnalyticsService>()
                                                     .logEvent(
-                                                  "login_successful",
+                                                  "Login Success",
                                                   {
                                                     "route": "password",
                                                   },

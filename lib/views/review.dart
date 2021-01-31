@@ -202,7 +202,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       builder: (context, state) {
                         return RaisedButton(
                           onPressed: () {
-                            context.read<AnalyticsService>().logEvent("partner_rated", {
+                            context.read<AnalyticsService>().logEvent("Partner Rated", {
                               "stars": stars.toString(),
                               "partner_name": subscriberName,
                               "partner_id": subscriberId,

@@ -220,7 +220,7 @@ class _OtpPageState extends State<OtpPage> {
       if (widget.args.isLogin) {
         await UserRepository().signInWithOtp(idToken);
         context.read<AnalyticsService>().logEvent(
-          "login_successful",
+          "Login Success",
           {
             "route": "OTP",
             "phone": creds.user.phoneNumber,
@@ -239,7 +239,7 @@ class _OtpPageState extends State<OtpPage> {
         );
         await UserRepository().signInWithOtp(idToken);
         context.read<AnalyticsService>().logEvent(
-          "signup_successful",
+          "Signup Success",
           {
             "phone": user.phone,
           },

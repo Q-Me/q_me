@@ -55,7 +55,7 @@ class AnalyticsService {
     } else if (user.isUser == true || user.isGuest == false) {
        route = "user";
     }
-    analytics.logEvent("set_current_screen",eventProperties: {
+    analytics.logEvent("View Screen",eventProperties: {
       "screen_id": screenId,
       "source": "in_app",
       "route": route,

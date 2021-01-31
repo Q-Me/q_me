@@ -102,7 +102,7 @@ class IntroScreenState extends State<IntroScreen> {
                   RaisedButton(
                     onPressed: () {
                       context.read<AnalyticsService>().logEvent(
-                        "signup_clicked",
+                        "Signup Clicked",
                         {},
                       );
                       Navigator.pushNamed(context, SignUpScreen.id);
@@ -134,7 +134,7 @@ class IntroScreenState extends State<IntroScreen> {
                   RaisedButton(
                     onPressed: () {
                       context.read<AnalyticsService>().logEvent(
-                        "login_clicked",
+                        "Login Clicked",
                         {},
                       );
                       Navigator.pushNamedAndRemoveUntil(
@@ -171,7 +171,7 @@ class IntroScreenState extends State<IntroScreen> {
                         await UserRepository().guestLogin();
                         context.read<AnalyticsService>().updateUserProp();
                         context.read<AnalyticsService>().logEvent(
-                          "login_successful",
+                          "Login Success",
                           {
                             "route": "guest",
                           },

@@ -125,7 +125,7 @@ class _SlotViewState extends State<SlotView> {
                     } else if (state is SlotViewStateInitial) {
                       logger.d(state);
                       context.read<AnalyticsService>().logEvent(
-                        "check_available_slots",
+                        "Check Available Slots",
                         {
                           "partner_id": subscriber.id,
                           "partner_name": subscriber.name,
@@ -189,7 +189,7 @@ class _SlotViewState extends State<SlotView> {
                                       return;
                                     }
                                     context.read<AnalyticsService>().logEvent(
-                                      "select_slot",
+                                      "Slot Selected",
                                       {
                                         "id": context.read<UserData>().id,
                                         "start_time":
