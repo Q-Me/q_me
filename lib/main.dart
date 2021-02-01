@@ -30,8 +30,7 @@ void main() async {
   // Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp();
-  AnalyticsService analytics;
-  await analytics.initAnalytics();
+  AnalyticsService analytics = AnalyticsService();
   await initHive();
   if (firstLogin == false) initialHome = SignInScreen.id;
 
@@ -47,7 +46,7 @@ void main() async {
     logger.e(e.toString());
     initialHome = NoInternetView.id;
   }
-
+  await analytics.initAnalytics();
   runApp(MyApp(analytics));
 }
 

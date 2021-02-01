@@ -15,12 +15,12 @@ class AnalyticsService {
     await remoteConfig.fetch();
     await remoteConfig.activateFetched();
     analytics.init(remoteConfig.getString("amplitudeApiKey"));
-    final UserData userId = await UserRepository().fetchProfile();
-    if (userId.id == "IZ4lfmK5z") {
-      analytics.setUserId("test_user");
-    } else {
-      analytics.setUserId(userId.id);
-    }
+    // final UserData userId = await UserRepository().fetchProfile();
+    // if (userId.id == "IZ4lfmK5z") {
+    //   analytics.setUserId("test_user");
+    // } else {
+    //   analytics.setUserId(userId.id);
+    // }
 
     analytics.trackingSessionEvents(true);
     analytics.identify(identity);
