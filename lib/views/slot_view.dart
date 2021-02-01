@@ -127,12 +127,10 @@ class _SlotViewState extends State<SlotView> {
                       context.read<AnalyticsService>().logEvent(
                         "Check Available Slots",
                         {
-                          "partner_id": subscriber.id,
-                          "partner_name": subscriber.name,
-                          "partner_address": subscriber.address,
-                          "route": context.read<UserData>().isGuest
-                              ? "guest"
-                              : "user",
+                          "Source": subscriber.id,
+                          "Route": context.read<UserData>().isGuest
+                              ? "Guest"
+                              : "User",
                         },
                       );
                       BlocProvider.of<SlotViewBloc>(context)
@@ -191,10 +189,10 @@ class _SlotViewState extends State<SlotView> {
                                     context.read<AnalyticsService>().logEvent(
                                       "Slot Selected",
                                       {
-                                        "id": context.read<UserData>().id,
-                                        "start_time":
+                                        "User id": context.read<UserData>().id,
+                                        "Start Time":
                                             slot.startTime.toIso8601String(),
-                                        "end_time":
+                                        "End Time":
                                             slot.endTime.toIso8601String(),
                                       },
                                     );

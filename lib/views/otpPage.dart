@@ -222,8 +222,8 @@ class _OtpPageState extends State<OtpPage> {
         context.read<AnalyticsService>().logEvent(
           "Login Success",
           {
-            "route": "OTP",
-            "phone": creds.user.phoneNumber,
+            "Route": "OTP",
+            "Phone": creds.user.phoneNumber,
           },
         );
       } else {
@@ -241,7 +241,7 @@ class _OtpPageState extends State<OtpPage> {
         context.read<AnalyticsService>().logEvent(
           "Signup Success",
           {
-            "phone": user.phone,
+            "Phone": user.phone,
           },
         );
       }

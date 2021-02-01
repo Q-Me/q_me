@@ -78,12 +78,6 @@ class ListItemBooked extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          // AnalyticsService()
-                          //     .getAnalyticsObserver()
-                          //     .analytics
-                          //     .logEvent(
-                          //       name: "map_button_clicked",
-                          //     );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -144,13 +138,13 @@ class ListItemBooked extends StatelessWidget {
                           new FlatButton(
                             onPressed: () async {
                               context.read<AnalyticsService>().logEvent(
-                                "Cancel Appointment",
+                                "Cancel AppointmeSnt",
                                 {
-                                  "partner_name": name,
-                                  "partner_id": this.subscriberId,
-                                  "user_id": context.read<UserData>().id,
-                                  "start_time": this.slot.startTime.toIso8601String(),
-                                  "end_time": this.slot.endTime.toIso8601String(),
+                                  "Partner Name": name,
+                                  "Partner Id": this.subscriberId,
+                                  "User Id": context.read<UserData>().id,
+                                  "Start Time": this.slot.startTime.toIso8601String(),
+                                  "End Time": this.slot.endTime.toIso8601String(),
                                 },
                               );
                               BlocProvider.of<BookingslistBloc>(primaryContext)
@@ -280,12 +274,6 @@ class ListItemFinished extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          // AnalyticsService()
-                          // .getAnalyticsObserver()
-                          // .analytics
-                          // .logEvent(
-                          //   name: "map_button_clicked",
-                          // );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -441,12 +429,6 @@ class ListItemCancelled extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          // AnalyticsService()
-                          //     .getAnalyticsObserver()
-                          //     .analytics
-                          //     .logEvent(
-                          //       name: "map_button_clicked",
-                          //     );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),

@@ -608,7 +608,7 @@ class _SignInScreenState extends State<SignInScreen>
                                                     .logEvent(
                                                   "Login Success",
                                                   {
-                                                    "route": "password",
+                                                    "Route": "password",
                                                   },
                                                 );
                                                 context

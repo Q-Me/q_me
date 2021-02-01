@@ -349,7 +349,7 @@ class AlertDialogRefactor extends StatelessWidget {
                 context.read<AnalyticsService>().logEvent(
                   "Logout Success",
                   {
-                    "phone": getUserDataFromStorage().phone,
+                    "Phone": getUserDataFromStorage().phone,
                   },
                 );
                 context.read<AnalyticsService>().updateUserProp();

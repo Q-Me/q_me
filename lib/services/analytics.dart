@@ -56,9 +56,9 @@ class AnalyticsService {
        route = "user";
     }
     analytics.logEvent("View Screen",eventProperties: {
-      "screen_id": screenId,
-      "source": "in_app",
-      "route": route,
+      "Screen Id": screenId,
+      "Source": "in_app",
+      "Route": route,
     });
   }
 }

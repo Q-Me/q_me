@@ -173,7 +173,7 @@ class IntroScreenState extends State<IntroScreen> {
                         context.read<AnalyticsService>().logEvent(
                           "Login Success",
                           {
-                            "route": "guest",
+                            "Route": "Guest",
                           },
                         );
                         Navigator.pushNamedAndRemoveUntil(

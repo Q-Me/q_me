@@ -203,12 +203,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         return RaisedButton(
                           onPressed: () {
                             context.read<AnalyticsService>().logEvent("Partner Rated", {
-                              "stars": stars.toString(),
-                              "partner_name": subscriberName,
-                              "partner_id": subscriberId,
-                              "user_id": context.read<UserData>().id,
-                              "start_time": slot.startTime,
-                              "end_time": slot.endTime,
+                              "Stars": stars.toString(),
+                              "Partner Name": subscriberName,
+                              "Partner Id": subscriberId,
+                              "User Id": context.read<UserData>().id,
+                              "Start Time": slot.startTime,
+                              "End Time": slot.endTime,
                             });
                             BlocProvider.of<ReviewBloc>(context)
                                 .add(ReviewPostRequested(
