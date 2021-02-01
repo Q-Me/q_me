@@ -1,5 +1,5 @@
 trigger:
-- azure-pipelines
+- CI-CD
 jobs:
   - job: Android
     pool:
