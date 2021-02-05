@@ -207,8 +207,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                               "Partner Name": subscriberName,
                               "Partner Id": subscriberId,
                               "User Id": context.read<UserData>().id,
-                              "Start Time": slot.startTime,
-                              "End Time": slot.endTime,
                             });
                             BlocProvider.of<ReviewBloc>(context)
                                 .add(ReviewPostRequested(

@@ -124,15 +124,6 @@ class _SlotViewState extends State<SlotView> {
                       return CircularProgressIndicator();
                     } else if (state is SlotViewStateInitial) {
                       logger.d(state);
-                      context.read<AnalyticsService>().logEvent(
-                        "Check Available Slots",
-                        {
-                          "Source": subscriber.id,
-                          "Route": context.read<UserData>().isGuest
-                              ? "Guest"
-                              : "User",
-                        },
-                      );
                       BlocProvider.of<SlotViewBloc>(context)
                           .add(DatedReceptionsRequested(date: DateTime.now()));
                       return Center(
@@ -189,11 +180,18 @@ class _SlotViewState extends State<SlotView> {
                                     context.read<AnalyticsService>().logEvent(
                                       "Slot Selected",
                                       {
-                                        "User id": context.read<UserData>().id,
-                                        "Start Time":
-                                            slot.startTime.toIso8601String(),
-                                        "End Time":
-                                            slot.endTime.toIso8601String(),
+                                        "User Id": context.read<UserData>().id,
+                                        "Partner Id": reception.subscriberId,
+                                        "Partner Name": subscriber.name,
+                                        "Reception Id": reception.id,
+                                        "Slot Start Date Time":
+                                            slot.startTime.toString(),
+                                        "Slot End Date Time":
+                                            slot.endTime.toString(),
+                                        "Reception Start Date Time":
+                                            reception.startTime.toString(),
+                                        "Reception End Date Time":
+                                            reception.endTime.toString(),
                                       },
                                     );
                                     BlocProvider.of<SlotViewBloc>(context).add(
@@ -235,7 +233,71 @@ class _SlotViewState extends State<SlotView> {
                     }
                     return Center(child: Text('Undetermined state'));
                   },
-                  listener: (context, state) {},
+                  listener: (context, state) async {
+                    if (state is NothingSelected) {
+                      int num, availableNum = 0;
+                      state.response.forEach((element) {
+                        num += element.slotList.length;
+                        element.slotList.forEach(
+                          (e) {
+                            if (!(!element.availableForBooking ||
+                                !e.availableForBooking ||
+                                e.startTime.isBefore(
+                                  DateTime.now().add(
+                                    BlocProvider.of<SlotViewBloc>(context)
+                                        .delay,
+                                  ),
+                                ))) {
+                              availableNum += 1;
+                            }
+                          },
+                        );
+                      });
+                      context.read<AnalyticsService>().logEvent(
+                        "View Slots of Date",
+                        <String, String>{
+                          "Source": "Partner Profile",
+                          "Route": context.read<UserData>().isGuest
+                              ? "Guest"
+                              : "User",
+// Guest when no login
+// User when the user is logged in from user app (applicable only in user app)
+// Partner when the user is out partner from Partner App (applicable only in Partner app)
+                          "Partner Id": subscriberId,
+                          "User Id": context.read<UserData>().id,
+                          "Selected Date": selectedDate.toString(),
+                          "Days Ahead": DateTime.now().difference(selectedDate).inDays.toString(),
+                          "Total Slots shown": num.toString(),
+// total slots that are shown to the user
+                          "Available Slots": availableNum.toString(),
+// Slots that can be booked
+                        },
+                      );
+                    } else if (state is BookedSlot) {
+                      int num = 0;
+                      num = state.reception.slotList.length;
+                      context.read<AnalyticsService>().logEvent(
+                        "View Slots of Date",
+                        <String, String>{
+                          "Source": "Partner Profile",
+                          "Route": context.read<UserData>().isGuest
+                              ? "Guest"
+                              : "User",
+// Guest when no login
+// User when the user is logged in from user app (applicable only in user app)
+// Partner when the user is out partner from Partner App (applicable only in Partner app)
+                          "Partner Id": subscriberId,
+                          "User Id": context.read<UserData>().id,
+                          "Selected Date": selectedDate.toString(),
+                          "Days Ahead": DateTime.now().difference(selectedDate).inDays.toString(),
+                          "Total Slots shown": num.toString(),
+// total slots that are shown to the user
+                          "Available Slots": "Slot already booked with this subscriber",
+// Slots that can be booked
+                        },
+                      );
+                    }
+                  },
                 ),
               ),
               ValueListenableBuilder(

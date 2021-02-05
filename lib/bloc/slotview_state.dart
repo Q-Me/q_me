@@ -19,7 +19,7 @@ class SlotViewStateInitial extends SlotViewState {
 class SlotViewLoading extends SlotViewState {}
 
 class NothingSelected extends SlotViewState {
-  final response;
+  final List<Reception> response;
 
   NothingSelected(this.response);
 

@@ -138,13 +138,13 @@ class ListItemBooked extends StatelessWidget {
                           new FlatButton(
                             onPressed: () async {
                               context.read<AnalyticsService>().logEvent(
-                                "Cancel AppointmeSnt",
+                                "Cancel Appointment",
                                 {
                                   "Partner Name": name,
                                   "Partner Id": this.subscriberId,
                                   "User Id": context.read<UserData>().id,
-                                  "Start Time": this.slot.startTime.toIso8601String(),
-                                  "End Time": this.slot.endTime.toIso8601String(),
+                                  "Slot Start Date Time": this.slot.startTime.toIso8601String(),
+                                  "Slot End Date Time": this.slot.endTime.toIso8601String(),
                                 },
                               );
                               BlocProvider.of<BookingslistBloc>(primaryContext)

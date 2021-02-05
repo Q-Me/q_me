@@ -344,14 +344,15 @@ class AlertDialogRefactor extends StatelessWidget {
             ),
             onPressed: () async {
               try {
-                await UserRepository().signOut();
-                Navigator.pushReplacementNamed(context, SignInScreen.id);
                 context.read<AnalyticsService>().logEvent(
                   "Logout Success",
                   {
-                    "Phone": getUserDataFromStorage().phone,
+                    "User Id": getUserDataFromStorage().id,
+                    "User Phone": getUserDataFromStorage().phone,
                   },
                 );
+                await UserRepository().signOut();
+                Navigator.pushReplacementNamed(context, SignInScreen.id);
                 context.read<AnalyticsService>().updateUserProp();
               } catch (e) {
                 logger.e(e.toString());
