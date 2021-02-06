@@ -26,8 +26,10 @@ class AnalyticsService {
     analytics.identify(identity);
   }
 
-  void logEvent(String name, Map<String, dynamic> description) =>
-      analytics.logEvent(name, eventProperties: description);
+  void logEvent(String name, Map<String, dynamic> description) {
+    updateUserProp();
+    analytics.logEvent(name, eventProperties: description);
+  }
 
   void updateUserProp({Map<String, dynamic> props}) {
     if (props == null) {
