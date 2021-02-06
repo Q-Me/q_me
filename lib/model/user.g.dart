@@ -29,14 +29,13 @@ class UserDataAdapter extends TypeAdapter<UserData> {
       isGuest: fields[8] as bool,
       password: fields[10] as String,
       idToken: fields[11] as String,
-      gender: fields[12] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserData obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -60,9 +59,7 @@ class UserDataAdapter extends TypeAdapter<UserData> {
       ..writeByte(10)
       ..write(obj.password)
       ..writeByte(11)
-      ..write(obj.idToken)
-      ..writeByte(12)
-      ..write(obj.gender);
+      ..write(obj.idToken);
   }
 
   @override

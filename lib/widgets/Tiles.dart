@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qme/bloc/subscriber_bloc/subscriber_bloc.dart';
-import 'package:qme/services/analytics.dart';
 
 import '../model/subscriber.dart';
 import '../views/subscriber.dart';
@@ -104,7 +103,6 @@ class SubscriberGridTile extends StatelessWidget {
           bottom: 5),
       child: GestureDetector(
         onTap: () {
-                      context.read<AnalyticsService>().setScreen("/subscriber");
 //          log('From Nearby (SubscriberGridTile) Going to Subscriber id:${subscriberData.id}');
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             BlocProvider.of<SubscriberBloc>(context)

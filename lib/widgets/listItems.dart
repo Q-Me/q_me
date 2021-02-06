@@ -6,7 +6,6 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:qme/bloc/bookings_screen_bloc/bookingslist_bloc.dart';
-import 'package:qme/model/slot.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/services/analytics.dart';
 import 'package:qme/views/review.dart';
@@ -20,20 +19,18 @@ class ListItemBooked extends StatelessWidget {
     @required this.otp,
     @required this.counterId,
     @required this.primaryContext,
-    @required this.subscriberId,
     @required this.latitude,
     @required this.longitude,
   }) : super(key: key);
 
   final String name;
   final String location;
-  final Slot slot;
+  final DateTime slot;
   final String otp;
   final String counterId;
   final BuildContext primaryContext;
   final double latitude;
   final double longitude;
-  final String subscriberId;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +75,12 @@ class ListItemBooked extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
+                          // AnalyticsService()
+                          //     .getAnalyticsObserver()
+                          //     .analytics
+                          //     .logEvent(
+                          //       name: "map_button_clicked",
+                          //     );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -94,10 +97,10 @@ class ListItemBooked extends StatelessWidget {
         ),
         TimeAndDateItem(
             icon: FontAwesomeIcons.calendarAlt,
-            description: "${DateFormat.yMMMMEEEEd().format(slot.startTime)}"),
+            description: "${DateFormat.yMMMMEEEEd().format(slot)}"),
         TimeAndDateItem(
             icon: FontAwesomeIcons.clock,
-            description: "${DateFormat.jm().format(slot.startTime)}"),
+            description: "${DateFormat.jm().format(slot)}"),
         SizedBox(
           height: 20,
         ),
@@ -137,16 +140,6 @@ class ListItemBooked extends StatelessWidget {
                         actions: <Widget>[
                           new FlatButton(
                             onPressed: () async {
-                              context.read<AnalyticsService>().logEvent(
-                                "Cancel Appointment",
-                                {
-                                  "Partner Name": name,
-                                  "Partner Id": this.subscriberId,
-                                  "User Id": context.read<UserData>().id,
-                                  "Slot Start Date Time": this.slot.startTime.toIso8601String(),
-                                  "Slot End Date Time": this.slot.endTime.toIso8601String(),
-                                },
-                              );
                               BlocProvider.of<BookingslistBloc>(primaryContext)
                                   .add(
                                 CancelRequested(
@@ -221,7 +214,7 @@ class ListItemFinished extends StatelessWidget {
 
   final String name;
   final String location;
-  final Slot slot;
+  final DateTime slot;
   final double rating;
   final String review;
   final String subscriberId;
@@ -274,6 +267,12 @@ class ListItemFinished extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
+                          // AnalyticsService()
+                              // .getAnalyticsObserver()
+                              // .analytics
+                              // .logEvent(
+                              //   name: "map_button_clicked",
+                              // );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),
@@ -290,10 +289,10 @@ class ListItemFinished extends StatelessWidget {
         ),
         TimeAndDateItem(
             icon: FontAwesomeIcons.calendarAlt,
-            description: "${DateFormat.yMMMMEEEEd().format(slot.startTime)}"),
+            description: "${DateFormat.yMMMMEEEEd().format(slot)}"),
         TimeAndDateItem(
             icon: FontAwesomeIcons.clock,
-            description: "${DateFormat.jm().format(slot.startTime)}"),
+            description: "${DateFormat.jm().format(slot)}"),
         SizedBox(
           height: 20,
         ),
@@ -429,6 +428,12 @@ class ListItemCancelled extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
+                          // AnalyticsService()
+                          //     .getAnalyticsObserver()
+                          //     .analytics
+                          //     .logEvent(
+                          //       name: "map_button_clicked",
+                          //     );
                           MapsLauncher.launchCoordinates(latitude, longitude);
                         },
                         icon: Icon(Icons.pin_drop),

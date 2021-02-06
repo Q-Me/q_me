@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:qme/services/analytics.dart';
+import 'package:qme/model/subscriber.dart';
+import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/appointment.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/initialScreen.dart';
@@ -15,11 +15,11 @@ import 'package:qme/views/slot_view.dart';
 import 'package:qme/views/subscriber.dart';
 import 'package:qme/views/booking_success.dart';
 
+import 'model/subscriber.dart';
 import 'views/signin.dart';
 import 'views/signup.dart';
 
-Route<dynamic> generateRoute(RouteSettings settings, BuildContext context) {
-  context.read<AnalyticsService>().setScreen(settings.name);
+Route<dynamic> generateRoute(RouteSettings settings) {
   // logger.d(settings.name);
   switch (settings.name) {
     case SignUpScreen.id:

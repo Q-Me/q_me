@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'user.g.dart';
@@ -30,23 +31,21 @@ class UserData extends HiveObject {
   String password;
   @HiveField(11)
   String idToken;
-  @HiveField(12)
-  String gender;
 
-  UserData(
-      {this.id,
-      this.name,
-      this.isUser,
-      this.accessToken,
-      this.refreshToken,
-      this.email,
-      this.phone,
-      this.expiry,
-      this.fcmToken,
-      this.isGuest,
-      this.password,
-      this.idToken,
-      this.gender});
+  UserData({
+    this.id,
+    this.name,
+    this.isUser,
+    this.accessToken,
+    this.refreshToken,
+    this.email,
+    this.phone,
+    this.expiry,
+    this.fcmToken,
+    this.isGuest,
+    this.password,
+    this.idToken,
+  });
 
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
         id: json["id"],
@@ -64,19 +63,6 @@ class UserData extends HiveObject {
         "refreshToken": refreshToken,
         "email": email,
         "phone": phone,
-      };
-
-  Map<String, dynamic> toCompleteJson() => {
-        "id": id != null ? id : "null",
-        "name": name != null ? name : "null",
-        "isUser": isUser != null ? isUser : "null",
-        "email": email != null ? email : "null",
-        "phone": phone != null ? phone : "null",
-        "expiry": expiry != null ? expiry : "null",
-        "fcmToken": fcmToken != null ? fcmToken : "null",
-        "isGuest": isGuest != null ? isGuest : "null",
-        "idToken": idToken != null ? idToken : "null",
-        "gender": gender != null ? gender : "null",
       };
 }
 

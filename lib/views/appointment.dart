@@ -8,9 +8,7 @@ import 'package:qme/bloc/booking_bloc.dart';
 import 'package:qme/model/reception.dart';
 import 'package:qme/model/slot.dart';
 import 'package:qme/model/subscriber.dart';
-import 'package:qme/model/user.dart';
 import 'package:qme/repository/appointment.dart';
-import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -75,18 +73,6 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                     borderRadius: BorderRadius.circular(5)),
                 onPressed: () {
                   logger.d("bookng");
-                  primaryContext.read<AnalyticsService>().logEvent(
-                    "Appointment Booked",
-                    {
-                      "User Id": primaryContext.read<UserData>().id,
-                      "Partner Id": subscriber.id,
-                      "Partner Name": subscriber.name,
-                      "Reception Id": reception.id,
-                      "Booking Date Time": DateTime.now().toString(),
-                      "Slot Start Date Time": slot.startTime.toString(),
-                    "Slot End Date Time": slot.endTime.toString(),
-                    },
-                  );
                   BlocProvider.of<BookingBloc>(primaryContext)
                       .add(BookingRequested(
                     subscriber.id,

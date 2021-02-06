@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:qme/services/analytics.dart';
 import 'package:qme/views/contact_us.dart';
-import 'package:provider/provider.dart';
 
 class AboutUsView extends StatelessWidget {
   @override
@@ -86,7 +84,6 @@ class ConnectWithUsBtn extends StatelessWidget {
     return Center(
       child: RaisedButton(
         onPressed: () {
-          context.read<AnalyticsService>().setScreen("/contact_us");
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return ContactUsView();
           }));

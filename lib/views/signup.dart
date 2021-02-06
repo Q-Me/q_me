@@ -44,7 +44,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool checkedValue = false;
   final formKey = GlobalKey<FormState>();
   Map<String, String> formData = {};
-  String gender = "";
 
   final _codeController = TextEditingController();
   String _fcmToken;
@@ -74,9 +73,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 textColor: Colors.white,
                 color: Theme.of(context).primaryColor,
                 onPressed: () async {
-                  Navigator.pushNamedAndRemoveUntil(
+                  Navigator.pushAndRemoveUntil(
                     context,
-                    SignInScreen.id,
+                    MaterialPageRoute(
+                      builder: (context) => SignInScreen(),
+                    ),
                     (route) => false,
                   );
                 },
@@ -333,67 +334,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         SizedBox(height: 10.0),
                         Container(
-                          alignment: Alignment.centerLeft,
-                          child: Text("Gender"),
-                        ),
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          child: Wrap(
-                            alignment: WrapAlignment.start,
-                            spacing: 10,
-                            children: [
-                              ChoiceChip(
-                                label: Text("Male"),
-                                selected: gender == "Male",
-                                onSelected: (_) {
-                                  if (gender != "Male") {
-                                    setState(() {
-                                      gender = "Male";
-                                    });
-                                  } else {
-                                    setState(() {
-                                      gender = "";
-                                    });
-                                  }
-                                },
-                              ),
-                              ChoiceChip(
-                                label: Text("Female"),
-                                selected: gender == "Female",
-                                onSelected: (_) {
-                                  if (gender != "Female") {
-                                    setState(() {
-                                      gender = "Female";
-                                    });
-                                  } else {
-                                    setState(() {
-                                      gender = "";
-                                    });
-                                  }
-                                },
-                              ),
-                              ChoiceChip(
-                                label: Text("Other"),
-                                selected: gender == "Other",
-                                onSelected: (_) {
-                                  if (gender != "Other") {
-                                    setState(() {
-                                      gender = "Other";
-                                    });
-                                  } else {
-                                    setState(() {
-                                      gender = "";
-                                    });
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
                           child: TextFormField(
                             keyboardType: TextInputType.phone,
                             controller: _phoneController,
@@ -582,16 +522,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     );
                                     return null;
                                   }
-                                  if (gender == "") {
-                                    Scaffold.of(context).hideCurrentSnackBar();
-                                    Scaffold.of(context).showSnackBar(
-                                      SnackBar(
-                                        content:
-                                            Text("Please select your gender"),
-                                      ),
-                                    );
-                                    return null;
-                                  }
+
                                   Scaffold.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text('Processing Data'),
@@ -613,7 +544,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   user.email = formData['email'];
 
                                   user.fcmToken = _fcmToken;
-                                  user.gender = gender;
                                   updateUserData(user);
                                   showDialog(
                                     context: context,
@@ -703,9 +633,9 @@ class DisagreeButton extends StatelessWidget {
       textColor: Colors.white,
       color: Theme.of(context).primaryColor,
       onPressed: () {
-        Navigator.pushNamedAndRemoveUntil(
+        Navigator.pushAndRemoveUntil(
           context,
-          SignInScreen.id,
+          MaterialPageRoute(builder: (context) => SignInScreen()),
           (route) => false,
         );
       },

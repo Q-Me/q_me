@@ -9,7 +9,6 @@ import 'package:hive/hive.dart';
 import 'package:qme/constants.dart';
 import 'package:qme/model/user.dart';
 import 'package:qme/repository/user.dart';
-import 'package:qme/services/analytics.dart';
 import 'package:qme/services/firebase_auth_service.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
@@ -603,17 +602,7 @@ class _SignInScreenState extends State<SignInScreen>
                                                   return;
                                                 }
                                                 // FCM token success
-                                                context
-                                                    .read<AnalyticsService>()
-                                                    .logEvent(
-                                                  "Login Success",
-                                                  {
-                                                    "Route": "password",
-                                                  },
-                                                );
-                                                context
-                                                    .read<AnalyticsService>()
-                                                    .updateUserProp();
+
                                                 Navigator
                                                     .pushNamedAndRemoveUntil(
                                                         context,

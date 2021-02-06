@@ -3,14 +3,12 @@ import 'package:hive/hive.dart';
 import 'package:intro_slider/dot_animation_enum.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
-import 'package:qme/model/user.dart';
 import 'package:qme/services/analytics.dart';
 import 'package:qme/repository/user.dart';
 import 'package:qme/utilities/logger.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/signin.dart';
 import 'package:qme/views/signup.dart';
-import 'package:provider/provider.dart';
 
 class IntroScreen extends StatefulWidget {
   static const String id = "/introScreen";
@@ -101,10 +99,6 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
-                      context.read<AnalyticsService>().logEvent(
-                        "Signup Clicked",
-                        {},
-                      );
                       Navigator.pushNamed(context, SignUpScreen.id);
                     },
                     child: Text("Sign Up",
@@ -133,10 +127,6 @@ class IntroScreenState extends State<IntroScreen> {
                       )),
                   RaisedButton(
                     onPressed: () {
-                      context.read<AnalyticsService>().logEvent(
-                        "Login Clicked",
-                        {},
-                      );
                       Navigator.pushNamedAndRemoveUntil(
                           context, SignInScreen.id, (route) => false);
                     },
@@ -169,18 +159,8 @@ class IntroScreenState extends State<IntroScreen> {
                       logger.i('Skip for now');
                       try {
                         await UserRepository().guestLogin();
-                        context.read<AnalyticsService>().updateUserProp();
-                        context.read<AnalyticsService>().logEvent(
-                          "Login Success",
-                          {
-                            "Route": "Guest",
-                          },
-                        );
                         Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          HomeScreen.id,
-                          (route) => false,
-                        );
+                            context, HomeScreen.id, (route) => false);
                       } catch (e) {
                         key.currentState.showSnackBar(
                           SnackBar(
