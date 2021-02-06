@@ -1,5 +1,6 @@
 trigger:
-- CI-CD
+- "CI-CD"
+- dev
 jobs:
   - job: Android
     pool:
