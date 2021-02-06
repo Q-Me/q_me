@@ -4,6 +4,9 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:qme/bloc/review_bloc/review_bloc.dart';
+import 'package:qme/model/slot.dart';
+import 'package:qme/model/user.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/logger.dart';
 
 class ReviewScreenArguments {
@@ -11,7 +14,7 @@ class ReviewScreenArguments {
   final String subscriberId;
   final String name;
   final String subscriberName;
-  final DateTime slot;
+  final Slot slot;
   final double rating;
   final String review;
   final String location;
@@ -44,7 +47,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   String get subscriberId => widget.args.subscriberId;
   String get subscriberName => widget.args.subscriberName;
   String get name => widget.args.name;
-  DateTime get slot => widget.args.slot;
+  Slot get slot => widget.args.slot;
   String get location => widget.args.location;
   String get reviewPrevious => widget.args.review ?? "";
   double get rating => widget.args.rating ?? 0.0;
@@ -138,9 +141,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       height: 30,
                     ),
                     listItem(FontAwesomeIcons.solidCalendarAlt,
-                        "${DateFormat.yMMMMEEEEd().format(slot)}"),
+                        "${DateFormat.yMMMMEEEEd().format(slot.startTime)}"),
                     listItem(FontAwesomeIcons.clock,
-                        "${DateFormat.jm().format(slot)}"),
+                        "${DateFormat.jm().format(slot.startTime)}"),
                     SizedBox(
                       height: 30,
                     ),
@@ -199,6 +202,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       builder: (context, state) {
                         return RaisedButton(
                           onPressed: () {
+                            context.read<AnalyticsService>().logEvent("Partner Rated", {
+                              "Stars": stars.toString(),
+                              "Partner Name": subscriberName,
+                              "Partner Id": subscriberId,
+                              "User Id": context.read<UserData>().id,
+                            });
                             BlocProvider.of<ReviewBloc>(context)
                                 .add(ReviewPostRequested(
                               subscriberId: subscriberId,

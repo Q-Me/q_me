@@ -59,17 +59,14 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: Duration(milliseconds: 500), curve: Curves.ease);
     Provider.of<HomeViewPageIndex>(context, listen: false).changeIndex(index);
     indexOfPage.put("index", index);
-    // if (index == 0) {
-    //   _observer.analytics.setCurrentScreen(screenName: "Home Screen");
-    //   logger.i("logging firebase with screen index $index");
-    // } else if (index == 1) {
-    //   _observer.analytics.setCurrentScreen(screenName: "My Bookings Screen");
-    //   logger.i("logging firebase with screen index $index");
-    // } else {
-    //   _observer.analytics.setCurrentScreen(screenName: "Menu Screen");
-    //   logger.i("logging firebase with screen index $index");
-    // }
-    // logger.d('Navigation bar index: $_selectedIndex');
+    AnalyticsService analyticsService = context.read<AnalyticsService>();
+    if (index == 0) {
+      analyticsService.setScreen("/home");
+    } else if (index == 1) {
+      analyticsService.setScreen("/myBookingsScreen");
+    } else {
+      analyticsService.setScreen("/menu");
+    }
   }
 
   final FirebaseMessaging _messaging = FirebaseMessaging();
@@ -183,6 +180,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               listen: false)
                           .changeIndex(index);
                       indexOfPage.put("index", index);
+                      AnalyticsService analyticsService =
+                          context.read<AnalyticsService>();
+                      if (index == 0) {
+                        analyticsService.setScreen("/home");
+                      } else if (index == 1) {
+                        analyticsService.setScreen("/myBookingsScreen");
+                      } else {
+                        analyticsService.setScreen("/menu");
+                      }
                       // if (index == 0) {
                       //   _observer.analytics
                       //       .setCurrentScreen(screenName: "Home Screen");
@@ -504,6 +510,13 @@ class SubscriberBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        context.read<AnalyticsService>().logEvent(
+          "View Partner Screen",
+          {
+            "Partner Id": subscriber.id,
+            "Partner Name": subscriber.name,
+          },
+        );
         Navigator.pushNamed(
           context,
           SubscriberScreen.id,
@@ -773,6 +786,7 @@ class NewsBanner extends StatelessWidget {
         child: Ink(
           child: InkWell(
             onTap: () {
+              context.read<AnalyticsService>().setScreen("/survey");
               Navigator.push(
                 context,
                 MaterialPageRoute(

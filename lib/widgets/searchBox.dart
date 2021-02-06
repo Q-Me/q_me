@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qme/bloc/home_bloc/home_bloc.dart';
 import 'package:qme/model/location.dart';
+import 'package:qme/services/analytics.dart';
 import 'package:qme/utilities/location.dart';
 import 'package:qme/views/set_location.dart';
 
@@ -22,6 +23,7 @@ class SearchBox extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () async {
                     LocationData _locationData = await getLocation(override: false);
+                      context.read<AnalyticsService>().setScreen("/set_location");
                     LocationData _result = await Navigator.push(
                       context,
                       MaterialPageRoute(
