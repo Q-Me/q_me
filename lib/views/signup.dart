@@ -73,11 +73,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 textColor: Colors.white,
                 color: Theme.of(context).primaryColor,
                 onPressed: () async {
-                  Navigator.pushAndRemoveUntil(
+                  Navigator.pushNamedAndRemoveUntil(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => SignInScreen(),
-                    ),
+                    SignInScreen.id,
                     (route) => false,
                   );
                 },
@@ -633,9 +631,9 @@ class DisagreeButton extends StatelessWidget {
       textColor: Colors.white,
       color: Theme.of(context).primaryColor,
       onPressed: () {
-        Navigator.pushAndRemoveUntil(
+        Navigator.pushNamedAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => SignInScreen()),
+          SignInScreen.id,
           (route) => false,
         );
       },
