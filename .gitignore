@@ -49,3 +49,7 @@ API\ FORMAT.json
 /.idea/
 /.vscode/* 
 /--obfuscate/
+
+# Generated files
+lib/model/user.g.dart
+lib/model/location.g.dart
