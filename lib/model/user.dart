@@ -30,21 +30,23 @@ class UserData extends HiveObject {
   String password;
   @HiveField(11)
   String idToken;
+  @HiveField(12)
+  String gender;
 
-  UserData({
-    this.id,
-    this.name,
-    this.isUser,
-    this.accessToken,
-    this.refreshToken,
-    this.email,
-    this.phone,
-    this.expiry,
-    this.fcmToken,
-    this.isGuest,
-    this.password,
-    this.idToken,
-  });
+  UserData(
+      {this.id,
+      this.name,
+      this.isUser,
+      this.accessToken,
+      this.refreshToken,
+      this.email,
+      this.phone,
+      this.expiry,
+      this.fcmToken,
+      this.isGuest,
+      this.password,
+      this.idToken,
+      this.gender});
 
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
         id: json["id"],
@@ -74,6 +76,7 @@ class UserData extends HiveObject {
         "fcmToken": fcmToken != null ? fcmToken : "null",
         "isGuest": isGuest != null ? isGuest : "null",
         "idToken": idToken != null ? idToken : "null",
+        "gender": gender != null ? gender : "null",
       };
 }
 
