@@ -1,4 +1,6 @@
 trigger:
+- "CI-CD"
+- dev
 - release
 jobs:
   - job: Android
@@ -10,7 +12,7 @@ jobs:
           targetType: 'inline'
           script: |
             sudo snap install flutter --classic
-            sed -i 's/4000/3000' ./lib/api/kAPI.dart
+            # sed -i 's/4000/3000' ./lib/api/kAPI.dart
             flutter pub get
             flutter build apk --debug
             flutter build apk --profile 

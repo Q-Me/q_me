@@ -10,6 +10,7 @@ import 'package:maps_launcher/maps_launcher.dart';
 import 'package:qme/bloc/subscriber_bloc/subscriber_bloc.dart';
 import 'package:qme/model/review.dart';
 import 'package:qme/model/subscriber.dart';
+import 'package:qme/model/user.dart';
 import 'package:qme/services/analytics.dart';
 import 'package:qme/views/home.dart';
 import 'package:qme/views/slot_view.dart';
@@ -179,6 +180,13 @@ class CheckAvailableSlotsButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(18.0),
       ),
       onPressed: () {
+                      context.read<AnalyticsService>().logEvent(
+                        "Check Available Slots",
+                        {
+                          "Partner Id": subscriber.id,
+                          "Partner Name": subscriber.name,
+                        },
+                      );
         Navigator.pushReplacementNamed(context, SlotView.id,
             arguments: SlotViewArguments(subscriber: subscriber));
       },
