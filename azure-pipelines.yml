@@ -1,6 +1,4 @@
 trigger:
-- "CI-CD"
-- dev
 - release
 jobs:
   - job: Android
