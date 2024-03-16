@@ -1,6 +1,12 @@
 # Q Me
-
 ![Made with Flutter](https://img.shields.io/badge/Made%20With-Flutter-blue?style=flat-square)
+<br>
+<a target="_blank" href="https://www.youtube.com/watch?v=bcQtysukKo8">
+<img width="897" alt="image" src="https://github.com/Q-Me/q_me/assets/5148334/7602a069-8193-4c8e-86e6-19229d3e4408">
+</a>
+
+[See Full Video](https://www.youtube.com/watch?v=bcQtysukKo8)
+
 
 ## Getting Started
 
